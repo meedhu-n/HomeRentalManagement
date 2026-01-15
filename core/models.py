@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.conf import settings
 
 # 1. Custom User Model
 class User(AbstractUser):
@@ -10,8 +10,10 @@ class User(AbstractUser):
         TENANT = "TENANT", "Tenant"
 
     role = models.CharField(max_length=50, choices=Role.choices, default=Role.TENANT)
-    
-    # Add unique related_name to fix conflict with auth.User
+    profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+
+    # Fix conflicts with auth.User
     groups = models.ManyToManyField(
         'auth.Group',
         related_name='custom_user_set',
@@ -30,24 +32,27 @@ class User(AbstractUser):
 # 2. Property Model
 class Property(models.Model):
     class Status(models.TextChoices):
-        PENDING = "PENDING", "Pending"
-        APPROVED = "APPROVED", "Approved"
-        REJECTED = "REJECTED", "Rejected"
+        AVAILABLE = "AVAILABLE", "Available"
+        RENTED = "RENTED", "Rented"
+        MAINTENANCE = "MAINTENANCE", "Maintenance"
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='properties')
     title = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     location = models.CharField(max_length=255)
-    property_type = models.CharField(max_length=100)  # e.g., Apartment, Villa
-    status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING)
-    rejection_reason = models.TextField(blank=True, null=True)
+    property_type = models.CharField(max_length=100)
+    amenities = models.TextField(help_text="Comma-separated list of amenities", blank=True)
+    status = models.CharField(max_length=50, choices=Status.choices, default=Status.AVAILABLE)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Properties"
 
     def __str__(self):
         return self.title
 
-# 3. Property Images Model
 class PropertyImage(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='property_images/')
@@ -55,12 +60,71 @@ class PropertyImage(models.Model):
     def __str__(self):
         return f"Image for {self.property.title}"
 
-# 4. Inquiry Model (Added based on requirements)
+# 3. Rental Application (New)
+class RentalApplication(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "PENDING", "Pending"
+        APPROVED = "APPROVED", "Approved"
+        REJECTED = "REJECTED", "Rejected"
+
+    tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications')
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='applications')
+    application_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    message = models.TextField(blank=True)
+    
+    def __str__(self):
+        return f"Application by {self.tenant.username} for {self.property.title}"
+
+# 4. Lease/Contract (New)
+class Lease(models.Model):
+    tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='leases')
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='leases')
+    start_date = models.DateField()
+    end_date = models.DateField()
+    monthly_rent = models.DecimalField(max_digits=10, decimal_places=2)
+    document = models.FileField(upload_to='leases/', blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Lease: {self.property.title} - {self.tenant.username}"
+
+# 5. Maintenance Request (New)
+class MaintenanceRequest(models.Model):
+    class Priority(models.TextChoices):
+        LOW = "LOW", "Low"
+        MEDIUM = "MEDIUM", "Medium"
+        HIGH = "HIGH", "High"
+        EMERGENCY = "EMERGENCY", "Emergency"
+
+    class Status(models.TextChoices):
+        OPEN = "OPEN", "Open"
+        IN_PROGRESS = "IN_PROGRESS", "In Progress"
+        RESOLVED = "RESOLVED", "Resolved"
+
+    tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='maintenance_requests')
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='maintenance_requests')
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    priority = models.CharField(max_length=20, choices=Priority.choices, default=Priority.MEDIUM)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.OPEN)
+    image = models.ImageField(upload_to='maintenance/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.priority} - {self.title}"
+
+# 6. Inquiry (Existing)
 class Inquiry(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='inquiries')
     tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_inquiries')
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Inquiries"
 
     def __str__(self):
         return f"Inquiry from {self.tenant.username} for {self.property.title}"
