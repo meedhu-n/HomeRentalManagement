@@ -3,452 +3,540 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HomeRental - Find Your Perfect Home</title>
-    <!-- Bootstrap 5 CSS -->
+    <title>HomeRental | Don't Settle</title>
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts: 'Anton' for impact, 'Space Grotesk' for modern Sass -->
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary-color: #2563eb;
-            --secondary-color: #1e40af;
-            --accent-color: #f59e0b;
-            --text-dark: #1f2937;
-            --text-light: #6b7280;
-            --bg-light: #f3f4f6;
+            --bg-core: #080808;
+            --bg-surface: #111111;
+            --acid-green: #CCFF00; /* The "Sassy" Accent */
+            --white: #ffffff;
+            --gray: #888888;
+            --border-color: rgba(255, 255, 255, 0.15);
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            color: var(--text-dark);
-            background-color: #fff;
+            background-color: var(--bg-core);
+            color: var(--white);
+            font-family: 'Space Grotesk', sans-serif;
+            overflow-x: hidden;
         }
 
-        /* Navbar */
+        h1, h2, h3, h4, .navbar-brand {
+            font-family: 'Anton', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* --- Utilities --- */
+        .text-acid { color: var(--acid-green) !important; }
+        .bg-acid { background-color: var(--acid-green) !important; color: #000 !important; }
+        
+        /* --- Animations --- */
+        @keyframes slideUpReveal {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .reveal-text {
+            animation: slideUpReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+
+        /* --- Navbar --- */
         .navbar {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            background: white;
-            padding: 1rem 0;
+            padding: 1.5rem 0;
+            background: rgba(8, 8, 8, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .navbar-brand {
-            font-weight: 700;
-            color: var(--primary-color);
-            font-size: 1.5rem;
+            font-size: 1.8rem;
+            color: var(--white);
         }
+        
+        .navbar-brand span { color: var(--acid-green); }
 
         .nav-link {
-            font-weight: 500;
-            color: var(--text-dark);
-            margin-left: 1rem;
-        }
-
-        .nav-link:hover {
-            color: var(--primary-color);
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border: none;
-            padding: 0.5rem 1.5rem;
             font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            margin: 0 15px;
+            position: relative;
+            color: var(--gray) !important;
+            transition: 0.3s;
         }
 
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
+        .nav-link:hover { color: var(--white) !important; }
+        
+        .nav-link::before {
+            content: '//';
+            color: var(--acid-green);
+            margin-right: 5px;
+            opacity: 0;
+            transition: 0.3s;
+        }
+        
+        .nav-link:hover::before { opacity: 1; }
+
+        .btn-acid {
+            background: transparent;
+            border: 2px solid var(--acid-green);
+            color: var(--acid-green);
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 10px 30px;
+            font-family: 'Space Grotesk', sans-serif;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
         }
 
-        /* Hero Section */
+        .btn-acid:hover {
+            background: var(--acid-green);
+            color: #000;
+            box-shadow: 0 0 20px rgba(204, 255, 0, 0.4);
+        }
+
+        /* --- Hero Section --- */
         .hero-section {
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
-            background-size: cover;
-            background-position: center;
-            height: 600px;
+            min-height: 90vh;
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: white;
             position: relative;
+            border-bottom: 1px solid var(--border-color);
+            overflow: hidden;
         }
 
-        .hero-content {
-            text-align: center;
-            max-width: 800px;
-            padding: 0 20px;
+        .hero-bg {
+            position: absolute;
+            top: 0; right: 0;
+            width: 50%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1600607687644-c7171b42498f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80') center/cover;
+            filter: grayscale(100%);
+            opacity: 0.3;
+            z-index: -1;
+            mask-image: linear-gradient(to left, black, transparent);
+            -webkit-mask-image: linear-gradient(to left, black, transparent);
         }
 
         .hero-title {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 7vw;
+            line-height: 0.9;
+            margin-bottom: 2rem;
         }
 
-        .search-box {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            margin-top: 2rem;
+        .hero-title .outline {
+            -webkit-text-stroke: 2px var(--white);
+            color: transparent;
+            transition: 0.5s;
+        }
+        
+        .hero-title:hover .outline {
+            color: var(--acid-green);
+            -webkit-text-stroke: 2px var(--acid-green);
         }
 
-        /* Features Section */
-        .features-section {
-            padding: 5rem 0;
-            background-color: var(--bg-light);
+        .hero-tag {
+            border-left: 3px solid var(--acid-green);
+            padding-left: 20px;
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 400px;
         }
 
-        .feature-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            text-align: center;
-            transition: transform 0.3s ease;
-            height: 100%;
-            border: 1px solid rgba(0,0,0,0.05);
+        /* --- Search Bar (Brutalist Style) --- */
+        .search-strip {
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 2rem 0;
         }
 
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        .form-brutal {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--white);
+            height: 60px;
+            padding: 0 20px;
+            width: 100%;
+            font-weight: 600;
+            transition: 0.3s;
         }
 
-        .feature-icon {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
+        .form-brutal:focus {
+            border-color: var(--acid-green);
+            outline: none;
+            background: rgba(204, 255, 0, 0.05);
         }
 
-        /* Property Listings */
-        .listings-section {
-            padding: 5rem 0;
-        }
-
-        .property-card {
+        .btn-search {
+            height: 60px;
+            width: 100%;
+            background: var(--acid-green);
             border: none;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-            height: 100%;
+            color: black;
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            font-family: 'Anton', sans-serif;
+            letter-spacing: 1px;
+            transition: 0.3s;
         }
 
-        .property-card:hover {
+        .btn-search:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            box-shadow: 5px 5px 0px var(--white);
         }
 
-        .property-img-wrapper {
-            position: relative;
-            height: 220px;
+        /* --- Running Ticker --- */
+        .ticker-wrap {
+            width: 100%;
             overflow: hidden;
+            background-color: var(--acid-green);
+            color: black;
+            padding: 10px 0;
+            font-family: 'Anton', sans-serif;
+            text-transform: uppercase;
+            font-size: 1.5rem;
+            white-space: nowrap;
         }
 
-        .property-img {
+        .ticker {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+
+        .ticker-item {
+            display: inline-block;
+            padding: 0 2rem;
+        }
+
+        /* --- Listings --- */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card-brutal {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            position: relative;
+            transition: 0.4s;
+            cursor: pointer;
+        }
+
+        .card-img-container {
+            height: 300px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            filter: grayscale(100%);
+            transition: 0.5s;
         }
 
-        .badge-status {
+        .card-brutal:hover .card-img {
+            filter: grayscale(0%);
+            transform: scale(1.1);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .card-price {
             position: absolute;
-            top: 15px;
-            left: 15px;
-            background: rgba(37, 99, 235, 0.9);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .property-price {
-            color: var(--primary-color);
-            font-size: 1.25rem;
+            top: -20px;
+            right: 1.5rem;
+            background: var(--white);
+            color: black;
+            padding: 10px 20px;
             font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            transform: skew(-10deg);
+            transition: 0.3s;
+        }
+        
+        .card-brutal:hover .card-price {
+            background: var(--acid-green);
         }
 
-        /* Footer */
-        .footer {
-            background-color: #111827;
-            color: white;
-            padding: 4rem 0 2rem;
+        .card-title {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
         }
 
-        .footer a {
-            color: #9ca3af;
-            text-decoration: none;
+        .card-meta {
+            color: var(--gray);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .footer a:hover {
-            color: white;
+        .card-brutal:hover {
+            border-color: var(--acid-green);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5rem;
-            }
-            .search-box {
-                padding: 15px;
-            }
+        /* --- Footer --- */
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 5rem 0;
+            background: #000;
+        }
+
+        .footer-big-text {
+            font-family: 'Anton', sans-serif;
+            font-size: 12vw;
+            line-height: 1;
+            color: #1a1a1a;
+            text-align: center;
+            user-select: none;
+            transition: 0.5s;
+        }
+
+        .footer-big-text:hover {
+            color: var(--acid-green);
+            cursor: default;
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation -->
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="#"><i class="fas fa-home me-2"></i>HomeRental</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <div class="container-fluid px-5">
+            <a class="navbar-brand" href="#">HOME<span>RENTAL</span></a>
+            <button class="navbar-toggler bg-acid" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#listings">Properties</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#how-it-works">How it Works</a>
-                    </li>
-                    <li class="nav-item ms-lg-3">
-                        <a class="btn btn-outline-primary me-2" href="#">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-primary" href="#">Register</a>
+                    <li class="nav-item"><a class="nav-link" href="#">The List</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">How It Works</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Journal</a></li>
+                    <li class="nav-item ms-4">
+                        <a href="#" class="btn-acid">Client Access</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <header class="hero-section">
-        <div class="hero-content">
-            <h1 class="hero-title">Find Your Next Home without the Hassle</h1>
-            <p class="lead mb-4">Direct connections between owners and verified tenants. No hidden commissions.</p>
-            
-            <!-- Search Widget -->
-            <div class="search-box">
-                <form class="row g-3">
-                    <div class="col-md-4">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i class="fas fa-map-marker-alt text-muted"></i></span>
-                            <input type="text" class="form-control border-start-0" placeholder="Location (e.g. Delhi, Mumbai)">
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option selected>Property Type</option>
-                            <option value="1">Apartment</option>
-                            <option value="2">Independent House</option>
-                            <option value="3">Villa</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select class="form-select">
-                            <option selected>Budget Range</option>
-                            <option value="1">₹5k - ₹15k</option>
-                            <option value="2">₹15k - ₹30k</option>
-                            <option value="3">₹30k - ₹50k</option>
-                            <option value="4">₹50k+</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-primary w-100">Search</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </header>
-
-    <!-- How it Works -->
-    <section id="how-it-works" class="features-section">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="fw-bold">How It Works</h2>
-                <p class="text-muted">Simple, transparent, and direct.</p>
-            </div>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-search-location"></i>
-                        </div>
-                        <h4>1. Search</h4>
-                        <p class="text-muted">Browse verified listings by location, price, and property type.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-envelope-open-text"></i>
-                        </div>
-                        <h4>2. Inquire</h4>
-                        <p class="text-muted">Contact the owner directly through our secure platform. No middlemen.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-key"></i>
-                        </div>
-                        <h4>3. Move In</h4>
-                        <p class="text-muted">Finalize details with the owner and move into your new home.</p>
+    <!-- Hero -->
+    <section class="hero-section">
+        <div class="hero-bg"></div>
+        <div class="container-fluid px-5">
+            <div class="row">
+                <div class="col-lg-8">
+                    <h1 class="hero-title reveal-text">
+                        WE REJECT THE <br>
+                        <span class="outline">AVERAGE.</span> <br>
+                        SO SHOULD YOU.
+                    </h1>
+                    <div class="hero-tag reveal-text delay-2">
+                        We curate the top 1% of rentals. 
+                        No beige walls. No fluorescent lights. 
+                        Just pure architectural flex.
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Featured Listings (Static Mockup) -->
-    <section id="listings" class="listings-section">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold">Recent Listings</h2>
-                <a href="#" class="btn btn-outline-primary">View All</a>
-            </div>
-            <div class="row g-4">
-                <!-- Listing 1 -->
-                <div class="col-md-4">
-                    <div class="property-card bg-white">
-                        <div class="property-img-wrapper">
-                            <span class="badge-status">Verified</span>
-                            <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="property-img" alt="Apartment">
-                        </div>
-                        <div class="p-4">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <h5 class="card-title mb-1">Luxury 2BHK Apartment</h5>
-                                    <p class="text-muted small mb-0"><i class="fas fa-map-marker-alt me-1"></i>Indiranagar, Bangalore</p>
-                                </div>
-                                <div class="property-price">₹25,000</div>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between text-muted small">
-                                <span><i class="fas fa-bed me-1"></i> 2 Beds</span>
-                                <span><i class="fas fa-bath me-1"></i> 2 Baths</span>
-                                <span><i class="fas fa-ruler-combined me-1"></i> 1200 sqft</span>
-                            </div>
-                            <button class="btn btn-primary w-100 mt-3">View Details</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Listing 2 -->
-                <div class="col-md-4">
-                    <div class="property-card bg-white">
-                        <div class="property-img-wrapper">
-                            <span class="badge-status">New</span>
-                            <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="property-img" alt="Apartment">
-                        </div>
-                        <div class="p-4">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <h5 class="card-title mb-1">Cozy Studio</h5>
-                                    <p class="text-muted small mb-0"><i class="fas fa-map-marker-alt me-1"></i>Koramangala, Bangalore</p>
-                                </div>
-                                <div class="property-price">₹12,000</div>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between text-muted small">
-                                <span><i class="fas fa-bed me-1"></i> 1 Bed</span>
-                                <span><i class="fas fa-bath me-1"></i> 1 Bath</span>
-                                <span><i class="fas fa-ruler-combined me-1"></i> 500 sqft</span>
-                            </div>
-                            <button class="btn btn-primary w-100 mt-3">View Details</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Listing 3 -->
-                <div class="col-md-4">
-                    <div class="property-card bg-white">
-                        <div class="property-img-wrapper">
-                            <span class="badge-status">Featured</span>
-                            <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="property-img" alt="House">
-                        </div>
-                        <div class="p-4">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <h5 class="card-title mb-1">Independent Villa</h5>
-                                    <p class="text-muted small mb-0"><i class="fas fa-map-marker-alt me-1"></i>Whitefield, Bangalore</p>
-                                </div>
-                                <div class="property-price">₹45,000</div>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between text-muted small">
-                                <span><i class="fas fa-bed me-1"></i> 3 Beds</span>
-                                <span><i class="fas fa-bath me-1"></i> 3 Baths</span>
-                                <span><i class="fas fa-ruler-combined me-1"></i> 2100 sqft</span>
-                            </div>
-                            <button class="btn btn-primary w-100 mt-3">View Details</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Ticker -->
+    <div class="ticker-wrap">
+        <div class="ticker">
+            <div class="ticker-item">NO HIDDEN FEES</div>
+            <div class="ticker-item">•</div>
+            <div class="ticker-item">VERIFIED OWNERS</div>
+            <div class="ticker-item">•</div>
+            <div class="ticker-item">24/7 CONCIERGE</div>
+            <div class="ticker-item">•</div>
+            <div class="ticker-item">NOT YOUR GRANDMA'S APARTMENT</div>
+            <div class="ticker-item">•</div>
+            <div class="ticker-item">LUXURY IS A STANDARD</div>
+            <div class="ticker-item">•</div>
+            <div class="ticker-item">NO HIDDEN FEES</div>
+            <div class="ticker-item">•</div>
+            <div class="ticker-item">VERIFIED OWNERS</div>
+            <div class="ticker-item">•</div>
         </div>
-    </section>
+    </div>
 
-    <!-- Call to Action -->
-    <section class="py-5 bg-white">
+    <!-- Search Strip -->
+    <div class="search-strip">
         <div class="container">
-            <div class="row align-items-center rounded-3 overflow-hidden bg-primary text-white p-5">
-                <div class="col-md-8">
-                    <h2 class="fw-bold mb-3">Are you a Property Owner?</h2>
-                    <p class="lead mb-0">List your property today and connect with thousands of verified tenants directly. Manage everything from one dashboard.</p>
+            <form>
+                <div class="row g-0">
+                    <div class="col-lg-4">
+                        <input type="text" class="form-brutal" placeholder="WHERE TO? (e.g. NYC, LA)">
+                    </div>
+                    <div class="col-lg-3">
+                        <select class="form-brutal">
+                            <option>TYPE: PENTHOUSE</option>
+                            <option>TYPE: LOFT</option>
+                            <option>TYPE: VILLA</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
+                        <select class="form-brutal">
+                            <option>BUDGET: EXPENSIVE</option>
+                            <option>BUDGET: VERY EXPENSIVE</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2">
+                        <button type="button" class="btn-search">HUNT <i class="fas fa-arrow-right ms-2"></i></button>
+                    </div>
                 </div>
-                <div class="col-md-4 text-md-end mt-4 mt-md-0">
-                    <button class="btn btn-light btn-lg fw-bold text-primary">List Your Property</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Listings -->
+    <section class="py-5 bg-core">
+        <div class="container py-5">
+            <div class="section-header">
+                <h2 class="display-3 m-0">FRESH <span class="text-acid">DROPS</span></h2>
+                <a href="#" class="btn-acid">VIEW ALL</a>
+            </div>
+
+            <div class="row g-5">
+                <!-- Card 1 -->
+                <div class="col-lg-4">
+                    <div class="card-brutal">
+                        <div class="card-img-container">
+                            <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="card-img" alt="Luxury Hotel">
+                        </div>
+                        <div class="card-body">
+                            <div class="card-price">$12,000/mo</div>
+                            <h3 class="card-title">THE OBSIDIAN LOFT</h3>
+                            <div class="card-meta">
+                                <i class="fas fa-map-marker-alt me-2 text-acid"></i> DOWNTOWN • 3 BED • 2500 SQFT
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="col-lg-4">
+                    <div class="card-brutal">
+                        <div class="card-img-container">
+                            <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="card-img" alt="Modern Villa">
+                        </div>
+                        <div class="card-body">
+                            <div class="card-price">$45,000/mo</div>
+                            <h3 class="card-title">CANYON POINT</h3>
+                            <div class="card-meta">
+                                <i class="fas fa-map-marker-alt me-2 text-acid"></i> HILLS • 5 BED • INFINITY POOL
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="col-lg-4">
+                    <div class="card-brutal">
+                        <div class="card-img-container">
+                            <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="card-img" alt="White House">
+                        </div>
+                        <div class="card-body">
+                            <div class="card-price">$22,500/mo</div>
+                            <h3 class="card-title">THE GLASS BOX</h3>
+                            <div class="card-meta">
+                                <i class="fas fa-map-marker-alt me-2 text-acid"></i> BEACHFRONT • 4 BED • MINIMALIST
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="footer mt-auto">
+    <footer>
         <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5 class="text-white mb-3">HomeRental</h5>
-                    <p class="text-muted">A modern platform for hassle-free home rentals. Connecting owners and tenants directly.</p>
+            <div class="row mb-5">
+                <div class="col-md-4">
+                    <h5 class="text-acid mb-4">SOCIALS</h5>
+                    <div class="d-flex gap-4 fs-4 text-white">
+                        <i class="fab fa-instagram cursor-pointer"></i>
+                        <i class="fab fa-twitter cursor-pointer"></i>
+                        <i class="fab fa-tiktok cursor-pointer"></i>
+                    </div>
                 </div>
-                <div class="col-md-2 mb-4">
-                    <h6 class="text-white mb-3">Quick Links</h6>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="#">Home</a></li>
-                        <li class="mb-2"><a href="#">Search</a></li>
-                        <li class="mb-2"><a href="#">About Us</a></li>
-                        <li class="mb-2"><a href="#">Contact</a></li>
+                <div class="col-md-4">
+                    <h5 class="text-acid mb-4">COMPANY</h5>
+                    <ul class="list-unstyled text-white">
+                        <li class="mb-2">ABOUT US</li>
+                        <li class="mb-2">CAREERS</li>
+                        <li class="mb-2">LEGAL</li>
                     </ul>
                 </div>
-                <div class="col-md-2 mb-4">
-                    <h6 class="text-white mb-3">Legal</h6>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="#">Privacy Policy</a></li>
-                        <li class="mb-2"><a href="#">Terms of Service</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h6 class="text-white mb-3">Contact Us</h6>
-                    <p class="text-muted mb-1"><i class="fas fa-envelope me-2"></i> support@homerental.com</p>
-                    <p class="text-muted"><i class="fas fa-phone me-2"></i> +91 98765 43210</p>
+                <div class="col-md-4">
+                    <h5 class="text-acid mb-4">NEWSLETTER</h5>
+                    <div class="input-group border border-white p-1">
+                        <input type="email" class="form-control bg-transparent border-0 text-white shadow-none" placeholder="EMAIL">
+                        <button class="btn btn-acid py-1 px-3">SUBMIT</button>
+                    </div>
                 </div>
             </div>
-            <hr class="border-secondary mt-4">
-            <div class="text-center text-muted">
-                <small>&copy; 2024 HomeRental Management System. All rights reserved.</small>
+            <div class="footer-big-text">HOMERENTAL</div>
+            <div class="text-center text-gray mt-4 small">
+                © 2026 HOMERENTAL MANAGEMENT. ALL RIGHTS RESERVED. DO NOT COPY.
             </div>
         </div>
     </footer>
 
-    <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Intersection Observer for Reveal Animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        // Add reveal class to listing cards manually for scroll effect
+        document.querySelectorAll('.card-brutal').forEach((el, index) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(50px)';
+            el.style.transition = `all 0.6s ease ${index * 0.1}s`;
+            observer.observe(el);
+        });
+    </script>
 </body>
 </html>
