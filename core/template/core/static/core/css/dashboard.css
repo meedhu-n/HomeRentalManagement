@@ -1,0 +1,154 @@
+:root {
+    --bg-core: #080808;
+    --bg-surface: #111111;
+    --acid-green: #CCFF00;
+    --white: #ffffff;
+    --gray: #888888;
+    --border-color: rgba(255, 255, 255, 0.15);
+}
+
+body {
+    background-color: var(--bg-core);
+    color: var(--white);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+}
+
+h1, h2, h3, h4 { 
+    font-family: 'Anton', sans-serif; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+}
+
+/* Reuse Navbar Styles to match existing theme */
+.navbar {
+    padding: 1.5rem 0;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+}
+.navbar-brand { 
+    font-size: 1.8rem; 
+    color: var(--white); 
+}
+.navbar-brand span { 
+    color: var(--acid-green); 
+}
+.nav-link { 
+    color: var(--gray) !important; 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    margin: 0 10px; 
+}
+.nav-link:hover { 
+    color: var(--white) !important; 
+}
+
+/* Buttons */
+.btn-acid {
+    background: var(--acid-green);
+    border: none;
+    color: black;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 10px 25px;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-acid:hover {
+    box-shadow: 0 0 15px rgba(204, 255, 0, 0.5);
+    transform: translateY(-2px);
+    color: black;
+}
+
+.btn-outline-acid {
+    background: transparent;
+    border: 2px solid var(--acid-green);
+    color: var(--acid-green);
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 8px 25px;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.btn-outline-acid:hover {
+    background: var(--acid-green);
+    color: black;
+}
+
+/* Dashboard Specific Layout */
+.dashboard-header {
+    padding: 4rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.welcome-text {
+    color: var(--gray);
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.role-badge {
+    background: rgba(204, 255, 0, 0.1);
+    color: var(--acid-green);
+    border: 1px solid var(--acid-green);
+    padding: 5px 15px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.card-dash {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    padding: 2rem;
+    height: 100%;
+    transition: 0.3s;
+}
+
+.card-dash:hover {
+    border-color: var(--acid-green);
+}
+
+.stat-number {
+    font-family: 'Anton', sans-serif;
+    font-size: 3rem;
+    color: var(--white);
+    line-height: 1;
+}
+
+.stat-label {
+    color: var(--gray);
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+/* Search Bar Styles */
+.search-container {
+    background: #111;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    margin-top: 2rem;
+}
+
+.form-control-dark {
+    background: #000;
+    border: 1px solid var(--border-color);
+    color: white;
+    padding: 1rem;
+    border-radius: 0;
+}
+
+.form-control-dark:focus {
+    border-color: var(--acid-green);
+    box-shadow: none;
+    background: #000;
+    color: white;
+}
