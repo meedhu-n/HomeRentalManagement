@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from .models import Property
+from .forms import PropertyForm
 
 User = get_user_model()
 
@@ -88,4 +90,40 @@ def dashboard_view(request):
     """
     Renders the dashboard based on user role.
     """
-    return render(request, 'core/dashboard.html', {'user': request.user})
+    context = {'user': request.user}
+    
+    if request.user.role == 'OWNER':
+        # Fetch properties owned by this user
+        properties = Property.objects.filter(owner=request.user)
+        context['properties'] = properties
+        context['active_listings_count'] = properties.count()
+        return render(request, 'core/owner_dashboard.html', context)
+    
+    elif request.user.role == 'TENANT':
+        # Add tenant specific context here if needed
+        return render(request, 'core/tenant_dashboard.html', context)
+    
+    # Fallback or admin dashboard
+    return render(request, 'core/dashboard.html', context)
+
+@login_required
+def add_property_view(request):
+    """
+    Allows owners to add a new property.
+    """
+    if request.user.role != 'OWNER':
+        messages.error(request, "Access denied. Owners only.")
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = PropertyForm(request.POST, request.FILES)
+        if form.is_valid():
+            property_obj = form.save(commit=False)
+            property_obj.owner = request.user
+            property_obj.save()
+            messages.success(request, "Property listed successfully!")
+            return redirect('dashboard')
+    else:
+        form = PropertyForm()
+    
+    return render(request, 'core/add_property.html', {'form': form})

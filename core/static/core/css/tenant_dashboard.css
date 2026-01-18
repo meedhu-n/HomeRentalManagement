@@ -20,7 +20,7 @@ h1, h2, h3, h4 {
     letter-spacing: 1px; 
 }
 
-/* Navbar reused from Index */
+/* Navbar */
 .navbar {
     padding: 1.5rem 0;
     background: var(--bg-surface);
@@ -130,7 +130,7 @@ h1, h2, h3, h4 {
     letter-spacing: 1px;
 }
 
-/* Search Bar Styles */
+/* Search Bar Styles (Tenant Specific) */
 .search-container {
     background: #111;
     padding: 2rem;
@@ -166,19 +166,4 @@ h1, h2, h3, h4 {
     background: rgba(204, 255, 0, 0.1);
     border: 1px solid var(--acid-green);
     color: var(--acid-green);
-}
-
-/* Owner Properties List */
-.text-acid {
-    color: var(--acid-green) !important;
-}
-
-.badge.bg-success {
-    background-color: var(--acid-green) !important;
-    color: black;
-}
-
-.badge.bg-secondary {
-    background-color: #333 !important;
-    color: #aaa;
 }
