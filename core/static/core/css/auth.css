@@ -1,94 +1,322 @@
-.auth-container {
+:root {
+    --bg-core: #080808;
+    --acid-green: #CCFF00;
+    --white: #ffffff;
+    --border-color: rgba(255, 255, 255, 0.15);
+}
+
+body {
+    background-color: var(--bg-core);
+    color: var(--white);
+    font-family: 'Space Grotesk', sans-serif;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow-x: hidden;
+    position: relative;
+    margin: 0;
     padding: 2rem 0;
 }
 
-.auth-card {
-    border: 1px solid var(--border-color);
-    padding: 3rem;
-    max-width: 500px;
+/* Background Image Slider with Ken Burns Effect */
+.bg-grid {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
 }
 
-.auth-card h2 {
+.bg-grid::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop'); 
+    background-size: cover;
+    background-position: center;
+    opacity: 0.4; 
+    animation: kenBurns 20s infinite alternate linear;
+    filter: grayscale(100%) contrast(1.2); 
+}
+
+/* Dark Overlay for Readability */
+.bg-grid::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(8, 8, 8, 0.6) 0%, rgba(8, 8, 8, 0.95) 100%);
+    z-index: 1;
+}
+
+@keyframes kenBurns {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.15); }
+}
+
+/* Card Styles */
+.login-card, .register-card {
+    background: rgba(20, 20, 20, 0.75);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 3rem;
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+    z-index: 10; 
+    border-radius: 4px;
+}
+
+/* Specific compact styles for Register Card */
+.register-card {
+    padding: 2rem !important; /* Reduced padding */
+    max-width: 500px;
+}
+
+.register-card h2 {
+    font-size: 2rem; /* Slightly smaller title */
+    margin-bottom: 0.25rem;
+}
+
+.register-card .subtitle {
+    margin-bottom: 1.5rem; /* Reduced margin */
+}
+
+.register-card .mb-3 {
+    margin-bottom: 0.75rem !important; /* Tighter spacing */
+}
+
+.login-card::before, .register-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--acid-green), transparent);
+    transition: width 0.5s ease;
+}
+
+.login-card:hover, .register-card:hover {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    border-color: rgba(204, 255, 0, 0.3);
+    transform: translateY(-5px);
+}
+
+h2 {
+    font-family: 'Anton', sans-serif;
+    text-transform: uppercase;
     font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+h2 span {
+    color: var(--acid-green);
+    text-shadow: 0 0 15px rgba(204, 255, 0, 0.4);
+}
+
+.subtitle {
+    color: #aaa;
     margin-bottom: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+    font-weight: 300;
 }
 
-.auth-card .form-brutal {
-    margin-bottom: 1.5rem;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-.form-group label {
+.form-label {
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 1.5px;
+    color: var(--acid-green);
     display: block;
     margin-bottom: 0.5rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-    letter-spacing: 1px;
 }
 
-.form-group input,
-.form-group select {
-    width: 100%;
+.input-group-text {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-right: 0;
+    border-color: var(--border-color);
+    color: #888;
+    border-radius: 0;
+    transition: all 0.3s ease;
 }
 
-.alert {
-    margin-bottom: 1.5rem;
+.form-control, .form-select {
+    background: rgba(0, 0, 0, 0.3);
     border: 1px solid var(--border-color);
-    background: transparent;
-    color: var(--white);
+    border-left: 0;
+    color: white;
+    padding: 1rem;
+    border-radius: 0;
+    font-weight: 500;
+    transition: all 0.3s ease;
 }
 
-.alert-danger {
-    border-color: #ff6b6b;
-    color: #ff6b6b;
+/* Compact input for registration */
+.form-control-sm, .form-select-sm {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
 }
 
-.alert-success {
+/* Force dark options for select */
+select.form-select option {
+    background-color: #000;
+    color: #fff;
+}
+
+.form-control:not(:placeholder-shown), 
+.form-control:focus,
+.form-select {
+    border-left: 1px solid var(--border-color);
+}
+
+.form-control::placeholder {
+    color: #555;
+    font-weight: 300;
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(204, 255, 0, 0.05);
+    border-color: var(--acid-green);
+    color: white;
+    box-shadow: none; 
+}
+
+/* Highlight icon when input is focused */
+.form-control:focus + .input-group-text, 
+.input-group:focus-within .input-group-text {
     border-color: var(--acid-green);
     color: var(--acid-green);
+    background: rgba(204, 255, 0, 0.05);
 }
 
-.auth-link {
-    text-align: center;
-    margin-top: 2rem;
-    font-size: 0.9rem;
-}
-
-.auth-link a {
-    color: var(--acid-green);
-    font-weight: 700;
-    transition: 0.3s;
-}
-
-.auth-link a:hover {
-    text-decoration: underline;
-}
-
-.btn-auth {
-    height: 60px;
-    width: 100%;
+.btn-acid {
     background: var(--acid-green);
     border: none;
-    color: black;
-    font-weight: 700;
-    font-size: 1.2rem;
+    color: #000;
+    font-weight: 800;
     text-transform: uppercase;
+    padding: 1.2rem;
+    width: 100%;
     font-family: 'Anton', sans-serif;
-    letter-spacing: 1px;
-    transition: 0.3s;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+    margin-top: 15px;
     cursor: pointer;
 }
 
-.btn-auth:hover {
-    transform: translateY(-5px);
-    box-shadow: 5px 5px 0px var(--white);
+/* Compact button for registration */
+.register-card .btn-acid {
+    padding: 0.8rem;
+    margin-top: 0.5rem;
 }
+
+.btn-acid:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(204, 255, 0, 0.2);
+    background-color: #d4ff33;
+}
+
+.btn-acid::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+    transition: 0.5s;
+}
+
+.btn-acid:hover::after {
+    left: 100%;
+}
+
+.back-link, .login-link {
+    display: inline-block;
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #666;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Compact links for registration */
+.register-card .back-link, 
+.register-card .login-link {
+    margin-top: 0.5rem;
+}
+
+.back-link:hover, .login-link:hover { 
+    color: var(--white); 
+    letter-spacing: 2px;
+}
+
+.register-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    font-size: 0.9rem;
+    color: #888;
+    transition: 0.3s;
+}
+
+.register-link:hover {
+    color: white;
+}
+
+.register-link span, .login-link span {
+    color: var(--acid-green);
+    text-decoration: none;
+    position: relative;
+    font-weight: 700;
+    border-bottom: 1px solid transparent;
+    transition: 0.3s;
+}
+
+.register-link:hover span, .login-link:hover span {
+    border-bottom: 1px solid var(--acid-green);
+    text-shadow: 0 0 10px rgba(204, 255, 0, 0.3);
+}
+
+.alert {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid #dc3545;
+    color: #ff6b6b;
+    border-radius: 0;
+    font-size: 0.9rem;
+}
+
+.alert-success {
+    background: rgba(204, 255, 0, 0.1);
+    border: 1px solid var(--acid-green);
+    color: var(--acid-green);
+}
+
+/* Custom Animation Delays */
+.animate-stagger-1 { animation-delay: 0.1s; }
+.animate-stagger-2 { animation-delay: 0.2s; }
+.animate-stagger-3 { animation-delay: 0.3s; }
+.animate-stagger-4 { animation-delay: 0.4s; }
+.animate-stagger-5 { animation-delay: 0.5s; }

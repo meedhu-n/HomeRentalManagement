@@ -5,11 +5,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RentEase | Don't Settle</title>
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts: 'Anton' for impact, 'Space Grotesk' for modern Sass -->
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
     <link rel="stylesheet" href="{% static 'core/css/index.css' %}">
+    <style>
+        /* Inline styles for specific section backgrounds not in global css */
+        .bg-surface { background-color: var(--bg-surface, #111111); }
+        .step-number {
+            font-family: 'Anton', sans-serif;
+            font-size: 4rem;
+            color: transparent;
+            -webkit-text-stroke: 2px var(--acid-green, #CCFF00);
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        .step-card:hover .step-number {
+            color: var(--acid-green, #CCFF00);
+            -webkit-text-stroke: 0px;
+        }
+        /* Owner Section Specifics */
+        .owner-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(180deg, #111111 0%, #080808 100%);
+        }
+        .text-outline-white {
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+        }
+        /* Reviews Section Specifics */
+        .review-card {
+            background: #1a1a1a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            height: 100%;
+            transition: transform 0.3s ease;
+        }
+        .review-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--acid-green, #CCFF00);
+        }
+        .review-text {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: #d1d1d1;
+        }
+        .reviewer-name {
+            font-family: 'Anton', sans-serif;
+            color: var(--acid-green, #CCFF00);
+            letter-spacing: 1px;
+        }
+        .rating-stars {
+            color: var(--acid-green, #CCFF00);
+        }
+    </style>
 </head>
 <body>
 
@@ -22,9 +75,11 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link" href="#">The List</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">How It Works</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Journal</a></li>
+                    <!-- Updated Links with Anchors -->
+                    <li class="nav-item"><a class="nav-link" href="#listings">The List</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#how-it-works">How It Works</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#for-owners">For Owners</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#reviews">Reviews</a></li>
                     <li class="nav-item ms-4">
                         {% if user.is_authenticated %}
                             <div class="d-flex gap-3">
@@ -114,7 +169,7 @@
     </div>
 
     <!-- Listings -->
-    <section class="py-5 bg-core">
+    <section id="listings" class="py-5">
         <div class="container py-5">
             <div class="section-header">
                 <h2 class="display-3 m-0">FRESH <span class="text-acid">DROPS</span></h2>
@@ -165,6 +220,152 @@
                             <h3 class="card-title">THE GLASS BOX</h3>
                             <div class="card-meta">
                                 <i class="fas fa-map-marker-alt me-2 text-acid"></i> BEACHFRONT • 4 BED • MINIMALIST
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section (Tenants) -->
+    <section id="how-it-works" class="py-5 bg-surface">
+        <div class="container py-5">
+            <div class="section-header border-bottom-0 mb-5">
+                <h2 class="display-3 m-0">HOW IT <span class="text-acid">WORKS</span> <small class="text-secondary fs-4 d-block mt-2">FOR TENANTS</small></h2>
+            </div>
+            <div class="row g-5">
+                <div class="col-md-4">
+                    <div class="step-card">
+                        <div class="step-number">01</div>
+                        <h3 class="text-white mb-3">DISCOVER</h3>
+                        <p class="text-secondary">
+                            Browse our curated list of elite properties. Filter by style, not just price.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="step-card">
+                        <div class="step-number">02</div>
+                        <h3 class="text-white mb-3">VERIFY</h3>
+                        <p class="text-secondary">
+                            Instant digital verification. No fax machines. No awkward interviews.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="step-card">
+                        <div class="step-number">03</div>
+                        <h3 class="text-white mb-3">ACQUIRE</h3>
+                        <p class="text-secondary">
+                            Finalize the deal directly. Secure your keys without the hassle.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section (Owners) -->
+    <section id="for-owners" class="py-5 owner-section">
+        <div class="container py-5">
+            <div class="row align-items-center mb-5">
+                <div class="col-lg-6">
+                    <h2 class="display-3 m-0 text-white">LIST YOUR <span class="text-outline-white">ASSET</span></h2>
+                    <p class="text-secondary mt-3 fs-5">Join the most exclusive rental network. Monetize your property with zero friction.</p>
+                </div>
+                <div class="col-lg-6 text-end">
+                    <a href="{% url 'register' %}" class="btn-acid px-5 py-3">START LISTING</a>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="p-4 border border-secondary h-100">
+                        <i class="fas fa-user-check text-acid fs-2 mb-3"></i>
+                        <h4 class="text-white">1. REGISTER</h4>
+                        <p class="text-secondary small">Create your verified owner account. We vet all hosts to ensure quality.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-4 border border-secondary h-100">
+                        <i class="fas fa-camera text-acid fs-2 mb-3"></i>
+                        <h4 class="text-white">2. UPLOAD</h4>
+                        <p class="text-secondary small">Submit your property details and high-res imagery for approval.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-4 border border-secondary h-100">
+                        <i class="fas fa-credit-card text-acid fs-2 mb-3"></i>
+                        <h4 class="text-white">3. PAY & PUBLISH</h4>
+                        <p class="text-secondary small">Pay a one-time listing fee per property. No recurring hidden costs.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-4 border border-secondary h-100">
+                        <i class="fas fa-handshake text-acid fs-2 mb-3"></i>
+                        <h4 class="text-white">4. CONNECT</h4>
+                        <p class="text-secondary small">Receive inquiries directly from verified tenants and close the deal.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section id="reviews" class="py-5 bg-black">
+        <div class="container py-5">
+            <div class="section-header border-bottom-0 mb-5 text-end justify-content-end">
+                <h2 class="display-3 m-0">CLIENT <span class="text-acid">STORIES</span></h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="review-card">
+                        <div class="mb-3 rating-stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="review-text mb-4">"RentEase completely changed how I find rentals. The verified listings meant zero wasted time on fake posts. Secured my loft in 2 days."</p>
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                            </div>
+                            <div>
+                                <h5 class="reviewer-name m-0">ALEX M.</h5>
+                                <small class="text-secondary">Tenant, NYC</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="review-card">
+                        <div class="mb-3 rating-stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p class="review-text mb-4">"As an owner, the pay-to-list model filters out the noise. I only get serious inquiries from qualified tenants. Worth every penny."</p>
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                            </div>
+                            <div>
+                                <h5 class="reviewer-name m-0">SARAH J.</h5>
+                                <small class="text-secondary">Property Owner, LA</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="review-card">
+                        <div class="mb-3 rating-stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p class="review-text mb-4">"The interface is sleek and the no-nonsense approach to agreements is refreshing. Finally, a rental platform that respects my time."</p>
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                            </div>
+                            <div>
+                                <h5 class="reviewer-name m-0">DAVID K.</h5>
+                                <small class="text-secondary">Tenant, Chicago</small>
                             </div>
                         </div>
                     </div>
