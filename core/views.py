@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.conf import settings
-from .models import Property, PropertyImage, Payment
+from .models import Property, PropertyImage, Payment, RentalApplication, MaintenanceRequest
 from .forms import PropertyForm
 import razorpay
 import json
@@ -296,3 +296,18 @@ def reject_property_view(request, id):
     property_obj.delete() 
     messages.success(request, f"Property '{property_obj.title}' rejected and removed.")
     return redirect('dashboard')
+
+@login_required
+def manage_property_view(request, id):
+    property_obj = get_object_or_404(Property, id=id, owner=request.user)
+    
+    # Fetch related data
+    applications = RentalApplication.objects.filter(property=property_obj)
+    maintenance_requests = MaintenanceRequest.objects.filter(property=property_obj)
+    
+    context = {
+        'property': property_obj,
+        'applications': applications,
+        'maintenance_requests': maintenance_requests
+    }
+    return render(request, 'core/property_manage.html', context)    

@@ -138,11 +138,11 @@
                                 
                                 <div class="mt-auto pt-3 border-top border-secondary d-flex justify-content-between align-items-center">
                                     <span class="text-acid fw-bold fs-4">${{ property.price }}<small class="text-gray fw-normal fs-6">/mo</small></span>
-                                    <!-- Updated PAY NOW link -->
                                     {% if property.status == 'PENDING' %}
                                         <a href="{% url 'payment' property.id %}" class="btn btn-sm btn-acid rounded-0 px-3">PAY NOW</a>
                                     {% else %}
-                                        <button class="btn btn-sm btn-outline-light rounded-0 px-3">MANAGE</button>
+                                        <!-- Linked to manage_property view -->
+                                        <a href="{% url 'manage_property' property.id %}" class="btn btn-sm btn-outline-light rounded-0 px-3">MANAGE</a>
                                     {% endif %}
                                 </div>
                             </div>

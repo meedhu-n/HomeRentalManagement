@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Property | RentEase</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/owner_dashboard.css' %}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid px-5">
+            <a class="navbar-brand" href="{% url 'index' %}">RENT<span>EASE</span></a>
+            <div class="ms-auto">
+                <a href="{% url 'dashboard' %}" class="btn-outline-acid">BACK TO DASHBOARD</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="dashboard-header d-flex justify-content-between align-items-end">
+            <div>
+                <span class="role-badge">PROPERTY MANAGER</span>
+                <h1 class="display-4 text-white m-0">{{ property.title }}</h1>
+                <p class="text-gray mb-0 mt-2"><i class="fas fa-map-marker-alt me-2"></i> {{ property.location }}</p>
+            </div>
+            <div>
+                <a href="{% url 'edit_property' property.id %}" class="btn btn-outline-light rounded-0">EDIT DETAILS</a>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card-dash p-4">
+                    <h5 class="text-gray small mb-2">STATUS</h5>
+                    <span class="badge {% if property.status == 'AVAILABLE' %}bg-success{% else %}bg-secondary{% endif %} fs-6 rounded-0">
+                        {{ property.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-dash p-4">
+                    <h5 class="text-gray small mb-2">PRICE</h5>
+                    <h3 class="text-acid m-0">${{ property.price }}<small class="text-muted fs-6">/mo</small></h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-dash p-4">
+                    <h5 class="text-gray small mb-2">APPLICATIONS</h5>
+                    <h3 class="text-white m-0">{{ applications.count }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Applications Column -->
+            <div class="col-lg-6">
+                <h4 class="section-title text-white mb-4">RENTAL <span class="text-acid">APPLICATIONS</span></h4>
+                {% if applications %}
+                    {% for app in applications %}
+                        <div class="card-dash p-3 mb-3">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="text-white mb-1">{{ app.tenant.username }}</h5>
+                                    <small class="text-gray">{{ app.application_date|date:"M d, Y" }}</small>
+                                </div>
+                                <div>
+                                    <span class="badge bg-secondary">{{ app.get_status_display }}</span>
+                                </div>
+                            </div>
+                            {% if app.message %}
+                                <p class="text-gray small mt-2 fst-italic">"{{ app.message }}"</p>
+                            {% endif %}
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-acid rounded-0">View Profile</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state text-center py-4">
+                        <p class="text-gray m-0">No active applications.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Maintenance Column -->
+            <div class="col-lg-6">
+                <h4 class="section-title text-white mb-4">MAINTENANCE <span class="text-acid">REQUESTS</span></h4>
+                {% if maintenance_requests %}
+                    {% for req in maintenance_requests %}
+                        <div class="card-dash p-3 mb-3">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="text-white mb-1">{{ req.title }}</h5>
+                                <span class="badge {% if req.priority == 'HIGH' %}bg-danger{% else %}bg-info{% endif %} text-dark">{{ req.get_priority_display }}</span>
+                            </div>
+                            <p class="text-gray small mt-1">{{ req.description|truncatechars:50 }}</p>
+                            <div class="mt-2">
+                                <span class="text-muted small">Status: {{ req.get_status_display }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state text-center py-4">
+                        <p class="text-gray m-0">No maintenance requests.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
