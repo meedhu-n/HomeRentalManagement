@@ -1,0 +1,179 @@
+:root {
+    --bg-core: #0a0a0a;
+    --acid-green: #CCFF00;
+    --white: #ffffff;
+    --border-color: rgba(255, 255, 255, 0.15);
+    --glass-bg: rgba(20, 20, 20, 0.85);
+}
+
+body {
+    background-color: var(--bg-core);
+    color: var(--white);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0; /* Further reduced padding */
+    margin: 0;
+    /* Rich gradient background */
+    background: radial-gradient(circle at 10% 20%, #1a1a1a 0%, #0a0a0a 90%);
+}
+
+/* Background Texture */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    /* Interior/House background image - Dark Modern Interior */
+    background: url('https://images.unsplash.com/photo-1513584685908-2274653fa18f?q=80&w=2070&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    z-index: -2;
+}
+
+/* Dark Overlay for readability */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Darkens the image */
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Form Container */
+.property-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--border-color);
+    padding: 1.5rem; /* Further reduced padding */
+    width: 100%;
+    max-width: 550px; /* Further reduced max-width */
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+    z-index: 10;
+}
+
+.property-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--acid-green), transparent);
+}
+
+h2 {
+    font-family: 'Anton', sans-serif;
+    text-transform: uppercase;
+    font-size: 1.75rem; /* Further reduced font size */
+    margin-bottom: 0.15rem; /* Reduced margin */
+    letter-spacing: 2px;
+}
+
+h2 span {
+    color: var(--acid-green);
+}
+
+.subtitle {
+    color: #aaa;
+    margin-bottom: 1rem; /* Reduced margin */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem; /* Reduced font size */
+}
+
+.form-label {
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 0.65rem; /* Reduced font size */
+    letter-spacing: 1.5px;
+    color: var(--acid-green);
+    display: block;
+    margin-bottom: 0.15rem; /* Reduced margin */
+}
+
+.form-control {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border-color);
+    color: white;
+    padding: 0.5rem; /* Reduced padding */
+    border-radius: 2px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 0.85rem; /* Reduced font size */
+}
+
+.form-control:focus {
+    background: rgba(204, 255, 0, 0.05);
+    border-color: var(--acid-green);
+    color: white;
+    box-shadow: none;
+}
+
+textarea.form-control {
+    resize: vertical;
+}
+
+.mb-3 {
+    margin-bottom: 0.75rem !important; /* Force reduce spacing */
+}
+
+.btn-acid {
+    background: var(--acid-green);
+    border: none;
+    color: #000;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 0.7rem; /* Reduced padding */
+    width: 100%;
+    font-family: 'Anton', sans-serif;
+    font-size: 0.9rem; /* Reduced font size */
+    letter-spacing: 2px;
+    transition: all 0.3s;
+    margin-top: 0.75rem; /* Reduced margin */
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.btn-acid:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(204, 255, 0, 0.2);
+    background-color: #d9ff33;
+}
+
+.back-link {
+    display: inline-block;
+    text-align: center;
+    margin-top: 0.75rem; /* Reduced margin */
+    color: #666;
+    font-size: 0.7rem; /* Reduced font size */
+    text-decoration: none;
+    transition: 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.back-link:hover { 
+    color: var(--white); 
+    letter-spacing: 2px;
+}
+
+.alert {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid #dc3545;
+    color: #ff6b6b;
+    border-radius: 0;
+    font-size: 0.75rem; /* Reduced font size */
+    padding: 0.4rem; /* Reduced padding */
+    margin-bottom: 0.75rem;
+}

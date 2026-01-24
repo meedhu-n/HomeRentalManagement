@@ -121,9 +121,12 @@
                 {% for property in properties %}
                     <div class="col-md-4">
                         <div class="card-dash property-card h-100">
-                             <!-- Placeholder image if no image uploaded, or use property image -->
                             <div class="property-image-container">
-                                <div class="status-badge {% if property.status == 'AVAILABLE' %}bg-success{% else %}bg-secondary{% endif %}">
+                                <!-- Status Badge Logic -->
+                                <div class="status-badge 
+                                    {% if property.status == 'AVAILABLE' %}bg-success
+                                    {% elif property.status == 'PENDING' %}bg-warning text-dark
+                                    {% else %}bg-secondary{% endif %}">
                                     {{ property.get_status_display }}
                                 </div>
                                 <img src="https://images.unsplash.com/photo-1600596542815-2788866dd523?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Property Image" class="img-fluid property-img">
@@ -132,11 +135,15 @@
                             <div class="card-body p-4 d-flex flex-column">
                                 <h5 class="text-white mb-1 text-truncate font-anton letter-spacing-1">{{ property.title }}</h5>
                                 <p class="text-gray small mb-3"><i class="fas fa-map-marker-alt me-2 text-acid"></i> {{ property.location }}</p>
-                                <p class="text-gray small mb-4 text-truncate property-type">{{ property.property_type }}</p>
                                 
                                 <div class="mt-auto pt-3 border-top border-secondary d-flex justify-content-between align-items-center">
                                     <span class="text-acid fw-bold fs-4">${{ property.price }}<small class="text-gray fw-normal fs-6">/mo</small></span>
-                                    <button class="btn btn-sm btn-outline-light rounded-0 px-3">MANAGE</button>
+                                    <!-- Updated PAY NOW link -->
+                                    {% if property.status == 'PENDING' %}
+                                        <a href="{% url 'payment' property.id %}" class="btn btn-sm btn-acid rounded-0 px-3">PAY NOW</a>
+                                    {% else %}
+                                        <button class="btn btn-sm btn-outline-light rounded-0 px-3">MANAGE</button>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>

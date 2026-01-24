@@ -9,11 +9,11 @@ class User(AbstractUser):
         OWNER = "OWNER", "Owner"
         TENANT = "TENANT", "Tenant"
 
+    email = models.EmailField(unique=True, null=False, blank=False) 
     role = models.CharField(max_length=50, choices=Role.choices, default=Role.TENANT)
     profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
 
-    # Fix conflicts with auth.User
     groups = models.ManyToManyField(
         'auth.Group',
         related_name='custom_user_set',
@@ -32,6 +32,7 @@ class User(AbstractUser):
 # 2. Property Model
 class Property(models.Model):
     class Status(models.TextChoices):
+        PENDING_APPROVAL = "PENDING", "Pending Approval"
         AVAILABLE = "AVAILABLE", "Available"
         RENTED = "RENTED", "Rented"
         MAINTENANCE = "MAINTENANCE", "Maintenance"
@@ -43,7 +44,9 @@ class Property(models.Model):
     location = models.CharField(max_length=255)
     property_type = models.CharField(max_length=100)
     amenities = models.TextField(help_text="Comma-separated list of amenities", blank=True)
-    status = models.CharField(max_length=50, choices=Status.choices, default=Status.AVAILABLE)
+    status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING_APPROVAL)
+    # Added is_paid field
+    is_paid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -53,6 +56,7 @@ class Property(models.Model):
     def __str__(self):
         return self.title
 
+# ... (Rest of the file remains the same: PropertyImage, RentalApplication, Lease, MaintenanceRequest, Inquiry) ...
 class PropertyImage(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='property_images/')
@@ -60,7 +64,6 @@ class PropertyImage(models.Model):
     def __str__(self):
         return f"Image for {self.property.title}"
 
-# 3. Rental Application (New)
 class RentalApplication(models.Model):
     class Status(models.TextChoices):
         PENDING = "PENDING", "Pending"
@@ -76,7 +79,6 @@ class RentalApplication(models.Model):
     def __str__(self):
         return f"Application by {self.tenant.username} for {self.property.title}"
 
-# 4. Lease/Contract (New)
 class Lease(models.Model):
     tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='leases')
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='leases')
@@ -90,7 +92,6 @@ class Lease(models.Model):
     def __str__(self):
         return f"Lease: {self.property.title} - {self.tenant.username}"
 
-# 5. Maintenance Request (New)
 class MaintenanceRequest(models.Model):
     class Priority(models.TextChoices):
         LOW = "LOW", "Low"
@@ -116,7 +117,6 @@ class MaintenanceRequest(models.Model):
     def __str__(self):
         return f"{self.priority} - {self.title}"
 
-# 6. Inquiry (Existing)
 class Inquiry(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='inquiries')
     tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_inquiries')

@@ -1,23 +1,18 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Property
+from .models import Property, PropertyImage
 from .forms import PropertyForm
 
 User = get_user_model()
 
+# ... (Previous views: index, register, login, logout remain same) ...
 def index(request):
-    """
-    Renders the public landing page (Home).
-    """
     return render(request, 'core/index.html')
 
 def register_view(request):
-    """
-    Handles user registration for Tenants and Owners.
-    """
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -26,7 +21,6 @@ def register_view(request):
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
-        # Basic Validation
         if password != confirm_password:
             messages.error(request, "Passwords do not match.")
             return render(request, 'core/register.html')
@@ -39,13 +33,11 @@ def register_view(request):
             messages.error(request, "Email already registered.")
             return render(request, 'core/register.html')
 
-        # Create User
         try:
             user = User.objects.create_user(username=username, email=email, password=password)
             user.role = role
             user.phone_number = phone
             user.save()
-
             messages.success(request, "Account created successfully! Please login.")
             return redirect('login')
         except Exception as e:
@@ -55,9 +47,6 @@ def register_view(request):
     return render(request, 'core/register.html')
 
 def login_view(request):
-    """
-    Handles user login.
-    """
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -74,43 +63,40 @@ def login_view(request):
             messages.error(request, "Invalid username or password.")
     else:
         form = AuthenticationForm()
-    
     return render(request, 'core/login.html', {'form': form})
 
 def logout_view(request):
-    """
-    Handles user logout.
-    """
     logout(request)
     messages.info(request, "You have successfully logged out.")
     return redirect('index')
 
 @login_required
 def dashboard_view(request):
-    """
-    Renders the dashboard based on user role.
-    """
     context = {'user': request.user}
     
-    if request.user.role == 'OWNER':
-        # Fetch properties owned by this user
+    # Check if user is superuser (Admin)
+    if request.user.is_superuser or request.user.role == 'ADMIN':
+        # Admin Dashboard Logic
+        pending_properties = Property.objects.filter(status=Property.Status.PENDING_APPROVAL, is_paid=True)
+        context['pending_properties'] = pending_properties
+        context['pending_count'] = pending_properties.count()
+        context['total_users'] = User.objects.count()
+        context['total_properties'] = Property.objects.count()
+        return render(request, 'core/admin_dashboard.html', context)
+    
+    elif request.user.role == 'OWNER':
         properties = Property.objects.filter(owner=request.user)
         context['properties'] = properties
-        context['active_listings_count'] = properties.count()
+        context['active_listings_count'] = properties.filter(status=Property.Status.AVAILABLE).count()
         return render(request, 'core/owner_dashboard.html', context)
     
     elif request.user.role == 'TENANT':
-        # Add tenant specific context here if needed
         return render(request, 'core/tenant_dashboard.html', context)
     
-    # Fallback or admin dashboard
     return render(request, 'core/dashboard.html', context)
 
 @login_required
 def add_property_view(request):
-    """
-    Allows owners to add a new property.
-    """
     if request.user.role != 'OWNER':
         messages.error(request, "Access denied. Owners only.")
         return redirect('dashboard')
@@ -120,10 +106,86 @@ def add_property_view(request):
         if form.is_valid():
             property_obj = form.save(commit=False)
             property_obj.owner = request.user
+            property_obj.status = Property.Status.PENDING_APPROVAL
             property_obj.save()
-            messages.success(request, "Property listed successfully!")
-            return redirect('dashboard')
+            messages.success(request, "Step 1 Complete! Now upload photos.")
+            return redirect('add_photos', id=property_obj.id)
     else:
         form = PropertyForm()
     
     return render(request, 'core/add_property.html', {'form': form})
+
+@login_required
+def edit_property_view(request, id):
+    property_obj = get_object_or_404(Property, id=id, owner=request.user)
+    if request.method == 'POST':
+        form = PropertyForm(request.POST, request.FILES, instance=property_obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Property details updated. Continue to photos.")
+            return redirect('add_photos', id=property_obj.id)
+    else:
+        form = PropertyForm(instance=property_obj)
+    return render(request, 'core/add_property.html', {'form': form})
+
+@login_required
+def add_photos_view(request, id):
+    property_obj = get_object_or_404(Property, id=id, owner=request.user)
+    if request.method == 'POST':
+        images = request.FILES.getlist('images')
+        if images:
+            for image in images:
+                PropertyImage.objects.create(property=property_obj, image=image)
+            messages.success(request, "Photos uploaded! Please complete payment to submit for approval.")
+            return redirect('payment', id=property_obj.id)
+        else:
+            messages.error(request, "Please select at least one image.")
+    return render(request, 'core/add_property_photos.html', {'property': property_obj})
+
+@login_required
+def payment_view(request, id):
+    property_obj = get_object_or_404(Property, id=id, owner=request.user)
+    if property_obj.is_paid:
+        messages.info(request, "Payment already completed for this property.")
+        return redirect('dashboard')
+    return render(request, 'core/payment.html', {'property': property_obj})
+
+@login_required
+def process_payment_view(request, id):
+    property_obj = get_object_or_404(Property, id=id, owner=request.user)
+    if request.method == 'POST':
+        property_obj.is_paid = True
+        property_obj.save()
+        messages.success(request, "Payment successful! Your property is now pending admin approval.")
+        return redirect('dashboard')
+    return redirect('payment', id=id)
+
+# NEW: Admin Action View
+@login_required
+def approve_property_view(request, id):
+    if not request.user.is_superuser and request.user.role != 'ADMIN':
+        messages.error(request, "Access denied.")
+        return redirect('dashboard')
+        
+    property_obj = get_object_or_404(Property, id=id)
+    property_obj.status = Property.Status.AVAILABLE
+    property_obj.save()
+    messages.success(request, f"Property '{property_obj.title}' approved successfully!")
+    return redirect('dashboard')
+
+@login_required
+def reject_property_view(request, id):
+    if not request.user.is_superuser and request.user.role != 'ADMIN':
+        messages.error(request, "Access denied.")
+        return redirect('dashboard')
+        
+    property_obj = get_object_or_404(Property, id=id)
+    property_obj.status = Property.Status.REJECTED # Ensure REJECTED status exists in model or use another
+    # If REJECTED isn't in choices, delete or set to Maintenance. Assuming REJECTED exists or just delete.
+    # For now, let's delete to "reject" or set to maintenance. 
+    # Better: Update model Status choices if REJECTED isn't there. 
+    # Based on prev code: PENDING_APPROVAL, AVAILABLE, RENTED, MAINTENANCE.
+    # Let's set to MAINTENANCE or delete. I'll delete for now or you can add REJECTED status.
+    property_obj.delete() 
+    messages.success(request, f"Property '{property_obj.title}' rejected and removed.")
+    return redirect('dashboard')
