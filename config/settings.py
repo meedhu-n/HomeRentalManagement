@@ -129,3 +129,8 @@ AUTH_USER_MODEL = 'core.User'
 # Media files configuration (for Property Images)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Razorpay Payment Configuration
+RAZORPAY_KEY_ID = 'rzp_test_YOUR_KEY_ID'  # Replace with your Razorpay test/live key
+RAZORPAY_KEY_SECRET = 'rzp_test_YOUR_KEY_SECRET'  # Replace with your Razorpay test/live secret
+PROPERTY_REGISTRATION_FEE = 100  # Amount in INR (e.g., 100 INR)

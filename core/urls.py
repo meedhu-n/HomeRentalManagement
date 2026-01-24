@@ -18,7 +18,7 @@ urlpatterns = [
     
     # Payment
     path('payment/<int:id>/', views.payment_view, name='payment'),
-    path('process-payment/<int:id>/', views.process_payment_view, name='process_payment'),
+    path('verify-payment/', views.verify_payment_view, name='verify_payment'),
 
     # Admin Actions
     path('admin-approve/<int:id>/', views.approve_property_view, name='approve_property'),

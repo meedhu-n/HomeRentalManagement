@@ -3,8 +3,14 @@ from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Property, PropertyImage
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from django.conf import settings
+from .models import Property, PropertyImage, Payment
 from .forms import PropertyForm
+import razorpay
+import json
+from django.views.decorators.csrf import csrf_exempt
 
 User = get_user_model()
 
@@ -148,17 +154,118 @@ def payment_view(request, id):
     if property_obj.is_paid:
         messages.info(request, "Payment already completed for this property.")
         return redirect('dashboard')
-    return render(request, 'core/payment.html', {'property': property_obj})
-
-@login_required
-def process_payment_view(request, id):
-    property_obj = get_object_or_404(Property, id=id, owner=request.user)
-    if request.method == 'POST':
-        property_obj.is_paid = True
-        property_obj.save()
-        messages.success(request, "Payment successful! Your property is now pending admin approval.")
+    
+    # Check if Razorpay keys are configured
+    if settings.RAZORPAY_KEY_ID.startswith('rzp_test_YOUR') or settings.RAZORPAY_KEY_ID == 'rzp_test_YOUR_KEY_ID':
+        messages.error(request, "⚠️ Razorpay is not yet configured. Please contact the admin. (Missing API keys)")
         return redirect('dashboard')
-    return redirect('payment', id=id)
+    
+    try:
+        # Initialize Razorpay client
+        client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+        
+        # Amount in paise (1 INR = 100 paise)
+        amount = int(settings.PROPERTY_REGISTRATION_FEE * 100)
+        
+        # Create Razorpay order
+        order_data = {
+            'amount': amount,
+            'currency': 'INR',
+            'payment_capture': '1'
+        }
+        
+        razorpay_order = client.order.create(data=order_data)
+        
+        # Save payment record
+        payment = Payment.objects.create(
+            property=property_obj,
+            owner=request.user,
+            razorpay_order_id=razorpay_order['id'],
+            amount=settings.PROPERTY_REGISTRATION_FEE,
+            status=Payment.PaymentStatus.PENDING
+        )
+        
+        context = {
+            'property': property_obj,
+            'razorpay_order_id': razorpay_order['id'],
+            'razorpay_key_id': settings.RAZORPAY_KEY_ID,
+            'amount': settings.PROPERTY_REGISTRATION_FEE,
+            'payment_id': payment.id,
+        }
+        
+        return render(request, 'core/payment.html', context)
+    
+    except Exception as e:
+        # Handle Razorpay errors
+        error_msg = str(e)
+        if 'Authentication failed' in error_msg or 'Unauthorized' in error_msg:
+            messages.error(request, "❌ Payment configuration error. Please check Razorpay API keys with admin.")
+        else:
+            messages.error(request, f"❌ Payment error: {error_msg}")
+        return redirect('add_photos', id=id)
+
+@csrf_exempt
+@require_POST
+def verify_payment_view(request):
+    """Verify Razorpay payment signature"""
+    try:
+        payment_data = json.loads(request.body)
+        
+        # Get payment record
+        payment = Payment.objects.get(razorpay_order_id=payment_data['razorpay_order_id'])
+        
+        # Initialize Razorpay client
+        client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+        
+        # Verify signature
+        signature_data = {
+            'razorpay_order_id': payment_data['razorpay_order_id'],
+            'razorpay_payment_id': payment_data['razorpay_payment_id'],
+            'razorpay_signature': payment_data['razorpay_signature']
+        }
+        
+        # Verify the payment
+        is_valid = client.utility.verify_payment_signature(signature_data)
+        
+        if is_valid:
+            # Update payment status
+            payment.razorpay_payment_id = payment_data['razorpay_payment_id']
+            payment.razorpay_signature = payment_data['razorpay_signature']
+            payment.status = Payment.PaymentStatus.SUCCESS
+            payment.save()
+            
+            # Update property as paid
+            property_obj = payment.property
+            property_obj.is_paid = True
+            property_obj.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Payment verified successfully!',
+                'redirect': '/dashboard/'
+            })
+        else:
+            payment.status = Payment.PaymentStatus.FAILED
+            payment.save()
+            return JsonResponse({
+                'success': False,
+                'message': 'Payment verification failed. Invalid signature.'
+            })
+    
+    except Payment.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Payment record not found.'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
 
 # NEW: Admin Action View
 @login_required
