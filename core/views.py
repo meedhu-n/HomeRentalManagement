@@ -134,7 +134,7 @@ def add_property_view(request):
             property_obj.owner = request.user
             property_obj.status = Property.Status.PENDING_APPROVAL
             property_obj.save()
-            messages.success(request, "Step 1 Complete! Now upload photos.")
+            messages.success(request, "Property details saved! Now upload photos.")
             return redirect('add_photos', id=property_obj.id)
     else:
         form = PropertyForm()

@@ -37,12 +37,35 @@ class Property(models.Model):
         RENTED = "RENTED", "Rented"
         MAINTENANCE = "MAINTENANCE", "Maintenance"
 
+    class Furnishing(models.TextChoices):
+        UNFURNISHED = "UNFURNISHED", "Unfurnished"
+        SEMI_FURNISHED = "SEMI_FURNISHED", "Semi-Furnished"
+        FULLY_FURNISHED = "FULLY_FURNISHED", "Fully Furnished"
+
+    class Facing(models.TextChoices):
+        NORTH = "NORTH", "North"
+        SOUTH = "SOUTH", "South"
+        EAST = "EAST", "East"
+        WEST = "WEST", "West"
+        NORTHEAST = "NORTHEAST", "North-East"
+        NORTHWEST = "NORTHWEST", "North-West"
+        SOUTHEAST = "SOUTHEAST", "South-East"
+        SOUTHWEST = "SOUTHWEST", "South-West"
+
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='properties')
     title = models.CharField(max_length=255)
+    ad_title = models.CharField(max_length=255, blank=True, null=True, help_text="Short ad title")
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     location = models.CharField(max_length=255)
     property_type = models.CharField(max_length=100)
+    bhk = models.IntegerField(default=1, help_text="Number of BHKs (Bedrooms)")
+    bathrooms = models.IntegerField(default=1, help_text="Number of bathrooms")
+    furnishing = models.CharField(max_length=50, choices=Furnishing.choices, default=Furnishing.SEMI_FURNISHED)
+    super_built_area = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Super built area in sqft")
+    bachelors_allowed = models.BooleanField(default=True, help_text="Are bachelors allowed?")
+    total_floors = models.IntegerField(default=1, help_text="Total floors in the building")
+    facing = models.CharField(max_length=50, choices=Facing.choices, default=Facing.NORTH)
     amenities = models.TextField(help_text="Comma-separated list of amenities", blank=True)
     status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING_APPROVAL)
     # Added is_paid field
