@@ -6,6 +6,44 @@
     --glass-bg: rgba(20, 20, 20, 0.85);
 }
 
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes floatAnimation {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(204, 255, 0, 0.1), 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(204, 255, 0, 0.3), 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+}
+
 body {
     background-color: var(--bg-core);
     color: var(--white);
@@ -14,13 +52,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem 0; /* Further reduced padding */
+    padding: 0.5rem 0;
     margin: 0;
-    /* Rich gradient background */
     background: radial-gradient(circle at 10% 20%, #1a1a1a 0%, #0a0a0a 90%);
 }
 
-/* Background Texture */
+/* Background Image with Animation */
 body::before {
     content: "";
     position: fixed;
@@ -28,14 +65,16 @@ body::before {
     left: 0;
     width: 100%; 
     height: 100%;
-    /* Interior/House background image - Dark Modern Interior */
-    background: url('https://images.unsplash.com/photo-1513584685908-2274653fa18f?q=80&w=2070&auto=format&fit=crop');
+    background: linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.3) 100%), url('https://images.unsplash.com/photo-1493857671505-72967e2e2760?q=80&w=2070&auto=format&fit=crop');
     background-size: cover;
     background-position: center;
+    background-attachment: fixed;
+    background-color: #1a1a1a;
     z-index: -2;
+    animation: fadeIn 1s ease-in;
 }
 
-/* Dark Overlay for readability */
+/* Dark Overlay with Gradient Effect */
 body::after {
     content: "";
     position: fixed;
@@ -43,9 +82,10 @@ body::after {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7); /* Darkens the image */
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(20, 20, 20, 0.6) 50%, rgba(0, 0, 0, 0.7) 100%);
     z-index: -1;
     pointer-events: none;
+    animation: fadeIn 1.5s ease-in;
 }
 
 /* Form Container */
@@ -53,13 +93,19 @@ body::after {
     background: var(--glass-bg);
     backdrop-filter: blur(15px);
     border: 1px solid var(--border-color);
-    padding: 1.5rem; /* Further reduced padding */
+    padding: 1.5rem;
     width: 100%;
-    max-width: 550px; /* Further reduced max-width */
+    max-width: 550px;
     position: relative;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    border-radius: 6px;
+    border-radius: 12px;
     z-index: 10;
+    animation: slideInUp 0.8s ease-out, glow 3s ease-in-out infinite;
+    transition: all 0.3s ease;
+}
+
+.property-card:hover {
+    backdrop-filter: blur(20px);
 }
 
 .property-card::before {
@@ -68,56 +114,64 @@ body::after {
     top: 0;
     left: 0;
     width: 100%;
-    height: 2px;
+    height: 3px;
     background: linear-gradient(90deg, transparent, var(--acid-green), transparent);
+    border-radius: 12px 12px 0 0;
+    animation: slideInUp 1s ease-out;
 }
 
 h2 {
     font-family: 'Anton', sans-serif;
     text-transform: uppercase;
-    font-size: 1.75rem; /* Further reduced font size */
-    margin-bottom: 0.15rem; /* Reduced margin */
+    font-size: 1.75rem;
+    margin-bottom: 0.15rem;
     letter-spacing: 2px;
+    animation: slideInUp 0.8s ease-out 0.1s both;
 }
 
 h2 span {
     color: var(--acid-green);
+    animation: floatAnimation 3s ease-in-out infinite;
+    display: inline-block;
 }
 
 .subtitle {
     color: #aaa;
-    margin-bottom: 1rem; /* Reduced margin */
+    margin-bottom: 1rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    font-size: 0.75rem; /* Reduced font size */
+    font-size: 0.75rem;
+    animation: slideInUp 0.8s ease-out 0.2s both;
 }
 
 .form-label {
     text-transform: uppercase;
     font-weight: 700;
-    font-size: 0.65rem; /* Reduced font size */
+    font-size: 0.65rem;
     letter-spacing: 1.5px;
     color: var(--acid-green);
     display: block;
-    margin-bottom: 0.15rem; /* Reduced margin */
+    margin-bottom: 0.15rem;
+    transition: all 0.3s ease;
 }
 
 .form-control {
     background: rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--border-color);
+    border: 2px solid var(--border-color);
     color: white;
-    padding: 0.5rem; /* Reduced padding */
-    border-radius: 2px;
+    padding: 0.5rem;
+    border-radius: 6px;
     font-weight: 500;
     transition: all 0.3s ease;
-    font-size: 0.85rem; /* Reduced font size */
+    font-size: 0.85rem;
 }
 
 .form-control:focus {
-    background: rgba(204, 255, 0, 0.05);
+    background: rgba(204, 255, 0, 0.08);
     border-color: var(--acid-green);
     color: white;
-    box-shadow: none;
+    box-shadow: 0 0 15px rgba(204, 255, 0, 0.2);
+    transform: scale(1.02);
 }
 
 textarea.form-control {
@@ -134,38 +188,43 @@ textarea.form-control {
     color: #000;
     font-weight: 800;
     text-transform: uppercase;
-    padding: 0.7rem; /* Reduced padding */
+    padding: 0.7rem;
     width: 100%;
     font-family: 'Anton', sans-serif;
-    font-size: 0.9rem; /* Reduced font size */
+    font-size: 0.9rem;
     letter-spacing: 2px;
-    transition: all 0.3s;
-    margin-top: 0.75rem; /* Reduced margin */
+    transition: all 0.3s ease;
+    margin-top: 0.75rem;
     cursor: pointer;
-    border-radius: 2px;
+    border-radius: 6px;
 }
 
 .btn-acid:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(204, 255, 0, 0.2);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(204, 255, 0, 0.3);
     background-color: #d9ff33;
+}
+
+.btn-acid:active {
+    transform: translateY(-2px) scale(0.98);
 }
 
 .back-link {
     display: inline-block;
     text-align: center;
-    margin-top: 0.75rem; /* Reduced margin */
+    margin-top: 0.75rem;
     color: #666;
-    font-size: 0.7rem; /* Reduced font size */
+    font-size: 0.7rem;
     text-decoration: none;
-    transition: 0.3s;
+    transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 .back-link:hover { 
-    color: var(--white); 
+    color: var(--acid-green);
     letter-spacing: 2px;
+    transform: translateX(-3px);
 }
 
 .alert {
