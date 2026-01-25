@@ -83,11 +83,24 @@ def dashboard_view(request):
     # Check if user is superuser (Admin)
     if request.user.is_superuser or request.user.role == 'ADMIN':
         # Admin Dashboard Logic
-        pending_properties = Property.objects.filter(status=Property.Status.PENDING_APPROVAL, is_paid=True)
+        # Show all properties with PENDING status (whether paid or not)
+        pending_properties = Property.objects.filter(status=Property.Status.PENDING_APPROVAL).order_by('-created_at')
+        # Exclude admin/superuser from owners and tenants lists
+        owners = User.objects.filter(role='OWNER', is_superuser=False).order_by('-date_joined')
+        tenants = User.objects.filter(role='TENANT', is_superuser=False).order_by('-date_joined')
+        all_users = User.objects.exclude(is_superuser=True).order_by('-date_joined')
+        all_properties = Property.objects.all().order_by('-created_at')
+        
         context['pending_properties'] = pending_properties
         context['pending_count'] = pending_properties.count()
-        context['total_users'] = User.objects.count()
-        context['total_properties'] = Property.objects.count()
+        context['all_users'] = all_users
+        context['total_users'] = all_users.count()
+        context['owners'] = owners
+        context['total_owners'] = owners.count()
+        context['tenants'] = tenants
+        context['total_tenants'] = tenants.count()
+        context['all_properties'] = all_properties
+        context['total_properties'] = all_properties.count()
         return render(request, 'core/admin_dashboard.html', context)
     
     elif request.user.role == 'OWNER':
@@ -97,6 +110,13 @@ def dashboard_view(request):
         return render(request, 'core/owner_dashboard.html', context)
     
     elif request.user.role == 'TENANT':
+        available_properties = Property.objects.filter(status=Property.Status.AVAILABLE).order_by('-created_at')
+        user_applications = RentalApplication.objects.filter(tenant=request.user).order_by('-application_date')
+        context['available_properties'] = available_properties
+        context['total_available'] = available_properties.count()
+        context['applications'] = user_applications
+        context['total_applications'] = user_applications.count()
+        context['approved_applications'] = user_applications.filter(status=RentalApplication.Status.APPROVED).count()
         return render(request, 'core/tenant_dashboard.html', context)
     
     return render(request, 'core/dashboard.html', context)
@@ -310,4 +330,62 @@ def manage_property_view(request, id):
         'applications': applications,
         'maintenance_requests': maintenance_requests
     }
-    return render(request, 'core/property_manage.html', context)    
+    return render(request, 'core/property_manage.html', context)
+
+@login_required
+def delete_property_view(request, id):
+    """Delete a property - Owner only"""
+    property_obj = get_object_or_404(Property, id=id, owner=request.user)
+    property_title = property_obj.title
+    property_obj.delete()
+    
+    messages.success(request, f"Property '{property_title}' has been deleted successfully.")
+    return redirect('dashboard')
+
+@login_required
+def mark_property_rented_view(request, id):
+    """Mark property as rented - Owner only"""
+    property_obj = get_object_or_404(Property, id=id, owner=request.user)
+    property_obj.status = Property.Status.RENTED
+    property_obj.save()
+    
+    messages.success(request, f"Property '{property_obj.title}' has been marked as RENTED. It will only be visible to you and the tenant.")
+    return redirect('manage_property', id=id)
+
+
+@login_required
+def property_details_view(request, id):
+    """View property details with all images - Admin view"""
+    # Only allow admin to view
+    if not (request.user.is_superuser or request.user.role == 'ADMIN'):
+        return redirect('dashboard')
+    
+    property_obj = get_object_or_404(Property, id=id)
+    
+    context = {
+        'property': property_obj,
+        'images': property_obj.images.all()
+    }
+    return render(request, 'core/property_details.html', context)
+
+@login_required
+def delete_user_view(request, id):
+    """Delete a user - Admin only"""
+    # Only allow admin to delete users
+    if not (request.user.is_superuser or request.user.role == 'ADMIN'):
+        messages.error(request, "You don't have permission to delete users.")
+        return redirect('dashboard')
+    
+    # Prevent deleting the current admin user
+    if request.user.id == id:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('dashboard')
+    
+    user_to_delete = get_object_or_404(User, id=id)
+    username = user_to_delete.username
+    
+    # Delete all properties owned by the user first (cascade delete)
+    user_to_delete.delete()
+    
+    messages.success(request, f"User '{username}' and all associated data have been deleted successfully.")
+    return redirect('dashboard')

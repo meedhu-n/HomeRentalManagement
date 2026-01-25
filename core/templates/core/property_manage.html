@@ -26,8 +26,16 @@
                 <h1 class="display-4 text-white m-0">{{ property.title }}</h1>
                 <p class="text-gray mb-0 mt-2"><i class="fas fa-map-marker-alt me-2"></i> {{ property.location }}</p>
             </div>
-            <div>
+            <div class="d-flex gap-2">
                 <a href="{% url 'edit_property' property.id %}" class="btn btn-outline-light rounded-0">EDIT DETAILS</a>
+                {% if property.status == 'AVAILABLE' %}
+                    <a href="{% url 'mark_rented' property.id %}" class="btn btn-success rounded-0">
+                        <i class="fas fa-check me-1"></i>MARK RENTED
+                    </a>
+                {% endif %}
+                <button type="button" class="btn btn-danger rounded-0" data-bs-toggle="modal" data-bs-target="#deletePropertyModal">
+                    <i class="fas fa-trash me-1"></i>DELETE
+                </button>
             </div>
         </div>
 
@@ -110,6 +118,29 @@
             </div>
         </div>
     </div>
+
+    <!-- Delete Property Modal -->
+    <div class="modal fade" id="deletePropertyModal" tabindex="-1" aria-labelledby="deletePropertyLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: #16213e; border: 1px solid rgba(255, 51, 102, 0.3);">
+                <div class="modal-header border-bottom" style="border-color: rgba(255, 51, 102, 0.3) !important;">
+                    <h5 class="modal-title text-white" id="deletePropertyLabel"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Deletion</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-white">
+                    <p>Are you sure you want to delete property <strong style="color: #ff3366;">{{ property.title }}</strong>?</p>
+                    <p style="color: #ffc107; font-size: 0.9rem;"><i class="fas fa-info-circle me-2"></i>This action will permanently delete the property and all associated data (images, applications, maintenance requests).</p>
+                </div>
+                <div class="modal-footer border-top" style="border-color: rgba(255, 51, 102, 0.3) !important;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
+                    <a href="{% url 'delete_property' property.id %}" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>DELETE PROPERTY
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
