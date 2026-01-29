@@ -448,12 +448,23 @@ def mark_property_rented_view(request, id):
 
 @login_required
 def property_details_view(request, id):
-    """View property details with all images - Admin view"""
-    # Only allow admin to view
-    if not (request.user.is_superuser or request.user.role == 'ADMIN'):
-        return redirect('dashboard')
-    
+    """View property details with all images"""
     property_obj = get_object_or_404(Property, id=id)
+    
+    # Check if user has permission to view
+    # Admins can view all, owners can view their own, tenants can view available properties
+    if request.user.is_superuser or request.user.role == 'ADMIN':
+        # Admin can view all properties
+        pass
+    elif request.user.role == 'OWNER' and property_obj.owner == request.user:
+        # Owner can view their own properties
+        pass
+    elif request.user.role == 'TENANT' and property_obj.status == 'AVAILABLE':
+        # Tenants can only view available properties
+        pass
+    else:
+        messages.error(request, "You don't have permission to view this property.")
+        return redirect('dashboard')
     
     context = {
         'property': property_obj,
