@@ -99,6 +99,7 @@
                 currency: 'INR',
                 name: 'Home Rental Management',
                 description: 'Property Registration Fee - {{ property.title }}',
+                image: 'https://cdn.razorpay.com/logos/7K3b6d18wHwKzL_medium.png',
                 order_id: '{{ razorpay_order_id }}',
                 handler: function(response) {
                     // Payment successful, verify signature on backend
@@ -109,13 +110,37 @@
                     email: '{{ request.user.email }}',
                     contact: '{{ request.user.phone_number }}'
                 },
+                notes: {
+                    property_id: '{{ property.id }}',
+                    property_title: '{{ property.title }}'
+                },
                 theme: {
                     color: '#667eea'
                 },
+                retry: {
+                    enabled: true,
+                    max_count: 3
+                },
+                timeout: 300,
+                remember_customer: false,
+                readonly: {
+                    contact: false,
+                    email: false,
+                    name: false
+                },
+                hidden: {
+                    contact: false,
+                    email: false
+                },
                 modal: {
+                    backdropclose: false,
+                    escape: true,
+                    handleback: true,
+                    confirm_close: true,
                     ondismiss: function() {
                         console.log('Payment modal closed by user');
-                    }
+                    },
+                    animation: true
                 }
             };
 
@@ -123,8 +148,18 @@
             
             // Handle payment failure
             rzp.on('payment.failed', function(response) {
-                alert('Payment failed: ' + response.error.description);
-                console.error('Payment error:', response.error);
+                console.error('Full Payment error:', response);
+                console.error('Error code:', response.error.code);
+                console.error('Error description:', response.error.description);
+                console.error('Error source:', response.error.source);
+                console.error('Error step:', response.error.step);
+                console.error('Error reason:', response.error.reason);
+                
+                let errorMsg = 'Payment failed: ' + response.error.description;
+                if (response.error.reason) {
+                    errorMsg += '\nReason: ' + response.error.reason;
+                }
+                alert(errorMsg);
             });
             
             rzp.open();

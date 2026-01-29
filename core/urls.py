@@ -25,6 +25,7 @@ urlpatterns = [
     # Payment
     path('payment/<int:id>/', views.payment_view, name='payment'),
     path('verify-payment/', views.verify_payment_view, name='verify_payment'),
+    path('razorpay-webhook/', views.razorpay_webhook, name='razorpay_webhook'),
 
     # Admin
     path('admin-approve/<int:id>/', views.approve_property_view, name='approve_property'),

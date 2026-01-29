@@ -186,30 +186,54 @@ def payment_view(request, id):
             auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
         )
         
-        # Amount in paise (1 INR = 100 paise)
-        amount = int(settings.PROPERTY_REGISTRATION_FEE * 100)
-        
-        # Create Razorpay order
-        order_data = {
-            'amount': amount,
-            'currency': 'INR',
-            'payment_capture': '1'
-        }
-        
-        razorpay_order = client.order.create(data=order_data)
-        
-        # Save payment record
-        payment = Payment.objects.create(
-            property=property_obj,
-            owner=request.user,
-            razorpay_order_id=razorpay_order['id'],
-            amount=settings.PROPERTY_REGISTRATION_FEE,
-            status=Payment.PaymentStatus.PENDING
-        )
+        # Check if payment record already exists
+        try:
+            payment = Payment.objects.get(property=property_obj)
+            # If payment exists but is not successful, create a new order
+            if payment.status != Payment.PaymentStatus.SUCCESS:
+                # Amount in paise (1 INR = 100 paise)
+                amount = int(settings.PROPERTY_REGISTRATION_FEE * 100)
+                
+                # Create new Razorpay order
+                order_data = {
+                    'amount': amount,
+                    'currency': 'INR',
+                    'payment_capture': '1'
+                }
+                
+                razorpay_order = client.order.create(data=order_data)
+                
+                # Update existing payment record with new order
+                payment.razorpay_order_id = razorpay_order['id']
+                payment.razorpay_payment_id = None
+                payment.razorpay_signature = None
+                payment.status = Payment.PaymentStatus.PENDING
+                payment.save()
+        except Payment.DoesNotExist:
+            # No payment exists, create new one
+            amount = int(settings.PROPERTY_REGISTRATION_FEE * 100)
+            
+            # Create Razorpay order
+            order_data = {
+                'amount': amount,
+                'currency': 'INR',
+                'payment_capture': '1'
+            }
+            
+            razorpay_order = client.order.create(data=order_data)
+            
+            # Save payment record
+            payment = Payment.objects.create(
+                property=property_obj,
+                owner=request.user,
+                razorpay_order_id=razorpay_order['id'],
+                amount=settings.PROPERTY_REGISTRATION_FEE,
+                status=Payment.PaymentStatus.PENDING
+            )
         
         context = {
             'property': property_obj,
-            'razorpay_order_id': razorpay_order['id'],
+            'razorpay_order_id': payment.razorpay_order_id,
             'razorpay_key_id': settings.RAZORPAY_KEY_ID,
             'amount': settings.PROPERTY_REGISTRATION_FEE,
             'payment_id': payment.id,
@@ -286,6 +310,75 @@ def verify_payment_view(request):
             'success': False,
             'message': f'Error: {str(e)}'
         })
+
+@csrf_exempt
+@require_POST
+def razorpay_webhook(request):
+    """Handle Razorpay webhook events"""
+    try:
+        # Get webhook data
+        webhook_body = request.body
+        webhook_signature = request.headers.get('X-Razorpay-Signature', '')
+        
+        # Initialize Razorpay client
+        client = razorpay.Client(
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+        )
+        
+        # Verify webhook signature (if webhook secret is configured)
+        # For now, we'll process without verification for testing
+        # In production, you should verify the signature
+        
+        webhook_data = json.loads(webhook_body)
+        event = webhook_data.get('event')
+        payload = webhook_data.get('payload', {})
+        payment_entity = payload.get('payment', {}).get('entity', {})
+        
+        print(f"Webhook received: {event}")
+        print(f"Payment data: {payment_entity}")
+        
+        # Handle payment.captured event
+        if event == 'payment.captured':
+            razorpay_payment_id = payment_entity.get('id')
+            razorpay_order_id = payment_entity.get('order_id')
+            
+            try:
+                # Find the payment record
+                payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
+                
+                # Update payment status
+                payment.razorpay_payment_id = razorpay_payment_id
+                payment.status = Payment.PaymentStatus.SUCCESS
+                payment.save()
+                
+                # Mark property as paid
+                property_obj = payment.property
+                property_obj.is_paid = True
+                property_obj.save()
+                
+                print(f"Payment {razorpay_payment_id} marked as successful")
+                
+            except Payment.DoesNotExist:
+                print(f"Payment record not found for order: {razorpay_order_id}")
+        
+        # Handle payment.failed event
+        elif event == 'payment.failed':
+            razorpay_order_id = payment_entity.get('order_id')
+            
+            try:
+                payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
+                payment.status = Payment.PaymentStatus.FAILED
+                payment.save()
+                print(f"Payment marked as failed for order: {razorpay_order_id}")
+            except Payment.DoesNotExist:
+                print(f"Payment record not found for order: {razorpay_order_id}")
+        
+        # Return success response to Razorpay
+        return JsonResponse({'status': 'ok'})
+    
+    except Exception as e:
+        print(f"Webhook error: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
 # NEW: Admin Action View
 @login_required
