@@ -213,6 +213,46 @@
                     <div class="empty-text">Adjust your filters or come back later for more listings</div>
                 </div>
             {% endif %}
+
+            <!-- Reviews Section -->
+            {% if tenant_reviews %}
+            <div style="margin-top: 60px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2 style="font-family: 'Anton', sans-serif; font-size: 28px; letter-spacing: 1px; color: #CCFF00;">YOUR REVIEWS</h2>
+                </div>
+                
+                <div style="display: grid; gap: 20px;">
+                    {% for review in tenant_reviews %}
+                        <div style="background: rgba(30, 30, 30, 0.8); border-radius: 12px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                <div>
+                                    <h3 style="color: #ffffff; font-size: 18px; margin-bottom: 8px;">{{ review.property.title }}</h3>
+                                    <div style="margin-bottom: 8px;">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}
+                                                <i class="fas fa-star" style="color: #CCFF00; font-size: 14px;"></i>
+                                            {% else %}
+                                                <i class="far fa-star" style="color: rgba(255, 255, 255, 0.3); font-size: 14px;"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <span style="color: rgba(255, 255, 255, 0.5); font-size: 12px; margin-left: 10px;">{{ review.created_at|date:"M d, Y" }}</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 10px;">
+                                    <a href="{% url 'add_review' review.property.id %}" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.1); color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 13px; transition: all 0.2s;">
+                                        <i class="fas fa-edit"></i> EDIT
+                                    </a>
+                                    <a href="{% url 'delete_review' review.id %}" onclick="return confirm('Delete this review?')" style="padding: 8px 16px; background: rgba(255, 0, 0, 0.2); color: #ff6b6b; text-decoration: none; border-radius: 6px; font-size: 13px; transition: all 0.2s;">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <p style="color: rgba(255, 255, 255, 0.7); font-size: 14px; line-height: 1.6; margin: 0;">{{ review.comment }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 

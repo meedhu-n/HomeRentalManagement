@@ -37,4 +37,8 @@ urlpatterns = [
     path('conversation/<int:id>/', views.conversation_detail_view, name='conversation_detail'),
     path('start-conversation/<int:property_id>/', views.start_conversation_view, name='start_conversation'),
 
+    # Reviews
+    path('add-review/<int:property_id>/', views.add_review_view, name='add_review'),
+    path('delete-review/<int:review_id>/', views.delete_review_view, name='delete_review'),
+
 ]

@@ -204,3 +204,27 @@ class Message(models.Model):
 
     def __str__(self):
         return f"Message from {self.sender.username} at {self.created_at}"
+
+# Review System
+class Review(models.Model):
+    """Reviews for properties by tenants and owners"""
+    class Rating(models.IntegerChoices):
+        ONE = 1, "1 Star"
+        TWO = 2, "2 Stars"
+        THREE = 3, "3 Stars"
+        FOUR = 4, "4 Stars"
+        FIVE = 5, "5 Stars"
+
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='reviews')
+    reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews_given')
+    rating = models.IntegerField(choices=Rating.choices)
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ('property', 'reviewer')  # One review per user per property
+
+    def __str__(self):
+        return f"Review by {self.reviewer.username} for {self.property.title} - {self.rating} stars"

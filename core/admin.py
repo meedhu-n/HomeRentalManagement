@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Property, PropertyImage, RentalApplication, Lease, MaintenanceRequest, Inquiry, Payment
+from .models import User, Property, PropertyImage, RentalApplication, Lease, MaintenanceRequest, Inquiry, Payment, Review
 
 # Custom Admin configuration
 class PropertyImageInline(admin.TabularInline):
@@ -43,3 +43,10 @@ class PaymentAdmin(admin.ModelAdmin):
     list_filter = ('status', 'created_at')
     search_fields = ('razorpay_order_id', 'razorpay_payment_id', 'property__title')
     readonly_fields = ('razorpay_order_id', 'razorpay_payment_id', 'razorpay_signature', 'created_at', 'updated_at')
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('property', 'reviewer', 'rating', 'created_at')
+    list_filter = ('rating', 'created_at')
+    search_fields = ('property__title', 'reviewer__username', 'comment')
+    readonly_fields = ('created_at', 'updated_at')

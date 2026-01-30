@@ -18,11 +18,15 @@
             font-family: 'Inter', sans-serif;
             background: #0a0a0a;
             color: #ffffff;
-            overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
             position: relative;
         }
 
-        /* Background Image with Overlay - Same as Owner Dashboard */
+        /* Background Image - Same as Owner Dashboard */
         body::before {
             content: "";
             position: fixed;
@@ -54,17 +58,23 @@
 
         .messages-container {
             display: flex;
-            height: 100vh;
+            width: 100%;
+            max-width: 1400px;
+            height: 85vh;
+            background: rgba(25, 25, 25, 0.95);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
 
         /* Sidebar */
         .sidebar {
             width: 320px;
-            background: rgba(40, 40, 40, 0.9);
+            background: rgba(30, 30, 30, 0.8);
             backdrop-filter: blur(20px);
             display: flex;
             flex-direction: column;
-            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .sidebar-header {
@@ -188,17 +198,18 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: rgba(30, 30, 30, 0.85);
+            background: rgba(20, 20, 20, 0.6);
             backdrop-filter: blur(20px);
         }
 
         .chat-header {
             padding: 16px 25px;
-            background: rgba(40, 40, 40, 0.8);
+            background: rgba(30, 30, 30, 0.9);
             backdrop-filter: blur(30px);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .chat-header-left {
@@ -344,8 +355,9 @@
         /* Input Area */
         .input-area {
             padding: 16px 25px 20px;
-            background: rgba(40, 40, 40, 0.8);
+            background: rgba(30, 30, 30, 0.9);
             backdrop-filter: blur(30px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .input-container {

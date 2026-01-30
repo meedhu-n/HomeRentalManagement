@@ -104,6 +104,7 @@ def dashboard_view(request):
         return render(request, 'core/admin_dashboard.html', context)
     
     elif request.user.role == 'OWNER':
+        from .models import Review
         properties = Property.objects.filter(owner=request.user)
         
         # Get recent conversations for owner
@@ -116,19 +117,29 @@ def dashboard_view(request):
             conversation.has_unread = unread_count > 0
             conversations_with_unread.append(conversation)
         
+        # Get reviews given by this owner
+        owner_reviews = Review.objects.filter(reviewer=request.user).select_related('property')
+        
         context['properties'] = properties
         context['active_listings_count'] = properties.filter(status=Property.Status.AVAILABLE).count()
         context['recent_conversations'] = conversations_with_unread
+        context['owner_reviews'] = owner_reviews
         return render(request, 'core/owner_dashboard.html', context)
     
     elif request.user.role == 'TENANT':
+        from .models import Review
         available_properties = Property.objects.filter(status=Property.Status.AVAILABLE).order_by('-created_at')
         user_applications = RentalApplication.objects.filter(tenant=request.user).order_by('-application_date')
+        
+        # Get reviews given by this tenant
+        tenant_reviews = Review.objects.filter(reviewer=request.user).select_related('property')
+        
         context['available_properties'] = available_properties
         context['total_available'] = available_properties.count()
         context['applications'] = user_applications
         context['total_applications'] = user_applications.count()
         context['approved_applications'] = user_applications.filter(status=RentalApplication.Status.APPROVED).count()
+        context['tenant_reviews'] = tenant_reviews
         return render(request, 'core/tenant_dashboard.html', context)
     
     return render(request, 'core/dashboard.html', context)
@@ -582,3 +593,65 @@ def start_conversation_view(request, property_id):
         messages.success(request, "Conversation started! Send your first message.")
     
     return redirect('conversation_detail', id=conversation.id)
+
+@login_required
+def add_review_view(request, property_id):
+    """Add or update a review for a property"""
+    from .models import Review
+    
+    property_obj = get_object_or_404(Property, id=property_id)
+    
+    # Check if user already has a review for this property
+    existing_review = Review.objects.filter(property=property_obj, reviewer=request.user).first()
+    
+    if request.method == 'POST':
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment')
+        
+        if not rating or not comment:
+            messages.error(request, "Please provide both rating and comment.")
+            return redirect('dashboard')
+        
+        try:
+            rating = int(rating)
+            if rating < 1 or rating > 5:
+                messages.error(request, "Rating must be between 1 and 5.")
+                return redirect('dashboard')
+            
+            if existing_review:
+                # Update existing review
+                existing_review.rating = rating
+                existing_review.comment = comment
+                existing_review.save()
+                messages.success(request, "Review updated successfully!")
+            else:
+                # Create new review
+                Review.objects.create(
+                    property=property_obj,
+                    reviewer=request.user,
+                    rating=rating,
+                    comment=comment
+                )
+                messages.success(request, "Review added successfully!")
+            
+            return redirect('dashboard')
+        except ValueError:
+            messages.error(request, "Invalid rating value.")
+            return redirect('dashboard')
+    
+    # For GET request, show the form
+    context = {
+        'property': property_obj,
+        'existing_review': existing_review
+    }
+    return render(request, 'core/add_review.html', context)
+
+@login_required
+def delete_review_view(request, review_id):
+    """Delete a review"""
+    from .models import Review
+    
+    review = get_object_or_404(Review, id=review_id, reviewer=request.user)
+    review.delete()
+    messages.success(request, "Review deleted successfully!")
+    return redirect('dashboard')
