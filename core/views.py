@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.conf import settings
-from .models import Property, PropertyImage, Payment, RentalApplication, MaintenanceRequest
+from .models import Property, PropertyImage, Payment, RentalApplication, MaintenanceRequest, Conversation, Message
 from .forms import PropertyForm
 import razorpay
 import json
@@ -105,8 +105,20 @@ def dashboard_view(request):
     
     elif request.user.role == 'OWNER':
         properties = Property.objects.filter(owner=request.user)
+        
+        # Get recent conversations for owner
+        recent_conversations = Conversation.objects.filter(owner=request.user).order_by('-updated_at')[:5]
+        
+        # Add unread count to each conversation
+        conversations_with_unread = []
+        for conversation in recent_conversations:
+            unread_count = conversation.messages.filter(is_read=False).exclude(sender=request.user).count()
+            conversation.has_unread = unread_count > 0
+            conversations_with_unread.append(conversation)
+        
         context['properties'] = properties
         context['active_listings_count'] = properties.filter(status=Property.Status.AVAILABLE).count()
+        context['recent_conversations'] = conversations_with_unread
         return render(request, 'core/owner_dashboard.html', context)
     
     elif request.user.role == 'TENANT':
@@ -493,3 +505,80 @@ def delete_user_view(request, id):
     
     messages.success(request, f"User '{username}' and all associated data have been deleted successfully.")
     return redirect('dashboard')
+
+
+# Messaging System Views
+@login_required
+def conversations_view(request):
+    """View all conversations for the logged-in user"""
+    if request.user.role == 'TENANT':
+        conversations = Conversation.objects.filter(tenant=request.user)
+    elif request.user.role == 'OWNER':
+        conversations = Conversation.objects.filter(owner=request.user)
+    else:
+        conversations = Conversation.objects.all()
+    
+    # Add unread count to each conversation
+    conversations_with_unread = []
+    for conversation in conversations:
+        unread_count = conversation.messages.filter(is_read=False).exclude(sender=request.user).count()
+        conversation.has_unread = unread_count > 0
+        conversations_with_unread.append(conversation)
+    
+    context = {
+        'conversations': conversations_with_unread
+    }
+    return render(request, 'core/conversations.html', context)
+
+@login_required
+def conversation_detail_view(request, id):
+    """View a specific conversation and send messages"""
+    conversation = get_object_or_404(Conversation, id=id)
+    
+    # Check if user is part of this conversation
+    if request.user not in [conversation.tenant, conversation.owner] and not request.user.is_superuser:
+        messages.error(request, "You don't have access to this conversation.")
+        return redirect('conversations')
+    
+    # Mark messages as read for the current user
+    Message.objects.filter(conversation=conversation).exclude(sender=request.user).update(is_read=True)
+    
+    # Handle new message
+    if request.method == 'POST':
+        content = request.POST.get('message')
+        if content:
+            Message.objects.create(
+                conversation=conversation,
+                sender=request.user,
+                content=content
+            )
+            conversation.save()  # Update the updated_at timestamp
+            return redirect('conversation_detail', id=id)
+    
+    context = {
+        'conversation': conversation,
+        'messages': conversation.messages.all()
+    }
+    return render(request, 'core/conversation_detail.html', context)
+
+@login_required
+def start_conversation_view(request, property_id):
+    """Start a new conversation about a property"""
+    property_obj = get_object_or_404(Property, id=property_id)
+    
+    # Only tenants can start conversations
+    if request.user.role != 'TENANT':
+        messages.error(request, "Only tenants can start conversations.")
+        return redirect('property_details', id=property_id)
+    
+    # Check if conversation already exists
+    conversation, created = Conversation.objects.get_or_create(
+        property=property_obj,
+        tenant=request.user,
+        owner=property_obj.owner
+    )
+    
+    if created:
+        messages.success(request, "Conversation started! Send your first message.")
+    
+    return redirect('conversation_detail', id=conversation.id)

@@ -22,7 +22,7 @@
             <a class="navbar-brand" href="{% url 'index' %}">RENT<span>EASE</span></a>
             <div class="collapse navbar-collapse">
                 <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link text-white" href="#">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'conversations' %}"><i class="fas fa-comments me-1"></i> Messages</a></li>
                     <li class="nav-item ms-4">
                         <a href="{% url 'logout' %}" class="btn-outline-acid">LOGOUT</a>
                     </li>
@@ -108,6 +108,56 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Messages Section -->
+            {% if recent_conversations %}
+            <div class="row mb-5">
+                <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="text-gray section-title m-0">RECENT <span class="text-acid">MESSAGES</span></h4>
+                    <a href="{% url 'conversations' %}" class="btn btn-sm btn-outline-light rounded-0">VIEW ALL <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+                
+                <div class="col-12">
+                    {% for conversation in recent_conversations %}
+                        <div class="card-dash mb-3">
+                            <div class="card-body p-4">
+                                <div class="row align-items-center">
+                                    <div class="col-md-1 text-center">
+                                        <div class="message-avatar">
+                                            {{ conversation.tenant.username|first|upper }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <h6 class="text-white mb-1 fw-bold">{{ conversation.tenant.username }}</h6>
+                                        <p class="text-gray small mb-1">
+                                            <i class="fas fa-home text-acid me-2"></i>
+                                            Inquiring about: <span class="text-white">{{ conversation.property.title }}</span>
+                                        </p>
+                                        {% if conversation.get_last_message %}
+                                            <p class="text-gray small mb-0 mt-2">
+                                                <i class="fas fa-comment-dots me-2"></i>
+                                                "{{ conversation.get_last_message.content|truncatewords:12 }}"
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <small class="text-gray d-block mb-2">{{ conversation.updated_at|timesince }} ago</small>
+                                        {% if conversation.has_unread %}
+                                            <span class="badge bg-acid text-dark">NEW</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-2 text-end">
+                                        <a href="{% url 'conversation_detail' conversation.id %}" class="btn btn-sm btn-acid rounded-0">
+                                            <i class="fas fa-reply me-1"></i> REPLY
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
 
             <div class="row">
                 <div class="col-12 d-flex justify-content-between align-items-center mb-4">

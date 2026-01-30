@@ -171,3 +171,36 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment for {self.property.title} - {self.status}"
+
+# Messaging System
+class Conversation(models.Model):
+    """Conversation between a tenant and owner about a property"""
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='conversations')
+    tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tenant_conversations')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owner_conversations')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('property', 'tenant', 'owner')
+        ordering = ['-updated_at']
+
+    def __str__(self):
+        return f"Conversation: {self.tenant.username} - {self.owner.username} about {self.property.title}"
+
+    def get_last_message(self):
+        return self.messages.last()
+
+class Message(models.Model):
+    """Individual message in a conversation"""
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    content = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"Message from {self.sender.username} at {self.created_at}"

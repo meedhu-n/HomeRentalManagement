@@ -32,4 +32,9 @@ urlpatterns = [
     path('admin-reject/<int:id>/', views.reject_property_view, name='reject_property'),
     path('admin-delete-user/<int:id>/', views.delete_user_view, name='delete_user'),
 
+    # Messaging
+    path('conversations/', views.conversations_view, name='conversations'),
+    path('conversation/<int:id>/', views.conversation_detail_view, name='conversation_detail'),
+    path('start-conversation/<int:property_id>/', views.start_conversation_view, name='start_conversation'),
+
 ]
