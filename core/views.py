@@ -107,15 +107,18 @@ def dashboard_view(request):
         from .models import Review
         properties = Property.objects.filter(owner=request.user)
         
-        # Get recent conversations for owner
-        recent_conversations = Conversation.objects.filter(owner=request.user).order_by('-updated_at')[:5]
+        # Get only conversations with unread messages for owner
+        all_conversations = Conversation.objects.filter(owner=request.user).order_by('-updated_at')
         
-        # Add unread count to each conversation
+        # Filter to only show conversations with unread messages
         conversations_with_unread = []
-        for conversation in recent_conversations:
+        for conversation in all_conversations:
             unread_count = conversation.messages.filter(is_read=False).exclude(sender=request.user).count()
-            conversation.has_unread = unread_count > 0
-            conversations_with_unread.append(conversation)
+            if unread_count > 0:
+                conversation.has_unread = True
+                conversations_with_unread.append(conversation)
+                if len(conversations_with_unread) >= 5:  # Limit to 5 unread conversations
+                    break
         
         # Get reviews given by this owner
         owner_reviews = Review.objects.filter(reviewer=request.user).select_related('property')
@@ -654,4 +657,41 @@ def delete_review_view(request, review_id):
     review = get_object_or_404(Review, id=review_id, reviewer=request.user)
     review.delete()
     messages.success(request, "Review deleted successfully!")
+    return redirect('dashboard')
+
+@login_required
+def send_inquiry_view(request):
+    """Handle inquiry submission from tenant dashboard"""
+    if request.method == 'POST':
+        property_id = request.POST.get('property_id')
+        message = request.POST.get('message')
+        
+        if not property_id or not message:
+            messages.error(request, "Please provide all required information.")
+            return redirect('dashboard')
+        
+        try:
+            property_obj = Property.objects.get(id=property_id)
+            
+            # Create or get conversation
+            conversation, created = Conversation.objects.get_or_create(
+                property=property_obj,
+                tenant=request.user,
+                owner=property_obj.owner
+            )
+            
+            # Create message
+            Message.objects.create(
+                conversation=conversation,
+                sender=request.user,
+                content=message
+            )
+            
+            messages.success(request, "Inquiry sent successfully! The owner will respond soon.")
+            return redirect('dashboard')
+            
+        except Property.DoesNotExist:
+            messages.error(request, "Property not found.")
+            return redirect('dashboard')
+    
     return redirect('dashboard')

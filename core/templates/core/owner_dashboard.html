@@ -110,59 +110,75 @@
             </div>
 
             <!-- Messages Section -->
-            {% if recent_conversations %}
             <div class="row mb-5">
-                <div class="col-12 d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="text-gray section-title m-0">RECENT <span class="text-acid">MESSAGES</span></h4>
-                    <a href="{% url 'conversations' %}" class="btn btn-sm btn-outline-light rounded-0">VIEW ALL <i class="fas fa-arrow-right ms-1"></i></a>
-                </div>
-                
                 <div class="col-12">
-                    {% for conversation in recent_conversations %}
-                        <div class="card-dash mb-3">
-                            <div class="card-body p-4">
-                                <div class="row align-items-center">
-                                    <div class="col-md-1 text-center">
-                                        <div class="message-avatar">
-                                            {{ conversation.tenant.username|first|upper }}
+                    <div style="background: rgba(204, 255, 0, 0.05); border-left: 4px solid #CCFF00; padding: 30px; border-radius: 8px; margin-bottom: 40px;">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="text-gray section-title m-0">RECENT <span class="text-acid">MESSAGES</span></h4>
+                            <a href="{% url 'conversations' %}" class="btn btn-sm btn-acid rounded-0">VIEW ALL <i class="fas fa-arrow-right ms-1"></i></a>
+                        </div>
+                        
+                        {% if recent_conversations %}
+                        <div class="row g-3">
+                            {% for conversation in recent_conversations %}
+                                <div class="col-12">
+                                    <div style="background: rgba(20, 20, 20, 0.8); border-radius: 8px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <div class="message-avatar">
+                                                    {{ conversation.tenant.username|first|upper }}
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <div>
+                                                        <h6 class="text-white mb-1 fw-bold">{{ conversation.tenant.username }}</h6>
+                                                        <p class="text-gray small mb-0">
+                                                            <i class="fas fa-home text-acid me-1"></i>
+                                                            {{ conversation.property.title }}
+                                                        </p>
+                                                    </div>
+                                                    <div class="text-end">
+                                                        <small class="text-gray d-block mb-1">{{ conversation.updated_at|timesince }} ago</small>
+                                                        {% if conversation.has_unread %}
+                                                            <span class="badge bg-acid text-dark">NEW</span>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                {% if conversation.get_last_message %}
+                                                    <p class="text-gray small mb-2" style="font-style: italic;">
+                                                        <i class="fas fa-comment-dots me-1"></i>
+                                                        "{{ conversation.get_last_message.content|truncatewords:15 }}"
+                                                    </p>
+                                                {% endif %}
+                                                <a href="{% url 'conversation_detail' conversation.id %}" class="btn btn-sm btn-acid rounded-0">
+                                                    <i class="fas fa-reply me-1"></i> REPLY
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-7">
-                                        <h6 class="text-white mb-1 fw-bold">{{ conversation.tenant.username }}</h6>
-                                        <p class="text-gray small mb-1">
-                                            <i class="fas fa-home text-acid me-2"></i>
-                                            Inquiring about: <span class="text-white">{{ conversation.property.title }}</span>
-                                        </p>
-                                        {% if conversation.get_last_message %}
-                                            <p class="text-gray small mb-0 mt-2">
-                                                <i class="fas fa-comment-dots me-2"></i>
-                                                "{{ conversation.get_last_message.content|truncatewords:12 }}"
-                                            </p>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-2 text-center">
-                                        <small class="text-gray d-block mb-2">{{ conversation.updated_at|timesince }} ago</small>
-                                        {% if conversation.has_unread %}
-                                            <span class="badge bg-acid text-dark">NEW</span>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-2 text-end">
-                                        <a href="{% url 'conversation_detail' conversation.id %}" class="btn btn-sm btn-acid rounded-0">
-                                            <i class="fas fa-reply me-1"></i> REPLY
-                                        </a>
-                                    </div>
                                 </div>
-                            </div>
+                            {% endfor %}
                         </div>
-                    {% endfor %}
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-acid mb-3" style="opacity: 0.5;"></i>
+                            <p class="text-gray mb-0">No new messages. All caught up!</p>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-            {% endif %}
 
-            <div class="row">
-                <div class="col-12 d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="text-gray section-title m-0">YOUR <span class="text-white">PROPERTIES</span></h4>
-                    <button class="btn btn-sm btn-outline-secondary rounded-0">FILTER <i class="fas fa-filter ms-1"></i></button>
+            <!-- Properties Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div style="border-top: 2px solid rgba(255, 255, 255, 0.1); padding-top: 40px;">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="text-gray section-title m-0">YOUR <span class="text-white">PROPERTIES</span></h4>
+                            <button class="btn btn-sm btn-outline-secondary rounded-0">FILTER <i class="fas fa-filter ms-1"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

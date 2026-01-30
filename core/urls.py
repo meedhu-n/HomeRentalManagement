@@ -36,6 +36,7 @@ urlpatterns = [
     path('conversations/', views.conversations_view, name='conversations'),
     path('conversation/<int:id>/', views.conversation_detail_view, name='conversation_detail'),
     path('start-conversation/<int:property_id>/', views.start_conversation_view, name='start_conversation'),
+    path('send-inquiry/', views.send_inquiry_view, name='send_inquiry'),
 
     # Reviews
     path('add-review/<int:property_id>/', views.add_review_view, name='add_review'),
