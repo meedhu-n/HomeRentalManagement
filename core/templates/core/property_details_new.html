@@ -59,7 +59,7 @@
 
         .back-btn:hover {
             background: rgba(255, 255, 255, 0.1);
-            color: #CCFF00;
+            color: #DAA520;
         }
 
         .nav-actions {
@@ -79,19 +79,19 @@
         }
 
         .nav-btn-primary {
-            background: #CCFF00;
+            background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%);
             color: #000;
         }
 
         .nav-btn-secondary {
-            background: rgba(204, 255, 0, 0.1);
-            border: 1px solid #CCFF00;
-            color: #CCFF00;
+            background: rgba(218, 165, 32, 0.1);
+            border: 1px solid #DAA520;
+            color: #DAA520;
         }
 
         .nav-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(204, 255, 0, 0.3);
+            box-shadow: 0 8px 20px rgba(218, 165, 32, 0.3);
         }
 
         /* Hero Gallery Section */
@@ -105,9 +105,9 @@
 
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(3, 200px);
-            gap: 12px;
+            grid-template-columns: 2fr 1fr 1fr;
+            grid-template-rows: 300px 300px;
+            gap: 15px;
             border-radius: 20px;
             overflow: hidden;
         }
@@ -116,135 +116,37 @@
             position: relative;
             overflow: hidden;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 12px;
+            transition: all 0.3s;
         }
 
-        /* Main large image - top left, spans 2x2 */
-        .gallery-item:nth-child(1) {
-            grid-column: span 2;
+        .gallery-item:first-child {
             grid-row: span 2;
-        }
-
-        /* Top right image */
-        .gallery-item:nth-child(2) {
-            grid-column: span 2;
-            grid-row: span 1;
-        }
-
-        /* Middle right image */
-        .gallery-item:nth-child(3) {
-            grid-column: 3 / 4;
-            grid-row: 2 / 3;
-        }
-
-        /* Bottom right small */
-        .gallery-item:nth-child(4) {
-            grid-column: 4 / 5;
-            grid-row: 2 / 3;
-        }
-
-        /* Bottom left */
-        .gallery-item:nth-child(5) {
-            grid-column: 1 / 2;
-            grid-row: 3 / 4;
-        }
-
-        /* Bottom middle-left */
-        .gallery-item:nth-child(6) {
-            grid-column: 2 / 3;
-            grid-row: 3 / 4;
-        }
-
-        /* Bottom middle-right */
-        .gallery-item:nth-child(7) {
-            grid-column: 3 / 4;
-            grid-row: 3 / 4;
-        }
-
-        /* Bottom right with "View All" overlay */
-        .gallery-item:nth-child(8) {
-            grid-column: 4 / 5;
-            grid-row: 3 / 4;
         }
 
         .gallery-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.5s;
         }
 
         .gallery-item:hover img {
-            transform: scale(1.15);
+            transform: scale(1.1);
         }
 
         .gallery-overlay {
             position: absolute;
-            inset: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.3));
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
             padding: 20px;
             opacity: 0;
-            transition: opacity 0.4s;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
+            transition: opacity 0.3s;
         }
 
         .gallery-item:hover .gallery-overlay {
             opacity: 1;
-        }
-
-        .gallery-overlay i {
-            font-size: 32px;
-            color: #CCFF00;
-        }
-
-        /* View All Photos overlay for last image */
-        .view-all-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.4s;
-        }
-
-        .gallery-item:last-child:hover .view-all-overlay {
-            background: rgba(0, 0, 0, 0.85);
-        }
-
-        .view-all-overlay i {
-            font-size: 36px;
-            color: #CCFF00;
-        }
-
-        .view-all-overlay span {
-            font-size: 16px;
-            font-weight: 600;
-            color: #CCFF00;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Accent borders on hover */
-        .gallery-item::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border: 3px solid transparent;
-            border-radius: 12px;
-            transition: border-color 0.4s;
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .gallery-item:hover::before {
-            border-color: #CCFF00;
         }
 
         /* Content Section */
@@ -265,8 +167,8 @@
         }
 
         .property-header {
-            background: linear-gradient(135deg, rgba(204, 255, 0, 0.1) 0%, rgba(204, 255, 0, 0.05) 100%);
-            border: 1px solid rgba(204, 255, 0, 0.2);
+            background: linear-gradient(135deg, rgba(218, 165, 32, 0.1) 0%, rgba(184, 134, 11, 0.05) 100%);
+            border: 1px solid rgba(218, 165, 32, 0.2);
             border-radius: 20px;
             padding: 40px;
         }
@@ -274,7 +176,7 @@
         .property-title {
             font-size: 42px;
             font-weight: 700;
-            color: #CCFF00;
+            color: #DAA520;
             margin-bottom: 15px;
             line-height: 1.2;
         }
@@ -301,13 +203,13 @@
             padding: 12px 20px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 10px;
-            border: 1px solid rgba(204, 255, 0, 0.2);
+            border: 1px solid rgba(218, 165, 32, 0.2);
         }
 
         .meta-icon {
             width: 40px;
             height: 40px;
-            background: #CCFF00;
+            background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%);
             border-radius: 8px;
             display: flex;
             align-items: center;
@@ -330,7 +232,7 @@
         .meta-value {
             font-size: 16px;
             font-weight: 600;
-            color: #CCFF00;
+            color: #DAA520;
         }
 
         /* Description Section */
@@ -344,7 +246,7 @@
         .section-title {
             font-size: 28px;
             font-weight: 700;
-            color: #CCFF00;
+            color: #DAA520;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
@@ -355,7 +257,7 @@
             content: '';
             width: 4px;
             height: 30px;
-            background: #CCFF00;
+            background: linear-gradient(to bottom, #DAA520, #B8860B);
             border-radius: 2px;
         }
 
@@ -378,27 +280,27 @@
             align-items: center;
             gap: 15px;
             padding: 20px;
-            background: rgba(204, 255, 0, 0.05);
-            border: 1px solid rgba(204, 255, 0, 0.15);
+            background: rgba(218, 165, 32, 0.05);
+            border: 1px solid rgba(218, 165, 32, 0.15);
             border-radius: 12px;
             transition: all 0.3s;
         }
 
         .feature-item:hover {
-            background: rgba(204, 255, 0, 0.1);
-            border-color: rgba(204, 255, 0, 0.3);
+            background: rgba(218, 165, 32, 0.1);
+            border-color: rgba(218, 165, 32, 0.3);
             transform: translateY(-3px);
         }
 
         .feature-icon {
             width: 45px;
             height: 45px;
-            background: rgba(204, 255, 0, 0.15);
+            background: linear-gradient(135deg, rgba(218, 165, 32, 0.2), rgba(184, 134, 11, 0.1));
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #CCFF00;
+            color: #DAA520;
             font-size: 20px;
         }
 
@@ -416,8 +318,8 @@
         }
 
         .price-card {
-            background: linear-gradient(135deg, rgba(204, 255, 0, 0.15) 0%, rgba(204, 255, 0, 0.1) 100%);
-            border: 2px solid rgba(204, 255, 0, 0.3);
+            background: linear-gradient(135deg, rgba(218, 165, 32, 0.15) 0%, rgba(184, 134, 11, 0.1) 100%);
+            border: 2px solid rgba(218, 165, 32, 0.3);
             border-radius: 20px;
             padding: 40px;
             margin-bottom: 30px;
@@ -426,7 +328,7 @@
 
         .price-label {
             font-size: 14px;
-            color: rgba(204, 255, 0, 0.8);
+            color: rgba(218, 165, 32, 0.8);
             text-transform: uppercase;
             letter-spacing: 2px;
             margin-bottom: 10px;
@@ -435,9 +337,9 @@
         .price-value {
             font-size: 48px;
             font-weight: 800;
-            color: #CCFF00;
+            color: #DAA520;
             margin-bottom: 5px;
-            text-shadow: 0 2px 10px rgba(204, 255, 0, 0.3);
+            text-shadow: 0 2px 10px rgba(218, 165, 32, 0.3);
         }
 
         .price-period {
@@ -449,7 +351,7 @@
         .cta-button {
             width: 100%;
             padding: 18px;
-            background: #CCFF00;
+            background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%);
             color: #000;
             border: none;
             border-radius: 12px;
@@ -468,19 +370,19 @@
 
         .cta-button:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(204, 255, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(218, 165, 32, 0.5);
         }
 
         .cta-button-secondary {
-            background: rgba(204, 255, 0, 0.1);
-            border: 2px solid #CCFF00;
-            color: #CCFF00;
+            background: rgba(218, 165, 32, 0.1);
+            border: 2px solid #DAA520;
+            color: #DAA520;
         }
 
         /* Owner Card */
         .owner-card {
             background: rgba(20, 20, 20, 0.8);
-            border: 1px solid rgba(204, 255, 0, 0.2);
+            border: 1px solid rgba(218, 165, 32, 0.2);
             border-radius: 20px;
             padding: 30px;
         }
@@ -497,7 +399,7 @@
         .owner-avatar {
             width: 70px;
             height: 70px;
-            background: #CCFF00;
+            background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -505,13 +407,13 @@
             font-size: 28px;
             font-weight: 700;
             color: #000;
-            box-shadow: 0 8px 20px rgba(204, 255, 0, 0.4);
+            box-shadow: 0 8px 20px rgba(218, 165, 32, 0.4);
         }
 
         .owner-info h3 {
             font-size: 22px;
             font-weight: 700;
-            color: #CCFF00;
+            color: #DAA520;
             margin-bottom: 5px;
         }
 
@@ -532,15 +434,15 @@
         .stat-box {
             text-align: center;
             padding: 15px;
-            background: rgba(204, 255, 0, 0.05);
+            background: rgba(218, 165, 32, 0.05);
             border-radius: 10px;
-            border: 1px solid rgba(204, 255, 0, 0.15);
+            border: 1px solid rgba(218, 165, 32, 0.15);
         }
 
         .stat-value {
             font-size: 24px;
             font-weight: 700;
-            color: #CCFF00;
+            color: #DAA520;
             margin-bottom: 5px;
         }
 
@@ -563,15 +465,15 @@
             align-items: center;
             gap: 10px;
             padding: 12px 15px;
-            background: rgba(204, 255, 0, 0.05);
-            border: 1px solid rgba(204, 255, 0, 0.15);
+            background: rgba(218, 165, 32, 0.05);
+            border: 1px solid rgba(218, 165, 32, 0.15);
             border-radius: 10px;
             font-size: 14px;
             color: rgba(255, 255, 255, 0.9);
         }
 
         .amenity-badge i {
-            color: #CCFF00;
+            color: #DAA520;
         }
 
         /* Responsive */
@@ -586,32 +488,12 @@
             }
 
             .gallery-grid {
-                grid-template-columns: repeat(2, 1fr);
-                grid-template-rows: repeat(4, 200px);
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 250px 250px 250px;
             }
 
-            .gallery-item:nth-child(1) {
+            .gallery-item:first-child {
                 grid-column: span 2;
-                grid-row: span 2;
-            }
-
-            .gallery-item:nth-child(2) {
-                grid-column: span 1;
-                grid-row: span 1;
-            }
-
-            .gallery-item:nth-child(3) {
-                grid-column: span 1;
-                grid-row: span 1;
-            }
-
-            .gallery-item:nth-child(4),
-            .gallery-item:nth-child(5),
-            .gallery-item:nth-child(6),
-            .gallery-item:nth-child(7),
-            .gallery-item:nth-child(8) {
-                grid-column: span 1;
-                grid-row: span 1;
             }
         }
 
@@ -622,35 +504,15 @@
 
             .gallery-grid {
                 grid-template-columns: 1fr;
-                grid-template-rows: repeat(8, 200px);
+                grid-template-rows: repeat(5, 250px);
             }
 
-            .gallery-item:nth-child(1) {
+            .gallery-item:first-child {
                 grid-column: span 1;
-                grid-row: span 2;
-            }
-
-            .gallery-item:nth-child(2),
-            .gallery-item:nth-child(3),
-            .gallery-item:nth-child(4),
-            .gallery-item:nth-child(5),
-            .gallery-item:nth-child(6),
-            .gallery-item:nth-child(7),
-            .gallery-item:nth-child(8) {
-                grid-column: span 1;
-                grid-row: span 1;
             }
 
             .features-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .nav-container {
-                padding: 0 20px;
-            }
-
-            .hero-gallery {
-                padding: 20px;
             }
         }
     </style>
@@ -687,43 +549,18 @@
     <section class="hero-gallery">
         <div class="gallery-grid">
             {% if property.images.all %}
-                {% for image in property.images.all|slice:":8" %}
+                {% for image in property.images.all|slice:":5" %}
                 <div class="gallery-item">
                     <img src="{{ image.image.url }}" alt="{{ property.title }}">
-                    {% if forloop.last and property.images.all|length > 8 %}
-                    <div class="view-all-overlay">
-                        <i class="fas fa-images"></i>
-                        <span>+{{ property.images.all|length|add:"-8" }} More Photos</span>
-                    </div>
-                    {% else %}
                     <div class="gallery-overlay">
-                        <i class="fas fa-expand"></i>
+                        <i class="fas fa-search-plus"></i>
                     </div>
-                    {% endif %}
                 </div>
                 {% endfor %}
-                <!-- Fill remaining slots if less than 8 images -->
-                {% with image_count=property.images.all|length %}
-                    {% if image_count < 8 %}
-                        {% for i in "xxxxxxxx"|slice:image_count %}
-                        <div class="gallery-item" style="background: rgba(20, 20, 20, 0.5); display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-image" style="font-size: 48px; color: rgba(255, 255, 255, 0.1);"></i>
-                        </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
             {% else %}
                 <div class="gallery-item">
                     <img src="https://images.unsplash.com/photo-1600596542815-2788866dd523?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Property">
-                    <div class="gallery-overlay">
-                        <i class="fas fa-expand"></i>
-                    </div>
                 </div>
-                {% for i in "1234567" %}
-                <div class="gallery-item" style="background: rgba(20, 20, 20, 0.5); display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-image" style="font-size: 48px; color: rgba(255, 255, 255, 0.1);"></i>
-                </div>
-                {% endfor %}
             {% endif %}
         </div>
     </section>
@@ -736,7 +573,7 @@
             <div class="property-header">
                 <h1 class="property-title">{{ property.title }}</h1>
                 <div class="property-location">
-                    <i class="fas fa-map-marker-alt" style="color: #CCFF00;"></i>
+                    <i class="fas fa-map-marker-alt" style="color: #DAA520;"></i>
                     <span>{{ property.location }}</span>
                 </div>
                 <div class="property-meta">
@@ -895,14 +732,14 @@
                 </div>
 
                 {% if user.role != 'TENANT' %}
-                <div style="padding: 15px; background: rgba(204, 255, 0, 0.05); border-radius: 10px; margin-top: 15px;">
+                <div style="padding: 15px; background: rgba(218, 165, 32, 0.05); border-radius: 10px; margin-top: 15px;">
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <i class="fas fa-envelope" style="color: #CCFF00;"></i>
+                        <i class="fas fa-envelope" style="color: #DAA520;"></i>
                         <span style="font-size: 13px; color: rgba(255,255,255,0.8);">{{ property.owner.email }}</span>
                     </div>
                     {% if property.owner.phone_number %}
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-phone" style="color: #CCFF00;"></i>
+                        <i class="fas fa-phone" style="color: #DAA520;"></i>
                         <span style="font-size: 13px; color: rgba(255,255,255,0.8);">{{ property.owner.phone_number }}</span>
                     </div>
                     {% endif %}
