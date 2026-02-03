@@ -5,303 +5,1142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RentEase | Owner Dashboard</title>
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'core/css/owner_dashboard.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #ffffff;
+            color: #0d3b3b;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: url('https://images.unsplash.com/photo-1600607687644-c7171b42498f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover fixed;
+            opacity: 0.03;
+            z-index: 0;
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(13, 59, 59, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(245, 240, 225, 0.15);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #f5f0e1;
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #f5f0e1;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link:hover {
+            color: rgba(245, 240, 225, 0.7);
+        }
+
+        .btn-logout {
+            background: rgba(245, 240, 225, 0.1);
+            color: #f5f0e1;
+            padding: 10px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            border: 2px solid rgba(245, 240, 225, 0.3);
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #f5f0e1;
+            color: #0d3b3b;
+        }
+
+        /* Header Section */
+        .dashboard-header {
+            background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+            padding: 80px 40px;
+            color: #f5f0e1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(13, 59, 59, 0.90) 0%, rgba(10, 40, 40, 0.88) 100%);
+            z-index: 0;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .role-badge {
+            display: inline-block;
+            background: rgba(245, 240, 225, 0.2);
+            backdrop-filter: blur(10px);
+            color: #f5f0e1;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(245, 240, 225, 0.3);
+        }
+
+        .welcome-text {
+            font-size: 16px;
+            color: rgba(245, 240, 225, 0.7);
+            margin-bottom: 10px;
+        }
+
+        .user-name {
+            font-size: 48px;
+            font-weight: 800;
+            color: #f5f0e1;
+            margin-bottom: 0;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-primary {
+            background: #f5f0e1;
+            color: #0d3b3b;
+            padding: 16px 35px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: 2px solid #f5f0e1;
+            box-shadow: 0 4px 15px rgba(245, 240, 225, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #e8e3d4;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 240, 225, 0.4);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Messages Alert */
+        .alert {
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: rgba(13, 59, 59, 0.1);
+            border: 1px solid rgba(13, 59, 59, 0.3);
+            color: #0d3b3b;
+        }
+
+        .alert-error {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(13, 59, 59, 0.1);
+            transition: all 0.3s;
+            border: 2px solid #f5f0e1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #0d3b3b, #0a2828);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(13, 59, 59, 0.2);
+            border-color: #0d3b3b;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #0d3b3b 0%, #0a2828 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #f5f0e1;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #0d3b3b;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: rgba(13, 59, 59, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        /* Section Title */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(245, 240, 225, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0d3b3b;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .properties-section .section-title {
+            color: #f5f0e1;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 32px;
+            background: linear-gradient(135deg, #0d3b3b 0%, #0a2828 100%);
+            border-radius: 2px;
+        }
+
+        .properties-section .section-title::before {
+            background: linear-gradient(135deg, #f5f0e1 0%, rgba(245, 240, 225, 0.8) 100%);
+        }
+
+        .messages-container .section-title {
+            color: #f5f0e1;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #0d3b3b;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            border: 2px solid #0d3b3b;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .messages-container .btn-secondary {
+            background: rgba(245, 240, 225, 0.1);
+            color: #f5f0e1;
+            border-color: rgba(245, 240, 225, 0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #0d3b3b;
+            color: #f5f0e1;
+        }
+
+        .messages-container .btn-secondary:hover {
+            background: #f5f0e1;
+            color: #0d3b3b;
+            border-color: #f5f0e1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(245, 240, 225, 0.3);
+        }
+
+        /* Messages Section */
+        .messages-container {
+            background: linear-gradient(135deg, rgba(13, 59, 59, 0.95) 0%, rgba(10, 40, 40, 0.92) 100%), 
+                        url('https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 50px;
+            box-shadow: 0 8px 32px rgba(13, 59, 59, 0.2);
+            border: 2px solid rgba(13, 59, 59, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .messages-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(245, 240, 225, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .messages-container::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(245, 240, 225, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .message-card {
+            background: rgba(245, 240, 225, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .message-card:hover {
+            border-color: #f5f0e1;
+            transform: translateX(8px) translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            background: rgba(245, 240, 225, 1);
+        }
+
+        .message-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .message-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #0d3b3b 0%, #0a2828 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f5f0e1;
+            font-weight: 700;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(13, 59, 59, 0.3);
+            border: 2px solid rgba(245, 240, 225, 0.3);
+        }
+
+        .message-info {
+            flex: 1;
+            margin-left: 12px;
+        }
+
+        .message-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0d3b3b;
+            margin-bottom: 4px;
+        }
+
+        .message-property {
+            font-size: 12px;
+            color: rgba(13, 59, 59, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .message-property i {
+            color: #0d3b3b;
+            font-size: 11px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: rgba(13, 59, 59, 0.6);
+            font-weight: 500;
+        }
+
+        .badge-new {
+            background: linear-gradient(135deg, #0d3b3b 0%, #0a2828 100%);
+            color: #f5f0e1;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(13, 59, 59, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .message-content {
+            font-size: 12px;
+            color: rgba(13, 59, 59, 0.8);
+            font-style: italic;
+            margin-bottom: 10px;
+            padding: 8px 10px;
+            background: rgba(13, 59, 59, 0.05);
+            border-radius: 6px;
+            border-left: 2px solid #0d3b3b;
+            line-height: 1.4;
+        }
+
+        .message-content i {
+            color: #0d3b3b;
+            margin-right: 4px;
+            font-size: 11px;
+        }
+
+        .btn-reply {
+            background: linear-gradient(135deg, #0d3b3b 0%, #0a2828 100%);
+            color: #f5f0e1;
+            padding: 8px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 12px rgba(13, 59, 59, 0.2);
+        }
+
+        .btn-reply:hover {
+            background: linear-gradient(135deg, #0a2828 0%, #0d3b3b 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(13, 59, 59, 0.3);
+            border-color: rgba(245, 240, 225, 0.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .messages-container .empty-state,
+        .properties-section .empty-state {
+            color: #f5f0e1;
+        }
+
+        .empty-icon {
+            font-size: 72px;
+            color: rgba(13, 59, 59, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .messages-container .empty-icon,
+        .properties-section .empty-icon {
+            color: rgba(245, 240, 225, 0.3);
+        }
+
+        .empty-text {
+            font-size: 16px;
+            color: rgba(13, 59, 59, 0.6);
+        }
+
+        .messages-container .empty-text,
+        .properties-section .empty-text {
+            color: rgba(245, 240, 225, 0.8);
+            font-size: 17px;
+        }
+
+        .properties-section h3 {
+            color: #f5f0e1;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .properties-section .property-title {
+            color: #0d3b3b;
+            text-shadow: none;
+        }
+
+        /* Properties Section Container */
+        .properties-section {
+            background: linear-gradient(135deg, rgba(13, 59, 59, 0.95) 0%, rgba(10, 40, 40, 0.92) 100%), 
+                        url('https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 50px;
+            box-shadow: 0 8px 32px rgba(13, 59, 59, 0.2);
+            border: 2px solid rgba(13, 59, 59, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .properties-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(245, 240, 225, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .properties-section::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(245, 240, 225, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        /* Properties Grid */
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .property-card {
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(245, 240, 225, 0.3);
+            position: relative;
+        }
+
+        .property-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(13, 59, 59, 0.05) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .property-card:hover::before {
+            opacity: 1;
+        }
+
+        .property-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            border-color: #f5f0e1;
+        }
+
+        .property-image {
+            position: relative;
+            height: 240px;
+            overflow: hidden;
+            background: #f5f0e1;
+        }
+
+        .property-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(13, 59, 59, 0.4) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .property-card:hover .property-image::after {
+            opacity: 1;
+        }
+
+        .property-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .property-card:hover .property-image img {
+            transform: scale(1.15);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .status-available {
+            background: rgba(13, 59, 59, 0.95);
+            color: #f5f0e1;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.95);
+            color: #000;
+        }
+
+        .status-rented {
+            background: rgba(108, 117, 125, 0.95);
+            color: #fff;
+        }
+
+        .property-content {
+            padding: 25px;
+            position: relative;
+            background: white;
+        }
+
+        .property-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0d3b3b;
+            margin-bottom: 10px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .property-location {
+            font-size: 14px;
+            color: rgba(13, 59, 59, 0.7);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .property-location i {
+            color: #0d3b3b;
+            font-size: 13px;
+        }
+
+        .property-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 2px solid #f5f0e1;
+            margin-top: 10px;
+        }
+
+        .property-price {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0d3b3b;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .property-price span {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(13, 59, 59, 0.6);
+        }
+
+        .btn-manage {
+            background: linear-gradient(135deg, #0d3b3b 0%, #0a2828 100%);
+            color: #f5f0e1;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(13, 59, 59, 0.2);
+            border: 2px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-manage:hover {
+            background: linear-gradient(135deg, #0a2828 0%, #0d3b3b 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(13, 59, 59, 0.3);
+            border-color: rgba(245, 240, 225, 0.3);
+        }
+
+        /* Reviews Section */
+        .review-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(13, 59, 59, 0.08);
+            border-left: 4px solid #0d3b3b;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .review-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0d3b3b;
+            margin-bottom: 10px;
+        }
+
+        .review-stars {
+            color: #0d3b3b;
+            font-size: 18px;
+        }
+
+        .review-date {
+            font-size: 12px;
+            color: rgba(13, 59, 59, 0.5);
+            margin-left: 10px;
+        }
+
+        .review-text {
+            font-size: 14px;
+            color: rgba(13, 59, 59, 0.7);
+            line-height: 1.6;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit, .btn-delete {
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-edit {
+            background: transparent;
+            color: #0d3b3b;
+            border: 2px solid #0d3b3b;
+        }
+
+        .btn-edit:hover {
+            background: #0d3b3b;
+            color: #f5f0e1;
+        }
+
+        .btn-delete {
+            background: transparent;
+            color: #dc3545;
+            border: 2px solid #dc3545;
+        }
+
+        .btn-delete:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .user-name {
+                font-size: 32px;
+            }
+
+            .properties-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-container {
+                padding: 0 20px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg sticky-top">
-        <div class="container-fluid px-5">
-            <a class="navbar-brand" href="{% url 'index' %}">RENT<span>EASE</span></a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link" href="{% url 'conversations' %}"><i class="fas fa-comments me-1"></i> Messages</a></li>
-                    <li class="nav-item ms-4">
-                        <a href="{% url 'logout' %}" class="btn-outline-acid">LOGOUT</a>
-                    </li>
-                </ul>
+    <div class="content-wrapper">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{% url 'index' %}" class="logo">RentEase</a>
+            <div class="nav-links">
+                <a href="{% url 'conversations' %}" class="nav-link">
+                    <i class="fas fa-comments"></i>
+                    Messages
+                </a>
+                <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
             </div>
         </div>
     </nav>
 
     <!-- Header -->
     <section class="dashboard-header">
-        <div class="container">
-            <div class="row align-items-end">
-                <div class="col-md-8">
-                    <span class="role-badge">OWNER PORTAL</span>
-                    <div class="welcome-text">WELCOME BACK,</div>
-                    <h1 class="display-3 m-0 text-uppercase text-white glow-text">{{ user.username }}</h1>
-                </div>
-                <div class="col-md-4 text-end">
-                    <a href="{% url 'add_property' %}" class="btn-acid btn-lg"><i class="fas fa-plus me-2"></i> LIST NEW PROPERTY</a>
-                </div>
+        <div class="header-container">
+            <div class="header-left">
+                <span class="role-badge">OWNER PORTAL</span>
+                <div class="welcome-text">Welcome back,</div>
+                <h1 class="user-name">{{ user.username }}</h1>
+            </div>
+            <div>
+                <a href="{% url 'add_property' %}" class="btn-primary">
+                    <i class="fas fa-plus"></i>
+                    List New Property
+                </a>
             </div>
         </div>
     </section>
 
     <!-- Main Content -->
-    <section class="py-5">
-        <div class="container">
-            
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} mb-4 rounded-0 border-0 text-uppercase fw-bold shadow-sm">
-                        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i> {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-            
-            <div class="row mb-5">
-                <div class="col-12">
-                     <h4 class="mb-4 text-gray section-title">PORTFOLIO <span class="text-acid">OVERVIEW</span></h4>
+    <div class="main-content">
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'success' %}success{% else %}error{% endif %}">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                    {{ message }}
                 </div>
-                <div class="col-md-3 col-sm-6 mb-4">
-                    <div class="card-dash stats-card">
-                        <div class="card-body">
-                            <div class="icon-wrapper mb-3">
-                                <i class="fas fa-home fa-2x text-acid"></i>
-                            </div>
-                            <div class="stat-number text-white">{{ active_listings_count|default:"0" }}</div>
-                            <div class="stat-label">ACTIVE LISTINGS</div>
-                        </div>
-                    </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-home"></i>
                 </div>
-                <div class="col-md-3 col-sm-6 mb-4">
-                    <div class="card-dash stats-card">
-                        <div class="card-body">
-                            <div class="icon-wrapper mb-3">
-                                <i class="fas fa-file-contract fa-2x text-info"></i>
-                            </div>
-                            <div class="stat-number">0</div>
-                            <div class="stat-label">PENDING APPS</div>
-                        </div>
-                    </div>
+                <div class="stat-value">{{ active_listings_count|default:"0" }}</div>
+                <div class="stat-label">Active Listings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-file-contract"></i>
                 </div>
-                <div class="col-md-3 col-sm-6 mb-4">
-                    <div class="card-dash stats-card">
-                         <div class="card-body">
-                            <div class="icon-wrapper mb-3">
-                                <i class="fas fa-users fa-2x text-warning"></i>
-                            </div>
-                            <div class="stat-number">0</div>
-                            <div class="stat-label">TOTAL TENANTS</div>
-                        </div>
-                    </div>
+                <div class="stat-value">0</div>
+                <div class="stat-label">Pending Applications</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
                 </div>
-                <div class="col-md-3 col-sm-6 mb-4">
-                    <div class="card-dash stats-card">
-                         <div class="card-body">
-                            <div class="icon-wrapper mb-3">
-                                <i class="fas fa-chart-line fa-2x text-success"></i>
-                            </div>
-                            <div class="stat-number">$0</div>
-                            <div class="stat-label">MONTHLY REVENUE</div>
-                        </div>
-                    </div>
+                <div class="stat-value">0</div>
+                <div class="stat-label">Total Tenants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
                 </div>
+                <div class="stat-value">$0</div>
+                <div class="stat-label">Monthly Revenue</div>
+            </div>
+        </div>
+
+        <!-- Recent Messages -->
+        <div class="messages-container">
+            <div class="section-header">
+                <h2 class="section-title">Recent Messages</h2>
+                <a href="{% url 'conversations' %}" class="btn-secondary">
+                    View All
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
 
-            <!-- Messages Section -->
-            <div class="row mb-5">
-                <div class="col-12">
-                    <div style="background: rgba(204, 255, 0, 0.05); border-left: 4px solid #CCFF00; padding: 30px; border-radius: 8px; margin-bottom: 40px;">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="text-gray section-title m-0">RECENT <span class="text-acid">MESSAGES</span></h4>
-                            <a href="{% url 'conversations' %}" class="btn btn-sm btn-acid rounded-0">VIEW ALL <i class="fas fa-arrow-right ms-1"></i></a>
-                        </div>
-                        
-                        {% if recent_conversations %}
-                        <div class="row g-3">
-                            {% for conversation in recent_conversations %}
-                                <div class="col-12">
-                                    <div style="background: rgba(20, 20, 20, 0.8); border-radius: 8px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.05);">
-                                        <div class="row align-items-center">
-                                            <div class="col-auto">
-                                                <div class="message-avatar">
-                                                    {{ conversation.tenant.username|first|upper }}
-                                                </div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                                    <div>
-                                                        <h6 class="text-white mb-1 fw-bold">{{ conversation.tenant.username }}</h6>
-                                                        <p class="text-gray small mb-0">
-                                                            <i class="fas fa-home text-acid me-1"></i>
-                                                            {{ conversation.property.title }}
-                                                        </p>
-                                                    </div>
-                                                    <div class="text-end">
-                                                        <small class="text-gray d-block mb-1">{{ conversation.updated_at|timesince }} ago</small>
-                                                        {% if conversation.has_unread %}
-                                                            <span class="badge bg-acid text-dark">NEW</span>
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-                                                {% if conversation.get_last_message %}
-                                                    <p class="text-gray small mb-2" style="font-style: italic;">
-                                                        <i class="fas fa-comment-dots me-1"></i>
-                                                        "{{ conversation.get_last_message.content|truncatewords:15 }}"
-                                                    </p>
-                                                {% endif %}
-                                                <a href="{% url 'conversation_detail' conversation.id %}" class="btn btn-sm btn-acid rounded-0">
-                                                    <i class="fas fa-reply me-1"></i> REPLY
-                                                </a>
-                                            </div>
+            {% if recent_conversations %}
+                {% for conversation in recent_conversations %}
+                    <div class="message-card">
+                        <div style="display: flex; gap: 15px;">
+                            <div class="message-avatar">
+                                {{ conversation.tenant.username|first|upper }}
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="message-header">
+                                    <div class="message-info">
+                                        <div class="message-name">{{ conversation.tenant.username }}</div>
+                                        <div class="message-property">
+                                            <i class="fas fa-home"></i>
+                                            {{ conversation.property.title }}
                                         </div>
                                     </div>
+                                    <div style="text-align: right;">
+                                        <div class="message-time">{{ conversation.updated_at|timesince }} ago</div>
+                                        {% if conversation.has_unread %}
+                                            <span class="badge-new">NEW</span>
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            {% endfor %}
+                                {% if conversation.get_last_message %}
+                                    <div class="message-content">
+                                        <i class="fas fa-comment-dots"></i>
+                                        "{{ conversation.get_last_message.content|truncatewords:15 }}"
+                                    </div>
+                                {% endif %}
+                                <a href="{% url 'conversation_detail' conversation.id %}" class="btn-reply">
+                                    <i class="fas fa-reply"></i>
+                                    Reply
+                                </a>
+                            </div>
                         </div>
-                        {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-check-circle fa-3x text-acid mb-3" style="opacity: 0.5;"></i>
-                            <p class="text-gray mb-0">No new messages. All caught up!</p>
-                        </div>
-                        {% endif %}
                     </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="empty-text">No new messages. All caught up!</div>
                 </div>
-            </div>
+            {% endif %}
+        </div>
 
-            <!-- Properties Section -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div style="border-top: 2px solid rgba(255, 255, 255, 0.1); padding-top: 40px;">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="text-gray section-title m-0">YOUR <span class="text-white">PROPERTIES</span></h4>
-                            <button class="btn btn-sm btn-outline-secondary rounded-0">FILTER <i class="fas fa-filter ms-1"></i></button>
-                        </div>
-                    </div>
-                </div>
+        <!-- Properties -->
+        <div class="properties-section">
+            <div class="section-header">
+                <h2 class="section-title">Your Properties</h2>
             </div>
 
             {% if properties %}
-                <div class="row g-4">
-                {% for property in properties %}
-                    <div class="col-md-4">
-                        <div class="card-dash property-card h-100">
-                            <div class="property-image-container">
-                                <!-- Status Badge Logic -->
-                                <div class="status-badge 
-                                    {% if property.status == 'AVAILABLE' %}bg-success
-                                    {% elif property.status == 'PENDING' %}bg-warning text-dark
-                                    {% else %}bg-secondary{% endif %}">
-                                    {{ property.get_status_display }}
-                                </div>
+                <div class="properties-grid">
+                    {% for property in properties %}
+                        <div class="property-card">
+                            <div class="property-image">
                                 {% if property.images.all %}
-                                    <div id="carousel-{{ property.id }}" class="carousel slide" data-bs-ride="carousel">
-                                        <div class="carousel-inner">
-                                            {% for image in property.images.all %}
-                                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                                    <img src="{{ image.image.url }}" alt="Property Image" class="img-fluid property-img d-block w-100">
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                        {% if property.images.count > 1 %}
-                                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ property.id }}" data-bs-slide="prev">
-                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            </button>
-                                            <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ property.id }}" data-bs-slide="next">
-                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            </button>
-                                        {% endif %}
-                                    </div>
+                                    <img src="{{ property.images.first.image.url }}" alt="{{ property.title }}">
                                 {% else %}
-                                    <img src="https://images.unsplash.com/photo-1600596542815-2788866dd523?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Property Image" class="img-fluid property-img">
+                                    <img src="https://images.unsplash.com/photo-1600596542815-2788866dd523?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Property">
                                 {% endif %}
-                                <div class="overlay"></div>
+                                <span class="status-badge status-{% if property.status == 'AVAILABLE' %}available{% elif property.status == 'PENDING' %}pending{% else %}rented{% endif %}">
+                                    {{ property.get_status_display }}
+                                </span>
                             </div>
-                            <div class="card-body p-4 d-flex flex-column">
-                                <h5 class="text-white mb-1 text-truncate font-anton letter-spacing-1">{{ property.title }}</h5>
-                                <p class="text-gray small mb-3"><i class="fas fa-map-marker-alt me-2 text-acid"></i> {{ property.location }}</p>
-                                
-                                <div class="mt-auto pt-3 border-top border-secondary d-flex justify-content-between align-items-center">
-                                    <span class="text-acid fw-bold fs-4">${{ property.price }}<small class="text-gray fw-normal fs-6">/mo</small></span>
+                            <div class="property-content">
+                                <h3 class="property-title">{{ property.title }}</h3>
+                                <div class="property-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    {{ property.location }}
+                                </div>
+                                <div class="property-footer">
+                                    <div class="property-price">
+                                        ₹{{ property.price }}
+                                        <span>/month</span>
+                                    </div>
                                     {% if property.status == 'PENDING' %}
-                                        <a href="{% url 'payment' property.id %}" class="btn btn-sm btn-acid rounded-0 px-3">PAY NOW</a>
+                                        <a href="{% url 'payment' property.id %}" class="btn-manage">Pay Now</a>
                                     {% else %}
-                                        <!-- Linked to manage_property view -->
-                                        <a href="{% url 'manage_property' property.id %}" class="btn btn-sm btn-outline-light rounded-0 px-3">MANAGE</a>
+                                        <a href="{% url 'manage_property' property.id %}" class="btn-manage">Manage</a>
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
                 </div>
             {% else %}
-                <div class="empty-state text-center py-5">
-                    <div class="mb-4">
-                         <div class="empty-icon-container">
-                            <i class="fas fa-building fa-4x text-gray"></i>
-                         </div>
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-building"></i>
                     </div>
-                    <h3 class="text-white mb-3">NO PROPERTIES LISTED YET</h3>
-                    <p class="text-gray mb-4">Start building your real estate empire today.</p>
-                    <a href="{% url 'add_property' %}" class="btn-acid px-5">ADD YOUR FIRST PROPERTY</a>
+                    <h3 style="margin-bottom: 15px;">No Properties Listed Yet</h3>
+                    <div class="empty-text" style="margin-bottom: 25px;">Start building your real estate portfolio today.</div>
+                    <a href="{% url 'add_property' %}" class="btn-primary">Add Your First Property</a>
                 </div>
             {% endif %}
+        </div>
 
-            <!-- Reviews Section -->
-            <div class="row mt-5">
-                <div class="col-12 d-flex justify-content-between align-items-center mb-4">
-                    <h4 class="text-gray section-title m-0">YOUR <span class="text-acid">REVIEWS</span></h4>
-                </div>
-                
-                {% if owner_reviews %}
-                    <div class="col-12">
-                        {% for review in owner_reviews %}
-                            <div class="card-dash mb-3">
-                                <div class="card-body p-4">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-8">
-                                            <h6 class="text-white mb-2">{{ review.property.title }}</h6>
-                                            <div class="mb-2">
-                                                {% for i in "12345" %}
-                                                    {% if forloop.counter <= review.rating %}
-                                                        <i class="fas fa-star text-acid"></i>
-                                                    {% else %}
-                                                        <i class="far fa-star text-gray"></i>
-                                                    {% endif %}
-                                                {% endfor %}
-                                                <span class="text-gray ms-2 small">{{ review.created_at|date:"M d, Y" }}</span>
-                                            </div>
-                                            <p class="text-gray small mb-0">{{ review.comment }}</p>
-                                        </div>
-                                        <div class="col-md-4 text-end">
-                                            <a href="{% url 'add_review' review.property.id %}" class="btn btn-sm btn-outline-light rounded-0 me-2">
-                                                <i class="fas fa-edit"></i> EDIT
-                                            </a>
-                                            <a href="{% url 'delete_review' review.id %}" class="btn btn-sm btn-outline-danger rounded-0" onclick="return confirm('Delete this review?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="col-12">
-                        <div class="card-dash">
-                            <div class="card-body text-center py-5">
-                                <i class="fas fa-star fa-3x text-gray mb-3"></i>
-                                <p class="text-gray mb-0">No reviews yet. Review properties you've experienced!</p>
+        <!-- Reviews -->
+        <div class="section-header" style="margin-top: 50px;">
+            <h2 class="section-title">Your Reviews</h2>
+        </div>
+
+        {% if owner_reviews %}
+            {% for review in owner_reviews %}
+                <div class="review-card">
+                    <div class="review-header">
+                        <div>
+                            <div class="review-title">{{ review.property.title }}</div>
+                            <div>
+                                <span class="review-stars">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                                <span class="review-date">{{ review.created_at|date:"M d, Y" }}</span>
                             </div>
                         </div>
+                        <div class="review-actions">
+                            <a href="{% url 'add_review' review.property.id %}" class="btn-edit">
+                                <i class="fas fa-edit"></i>
+                                Edit
+                            </a>
+                            <a href="{% url 'delete_review' review.id %}" class="btn-delete" onclick="return confirm('Delete this review?')">
+                                <i class="fas fa-trash"></i>
+                                Delete
+                            </a>
+                        </div>
                     </div>
-                {% endif %}
+                    <div class="review-text">{{ review.comment }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="empty-text">No reviews yet. Review properties you've experienced!</div>
             </div>
+        {% endif %}
+    </div>
 
-        </div>
-    </section>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
