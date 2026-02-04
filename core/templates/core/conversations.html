@@ -16,7 +16,7 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: #ffffff;
+            background: url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover fixed;
             color: #0d3b3b;
             min-height: 100vh;
             display: flex;
@@ -34,8 +34,7 @@
             left: 0;
             width: 100%; 
             height: 100%;
-            background: url('https://images.unsplash.com/photo-1600607687644-c7171b42498f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover fixed;
-            opacity: 0.03;
+            background: rgba(0, 0, 0, 0.3);
             z-index: -1;
         }
 
@@ -54,12 +53,11 @@
         /* Sidebar */
         .sidebar {
             width: 320px;
-            background: linear-gradient(135deg, rgba(13, 59, 59, 0.95) 0%, rgba(10, 40, 40, 0.92) 100%), 
-                        url('https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.98) 0%, rgba(20, 20, 20, 0.95) 100%);
             backdrop-filter: blur(20px);
             display: flex;
             flex-direction: column;
-            border-right: 2px solid rgba(245, 240, 225, 0.2);
+            border-right: 2px solid rgba(245, 240, 225, 0.1);
             position: relative;
         }
 
@@ -70,7 +68,7 @@
             right: -50%;
             width: 300px;
             height: 300px;
-            background: radial-gradient(circle, rgba(245, 240, 225, 0.08) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(245, 240, 225, 0.05) 0%, transparent 70%);
             border-radius: 50%;
         }
 
@@ -102,7 +100,7 @@
             align-items: center;
             gap: 12px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             text-decoration: none;
             color: inherit;
             margin: 0 10px 8px;
@@ -119,6 +117,28 @@
         .conversation-item.active {
             background: rgba(245, 240, 225, 0.2);
             border-color: rgba(245, 240, 225, 0.4);
+        }
+
+        /* Smooth page transitions */
+        .messages-container {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading state */
+        .conversation-item:active {
+            opacity: 0.7;
+            transform: scale(0.98);
         }
 
         .avatar {
@@ -213,16 +233,17 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: #ffffff;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
         }
 
         .chat-header {
             padding: 20px 30px;
-            background: #f5f0e1;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 20, 20, 0.92) 100%);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 2px solid rgba(13, 59, 59, 0.1);
+            border-bottom: 2px solid rgba(245, 240, 225, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .chat-header-left {
@@ -465,20 +486,22 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            color: rgba(13, 59, 59, 0.4);
+            color: rgba(245, 240, 225, 0.3);
+            position: relative;
+            z-index: 1;
         }
 
         .empty-state i {
             font-size: 64px;
             margin-bottom: 20px;
             opacity: 0.3;
-            color: #0d3b3b;
+            color: #f5f0e1;
         }
 
         .empty-state p {
             font-size: 16px;
             font-weight: 500;
-            color: rgba(13, 59, 59, 0.6);
+            color: rgba(245, 240, 225, 0.5);
         }
     </style>
 </head>
