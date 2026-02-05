@@ -215,36 +215,36 @@
             {% if tenant_reviews %}
             <div style="margin-top: 60px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                    <h2 style="font-family: 'Anton', sans-serif; font-size: 28px; letter-spacing: 1px; color: #CCFF00;">YOUR REVIEWS</h2>
+                    <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.8rem; font-weight: 700; letter-spacing: 0.5px; color: #0d3b3b;">YOUR REVIEWS</h2>
                 </div>
                 
                 <div style="display: grid; gap: 20px;">
                     {% for review in tenant_reviews %}
-                        <div style="background: rgba(30, 30, 30, 0.8); border-radius: 12px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.05);">
+                        <div style="background: #ffffff; border-radius: 12px; padding: 25px; border: 2px solid rgba(13, 59, 59, 0.15); box-shadow: 0 4px 15px rgba(13, 59, 59, 0.08); transition: all 0.3s;">
                             <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
                                 <div>
-                                    <h3 style="color: #ffffff; font-size: 18px; margin-bottom: 8px;">{{ review.property.title }}</h3>
+                                    <h3 style="color: #0d3b3b; font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">{{ review.property.title }}</h3>
                                     <div style="margin-bottom: 8px;">
                                         {% for i in "12345" %}
                                             {% if forloop.counter <= review.rating %}
-                                                <i class="fas fa-star" style="color: #CCFF00; font-size: 14px;"></i>
+                                                <i class="fas fa-star" style="color: #0d3b3b; font-size: 16px;"></i>
                                             {% else %}
-                                                <i class="far fa-star" style="color: rgba(255, 255, 255, 0.3); font-size: 14px;"></i>
+                                                <i class="far fa-star" style="color: rgba(13, 59, 59, 0.2); font-size: 16px;"></i>
                                             {% endif %}
                                         {% endfor %}
-                                        <span style="color: rgba(255, 255, 255, 0.5); font-size: 12px; margin-left: 10px;">{{ review.created_at|date:"M d, Y" }}</span>
+                                        <span style="color: rgba(13, 59, 59, 0.6); font-size: 0.8rem; margin-left: 12px; font-weight: 500;">{{ review.created_at|date:"M d, Y" }}</span>
                                     </div>
                                 </div>
                                 <div style="display: flex; gap: 10px;">
-                                    <a href="{% url 'add_review' review.property.id %}" style="padding: 8px 16px; background: rgba(255, 255, 255, 0.1); color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 13px; transition: all 0.2s;">
-                                        <i class="fas fa-edit"></i> EDIT
+                                    <a href="{% url 'add_review' review.property.id %}" style="padding: 10px 18px; background: linear-gradient(135deg, #0d3b3b 0%, #0a2828 100%); color: #f5f0e1; text-decoration: none; border-radius: 8px; font-size: 0.75rem; font-weight: 700; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-edit"></i> EDIT
                                     </a>
-                                    <a href="{% url 'delete_review' review.id %}" onclick="return confirm('Delete this review?')" style="padding: 8px 16px; background: rgba(255, 0, 0, 0.2); color: #ff6b6b; text-decoration: none; border-radius: 6px; font-size: 13px; transition: all 0.2s;">
-                                        <i class="fas fa-trash"></i>
+                                    <a href="{% url 'delete_review' review.id %}" onclick="return confirm('Delete this review?')" style="padding: 10px 18px; background: rgba(220, 53, 69, 0.1); color: #dc3545; text-decoration: none; border-radius: 8px; font-size: 0.75rem; font-weight: 700; transition: all 0.3s; border: 2px solid #dc3545; display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="fas fa-trash"></i> DELETE
                                     </a>
                                 </div>
                             </div>
-                            <p style="color: rgba(255, 255, 255, 0.7); font-size: 14px; line-height: 1.6; margin: 0;">{{ review.comment }}</p>
+                            <p style="color: rgba(13, 59, 59, 0.7); font-size: 0.95rem; line-height: 1.6; margin: 0; font-weight: 500;">{{ review.comment }}</p>
                         </div>
                     {% endfor %}
                 </div>
@@ -254,21 +254,21 @@
     </div>
 
     <!-- Inquiry Modal -->
-    <div id="inquiryModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 9999; align-items: center; justify-content: center;">
-        <div style="background: rgba(25, 25, 25, 0.98); border-radius: 16px; padding: 40px; max-width: 600px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); position: relative;">
-            <button onclick="closeInquiryModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: rgba(255, 255, 255, 0.6); font-size: 24px; cursor: pointer; transition: color 0.2s;">
+    <div id="inquiryModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: #ffffff; border-radius: 16px; padding: 40px; max-width: 600px; width: 90%; box-shadow: 0 20px 60px rgba(13, 59, 59, 0.3); position: relative; border: 2px solid rgba(13, 59, 59, 0.1);">
+            <button onclick="closeInquiryModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: rgba(13, 59, 59, 0.5); font-size: 24px; cursor: pointer; transition: color 0.3s;">
                 <i class="fas fa-times"></i>
             </button>
             
-            <h2 style="font-family: 'Anton', sans-serif; font-size: 28px; color: #CCFF00; margin-bottom: 10px;">SEND INQUIRY</h2>
-            <p id="modalPropertyTitle" style="color: rgba(255, 255, 255, 0.6); font-size: 14px; margin-bottom: 30px;"></p>
+            <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.8rem; font-weight: 700; color: #0d3b3b; margin-bottom: 10px; letter-spacing: 0.5px;">SEND INQUIRY</h2>
+            <p id="modalPropertyTitle" style="color: rgba(13, 59, 59, 0.6); font-size: 0.95rem; margin-bottom: 30px; font-weight: 500;"></p>
             
             <form id="inquiryForm" method="POST" action="">
                 {% csrf_token %}
                 <input type="hidden" id="propertyId" name="property_id">
                 
                 <div style="margin-bottom: 20px;">
-                    <label style="display: block; color: rgba(255, 255, 255, 0.9); font-size: 14px; font-weight: 600; margin-bottom: 10px;">Quick Suggestions</label>
+                    <label style="display: block; color: #0d3b3b; font-size: 0.9rem; font-weight: 700; margin-bottom: 12px;">Quick Suggestions</label>
                     <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
                         <button type="button" class="suggestion-btn" onclick="setSuggestion('Is this property still available?')">
                             <i class="fas fa-check-circle"></i> Is it available?
@@ -286,24 +286,24 @@
                 </div>
                 
                 <div style="margin-bottom: 25px;">
-                    <label for="inquiryMessage" style="display: block; color: rgba(255, 255, 255, 0.9); font-size: 14px; font-weight: 600; margin-bottom: 10px;">Your Message</label>
+                    <label for="inquiryMessage" style="display: block; color: #0d3b3b; font-size: 0.9rem; font-weight: 700; margin-bottom: 12px;">Your Message</label>
                     <textarea 
                         id="inquiryMessage" 
                         name="message" 
                         required
                         placeholder="Type your inquiry message here..."
-                        style="width: 100%; padding: 15px; background: rgba(40, 40, 40, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: #ffffff; font-family: 'Space Grotesk', sans-serif; font-size: 14px; resize: vertical; min-height: 120px;"
+                        style="width: 100%; padding: 15px; background: rgba(13, 59, 59, 0.03); border: 2px solid rgba(13, 59, 59, 0.15); border-radius: 10px; color: #0d3b3b; font-family: 'Poppins', sans-serif; font-size: 0.9rem; resize: vertical; min-height: 120px; transition: border-color 0.3s;"
                     ></textarea>
-                    <div style="text-align: right; font-size: 12px; color: rgba(255, 255, 255, 0.4); margin-top: 5px;">
+                    <div style="text-align: right; font-size: 0.75rem; color: rgba(13, 59, 59, 0.5); margin-top: 8px; font-weight: 500;">
                         <span id="charCount">0</span>/500
                     </div>
                 </div>
                 
                 <div style="display: flex; gap: 15px;">
-                    <button type="button" onclick="closeInquiryModal()" style="flex: 1; padding: 14px 24px; background: rgba(255, 255, 255, 0.1); border: none; border-radius: 8px; color: #ffffff; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Space Grotesk', sans-serif;">
+                    <button type="button" onclick="closeInquiryModal()" style="flex: 1; padding: 14px 24px; background: transparent; border: 2px solid #0d3b3b; border-radius: 10px; color: #0d3b3b; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: 'Poppins', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">
                         Cancel
                     </button>
-                    <button type="submit" style="flex: 1; padding: 14px 24px; background: #CCFF00; border: none; border-radius: 8px; color: #000000; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Space Grotesk', sans-serif;">
+                    <button type="submit" style="flex: 1; padding: 14px 24px; background: linear-gradient(135deg, #0d3b3b 0%, #0a2828 100%); border: none; border-radius: 10px; color: #f5f0e1; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: 'Poppins', sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">
                         <i class="fas fa-paper-plane"></i> Send Inquiry
                     </button>
                 </div>
@@ -313,28 +313,36 @@
 
     <style>
         .suggestion-btn {
-            padding: 8px 16px;
-            background: rgba(204, 255, 0, 0.1);
-            border: 1px solid rgba(204, 255, 0, 0.3);
+            padding: 10px 18px;
+            background: rgba(13, 59, 59, 0.08);
+            border: 2px solid rgba(13, 59, 59, 0.2);
             border-radius: 20px;
-            color: #CCFF00;
-            font-size: 13px;
+            color: #0d3b3b;
+            font-size: 0.8rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Space Grotesk', sans-serif;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
         
         .suggestion-btn:hover {
-            background: rgba(204, 255, 0, 0.2);
-            border-color: #CCFF00;
+            background: rgba(13, 59, 59, 0.15);
+            border-color: #0d3b3b;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(13, 59, 59, 0.15);
         }
         
         .suggestion-btn i {
-            font-size: 12px;
+            font-size: 0.85rem;
+        }
+        
+        #inquiryMessage:focus {
+            outline: none;
+            border-color: #0d3b3b;
+            background: rgba(13, 59, 59, 0.05);
         }
     </style>
 

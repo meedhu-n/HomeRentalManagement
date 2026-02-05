@@ -7,15 +7,387 @@
     <title>RentEase | Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Reuse owner dashboard CSS for consistency, or create specific admin CSS -->
-    <link rel="stylesheet" href="{% static 'core/css/owner_dashboard.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .role-badge { border-color: #ff3366; color: #ff3366; background: rgba(255, 51, 102, 0.1); }
-        .dashboard-header::after { background: #ff3366; box-shadow: 0 0 15px #ff3366; }
-        .text-acid { color: #ff3366 !important; }
-        .btn-success { background-color: #00ff88; border: none; color: black; font-weight: bold; }
-        .btn-danger { background-color: #ff3366; border: none; color: white; font-weight: bold; }
+        :root {
+            --primary-green: #0d3b3b;
+            --cream: #f5f0e1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif !important;
+            background-color: #ffffff !important;
+            color: #0d3b3b !important;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: url('https://images.unsplash.com/photo-1600607687644-c7171b42498f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover fixed;
+            opacity: 0.03;
+            z-index: 0;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: rgba(13, 59, 59, 0.95) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(245, 240, 225, 0.2);
+            padding: 1.25rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif !important;
+            font-size: 1.5rem !important;
+            font-weight: 800 !important;
+            color: var(--cream) !important;
+            letter-spacing: 2px;
+        }
+        
+        .navbar-brand span {
+            color: var(--cream) !important;
+        }
+        
+        .nav-link {
+            color: var(--cream) !important;
+            font-weight: 600 !important;
+        }
+        
+        .btn-outline-acid {
+            border: 2px solid var(--cream) !important;
+            color: var(--cream) !important;
+            padding: 8px 24px !important;
+            border-radius: 8px !important;
+            font-weight: 700 !important;
+            transition: all 0.3s !important;
+        }
+        
+        .btn-outline-acid:hover {
+            background: var(--cream) !important;
+            color: var(--primary-green) !important;
+        }
+        
+        /* Header Section */
+        .dashboard-header {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7));
+            padding: 4rem 0 3rem;
+            position: relative;
+            margin-bottom: 3rem;
+        }
+        
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+            z-index: -1;
+        }
+        
+        .dashboard-header::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6));
+            z-index: 0;
+        }
+        
+        .dashboard-header .container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .role-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border: 2px solid var(--cream);
+            color: var(--cream);
+            background: rgba(245, 240, 225, 0.1);
+            border-radius: 25px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-text {
+            color: rgba(245, 240, 225, 0.8);
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .glow-text {
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+                         0 0 20px rgba(255, 255, 255, 0.3),
+                         0 0 30px rgba(255, 255, 255, 0.2) !important;
+            animation: glow 2s ease-in-out infinite alternate !important;
+        }
+        
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+                             0 0 20px rgba(255, 255, 255, 0.3),
+                             0 0 30px rgba(255, 255, 255, 0.2);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+                             0 0 30px rgba(255, 255, 255, 0.6),
+                             0 0 40px rgba(255, 255, 255, 0.4);
+            }
+        }
+        
+        /* Stats Cards */
+        .card-dash {
+            background: #ffffff !important;
+            border: 2px solid rgba(13, 59, 59, 0.15) !important;
+            border-radius: 16px !important;
+            padding: 2rem !important;
+            box-shadow: 0 4px 20px rgba(13, 59, 59, 0.08) !important;
+            transition: all 0.3s !important;
+        }
+        
+        .card-dash:hover {
+            transform: translateY(-5px) !important;
+            box-shadow: 0 8px 30px rgba(13, 59, 59, 0.15) !important;
+            border-color: var(--primary-green) !important;
+        }
+        
+        .stat-number {
+            font-size: 3rem !important;
+            font-weight: 800 !important;
+            color: var(--primary-green) !important;
+            line-height: 1 !important;
+            margin-bottom: 0.5rem !important;
+        }
+        
+        .stat-label {
+            color: rgba(13, 59, 59, 0.7) !important;
+            font-size: 0.85rem !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+        }
+        
+        /* Section Titles */
+        .section-title {
+            font-size: 1.5rem !important;
+            font-weight: 700 !important;
+            color: rgba(13, 59, 59, 0.7) !important;
+        }
+        
+        .section-title span {
+            color: var(--primary-green) !important;
+        }
+        
+        /* Tables */
+        .table-dark {
+            background: #ffffff !important;
+            border: 2px solid rgba(13, 59, 59, 0.15) !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+        }
+        
+        .table-dark thead {
+            background: linear-gradient(135deg, var(--primary-green) 0%, #0a2828 100%) !important;
+            border: none !important;
+        }
+        
+        .table-dark thead th {
+            color: var(--cream) !important;
+            font-weight: 700 !important;
+            padding: 1rem !important;
+            border: none !important;
+        }
+        
+        .table-dark tbody tr {
+            background: #ffffff !important;
+            border-bottom: 1px solid rgba(13, 59, 59, 0.1) !important;
+        }
+        
+        .table-dark tbody tr:hover {
+            background: rgba(13, 59, 59, 0.03) !important;
+        }
+        
+        .table-dark tbody td {
+            color: rgba(13, 59, 59, 0.8) !important;
+            padding: 1rem !important;
+            border: none !important;
+        }
+        
+        .table-dark tbody td:first-child {
+            color: rgba(13, 59, 59, 0.5) !important;
+        }
+        
+        .table-dark tbody td:nth-child(2) {
+            color: var(--primary-green) !important;
+            font-weight: 700 !important;
+        }
+        
+        .user-section-title {
+            border-bottom: 3px solid var(--primary-green) !important;
+            padding-bottom: 12px !important;
+            color: var(--primary-green) !important;
+            font-weight: 700 !important;
+        }
+        
+        .user-section-icon {
+            color: var(--primary-green) !important;
+        }
+        
+        /* Buttons */
+        .btn-success {
+            background: linear-gradient(135deg, var(--primary-green) 0%, #0a2828 100%) !important;
+            border: none !important;
+            color: var(--cream) !important;
+            font-weight: 700 !important;
+            padding: 8px 20px !important;
+            border-radius: 8px !important;
+            transition: all 0.3s !important;
+        }
+        
+        .btn-success:hover {
+            background: linear-gradient(135deg, #0a2828 0%, var(--primary-green) 100%) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 15px rgba(13, 59, 59, 0.3) !important;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545 !important;
+            border: none !important;
+            color: white !important;
+            font-weight: 700 !important;
+            padding: 8px 20px !important;
+            border-radius: 8px !important;
+            transition: all 0.3s !important;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important;
+        }
+        
+        .btn-outline-light {
+            border: 2px solid var(--primary-green) !important;
+            color: var(--primary-green) !important;
+            background: transparent !important;
+            font-weight: 600 !important;
+        }
+        
+        .btn-outline-light:hover {
+            background: var(--primary-green) !important;
+            color: var(--cream) !important;
+        }
+        
+        /* Badges */
+        .badge {
+            padding: 6px 12px !important;
+            font-weight: 600 !important;
+            border-radius: 6px !important;
+        }
+        
+        .bg-success {
+            background-color: var(--primary-green) !important;
+        }
+        
+        .bg-secondary {
+            background-color: #6c757d !important;
+        }
+        
+        .text-success {
+            color: var(--primary-green) !important;
+        }
+        
+        /* Alerts */
+        .alert-info {
+            background: rgba(13, 59, 59, 0.1) !important;
+            border: 2px solid var(--primary-green) !important;
+            color: var(--primary-green) !important;
+            border-radius: 12px !important;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            background: rgba(13, 59, 59, 0.03) !important;
+            border: 2px dashed rgba(13, 59, 59, 0.2) !important;
+            border-radius: 12px !important;
+            padding: 3rem !important;
+        }
+        
+        .empty-state p {
+            color: rgba(13, 59, 59, 0.6) !important;
+        }
+        
+        /* Modal */
+        .modal-content {
+            background: #ffffff !important;
+            border: 2px solid rgba(13, 59, 59, 0.2) !important;
+            border-radius: 16px !important;
+        }
+        
+        .modal-header {
+            border-bottom: 2px solid rgba(13, 59, 59, 0.1) !important;
+            background: rgba(13, 59, 59, 0.03) !important;
+        }
+        
+        .modal-title {
+            color: var(--primary-green) !important;
+        }
+        
+        .modal-body {
+            color: rgba(13, 59, 59, 0.8) !important;
+        }
+        
+        .modal-body strong {
+            color: var(--primary-green) !important;
+        }
+        
+        .modal-footer {
+            border-top: 2px solid rgba(13, 59, 59, 0.1) !important;
+            background: rgba(13, 59, 59, 0.03) !important;
+        }
+        
+        .btn-close {
+            filter: invert(1) grayscale(100%) brightness(0.3) !important;
+        }
+        
+        /* HR */
+        hr {
+            border-color: rgba(13, 59, 59, 0.2) !important;
+            opacity: 1 !important;
+        }
+        
+        /* Container */
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        section {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .text-white {
+            color: var(--primary-green) !important;
+        }
+        
+        .text-gray {
+            color: rgba(13, 59, 59, 0.7) !important;
+        }
     </style>
 </head>
 <body>
@@ -57,7 +429,7 @@
                 <div class="col-md-4">
                     <div class="card-dash stats-card">
                         <div class="stat-number text-white">{{ pending_count }}</div>
-                        <div class="stat-label" style="color: #ff3366;">PENDING APPROVALS</div>
+                        <div class="stat-label" style="color: var(--primary-green);">PENDING APPROVALS</div>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -75,7 +447,7 @@
             </div>
 
             <!-- Pending Approvals -->
-            <h4 class="mb-4 text-gray section-title">PENDING <span style="color: #ff3366;">APPROVALS</span></h4>
+            <h4 class="mb-4 text-gray section-title">PENDING <span>APPROVALS</span></h4>
             {% if pending_properties %}
                 <div class="row g-4">
                 {% for property in pending_properties %}
@@ -114,24 +486,24 @@
 
             <!-- All Users Section -->
             <hr class="my-5" style="border-color: rgba(255, 255, 255, 0.1);">
-            <h4 class="mb-4 text-gray section-title">SYSTEM <span style="color: #00ff88;">USERS</span></h4>
+            <h4 class="mb-4 text-gray section-title">SYSTEM <span>USERS</span></h4>
             
             <!-- Owners Section -->
             <div class="mb-5">
-                <h5 class="mb-3 text-white" style="border-bottom: 2px solid #00ff88; padding-bottom: 10px;">
-                    <i class="fas fa-building me-2" style="color: #00ff88;"></i>PROPERTY OWNERS ({{ total_owners }})
+                <h5 class="mb-3 text-white user-section-title">
+                    <i class="fas fa-building me-2 user-section-icon"></i>PROPERTY OWNERS ({{ total_owners }})
                 </h5>
                 {% if owners %}
                     <div class="table-responsive mb-4">
-                        <table class="table table-dark table-hover" style="border: 1px solid rgba(0, 255, 136, 0.2);">
-                            <thead style="background: rgba(0, 255, 136, 0.1); border-bottom: 2px solid rgba(0, 255, 136, 0.3);">
+                        <table class="table table-dark table-hover">
+                            <thead>
                                 <tr>
-                                    <th style="color: #00ff88;">#</th>
-                                    <th style="color: #00ff88;">USERNAME</th>
-                                    <th style="color: #00ff88;">EMAIL</th>
-                                    <th style="color: #00ff88;">PHONE</th>
-                                    <th style="color: #00ff88;">JOINED</th>
-                                    <th style="color: #00ff88;">ACTION</th>
+                                    <th>#</th>
+                                    <th>USERNAME</th>
+                                    <th>EMAIL</th>
+                                    <th>PHONE</th>
+                                    <th>JOINED</th>
+                                    <th>ACTION</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -165,20 +537,20 @@
 
             <!-- Tenants Section -->
             <div class="mb-5">
-                <h5 class="mb-3 text-white" style="border-bottom: 2px solid #00ff88; padding-bottom: 10px;">
-                    <i class="fas fa-users me-2" style="color: #00ff88;"></i>TENANTS ({{ total_tenants }})
+                <h5 class="mb-3 text-white user-section-title">
+                    <i class="fas fa-users me-2 user-section-icon"></i>TENANTS ({{ total_tenants }})
                 </h5>
                 {% if tenants %}
                     <div class="table-responsive">
-                        <table class="table table-dark table-hover" style="border: 1px solid rgba(0, 255, 136, 0.2);">
-                            <thead style="background: rgba(0, 255, 136, 0.1); border-bottom: 2px solid rgba(0, 255, 136, 0.3);">
+                        <table class="table table-dark table-hover">
+                            <thead>
                                 <tr>
-                                    <th style="color: #00ff88;">#</th>
-                                    <th style="color: #00ff88;">USERNAME</th>
-                                    <th style="color: #00ff88;">EMAIL</th>
-                                    <th style="color: #00ff88;">PHONE</th>
-                                    <th style="color: #00ff88;">JOINED</th>
-                                    <th style="color: #00ff88;">ACTION</th>
+                                    <th>#</th>
+                                    <th>USERNAME</th>
+                                    <th>EMAIL</th>
+                                    <th>PHONE</th>
+                                    <th>JOINED</th>
+                                    <th>ACTION</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -212,7 +584,7 @@
 
             <!-- All Properties Section -->
             <hr class="my-5" style="border-color: rgba(255, 255, 255, 0.1);">
-            <h4 class="mb-4 text-gray section-title">ALL <span style="color: #00ff88;">PROPERTIES</span></h4>
+            <h4 class="mb-4 text-gray section-title">ALL <span>PROPERTIES</span></h4>
             {% if all_properties %}
                 <div class="row g-4">
                 {% for property in all_properties %}
@@ -261,16 +633,16 @@
         {% if user.id != request.user.id %}
             <div class="modal fade" id="deleteUserModal{{ user.id }}" tabindex="-1" aria-labelledby="deleteUserLabel{{ user.id }}" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content" style="background: #16213e; border: 1px solid rgba(255, 51, 102, 0.3);">
-                        <div class="modal-header border-bottom" style="border-color: rgba(255, 51, 102, 0.3) !important;">
+                    <div class="modal-content">
+                        <div class="modal-header border-bottom">
                             <h5 class="modal-title text-white" id="deleteUserLabel{{ user.id }}"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Deletion</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body text-white">
-                            <p>Are you sure you want to delete user <strong style="color: #ff3366;">{{ user.username }}</strong>?</p>
+                            <p>Are you sure you want to delete user <strong>{{ user.username }}</strong>?</p>
                             <p style="color: #ffc107; font-size: 0.9rem;"><i class="fas fa-info-circle me-2"></i>This action will permanently delete the user account and all associated properties and data.</p>
                         </div>
-                        <div class="modal-footer border-top" style="border-color: rgba(255, 51, 102, 0.3) !important;">
+                        <div class="modal-footer border-top">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
                             <a href="{% url 'delete_user' user.id %}" class="btn btn-danger">
                                 <i class="fas fa-trash me-1"></i>DELETE USER
@@ -286,16 +658,16 @@
         {% if user.id != request.user.id %}
             <div class="modal fade" id="deleteUserModal{{ user.id }}" tabindex="-1" aria-labelledby="deleteUserLabel{{ user.id }}" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content" style="background: #16213e; border: 1px solid rgba(255, 51, 102, 0.3);">
-                        <div class="modal-header border-bottom" style="border-color: rgba(255, 51, 102, 0.3) !important;">
+                    <div class="modal-content">
+                        <div class="modal-header border-bottom">
                             <h5 class="modal-title text-white" id="deleteUserLabel{{ user.id }}"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Deletion</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body text-white">
-                            <p>Are you sure you want to delete user <strong style="color: #ff3366;">{{ user.username }}</strong>?</p>
+                            <p>Are you sure you want to delete user <strong>{{ user.username }}</strong>?</p>
                             <p style="color: #ffc107; font-size: 0.9rem;"><i class="fas fa-info-circle me-2"></i>This action will permanently delete the user account and all associated data.</p>
                         </div>
-                        <div class="modal-footer border-top" style="border-color: rgba(255, 51, 102, 0.3) !important;">
+                        <div class="modal-footer border-top">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CANCEL</button>
                             <a href="{% url 'delete_user' user.id %}" class="btn btn-danger">
                                 <i class="fas fa-trash me-1"></i>DELETE USER
