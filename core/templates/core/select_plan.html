@@ -1,0 +1,232 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Your Plan | RentEase</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #000;
+            color: #f5f0e1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .header-title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .header-subtitle {
+            font-size: 18px;
+            color: rgba(245, 240, 225, 0.7);
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .plan-card {
+            background: #1a1a1a;
+            border: 2px solid rgba(245, 240, 225, 0.2);
+            border-radius: 20px;
+            padding: 40px 35px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(245, 240, 225, 0.3);
+            border-color: #f5f0e1;
+        }
+
+        .plan-card.popular {
+            border: 3px solid #f5f0e1;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            transform: scale(1.05);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #f5f0e1;
+            color: #000;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .plan-name {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .plan-price {
+            font-size: 48px;
+            font-weight: 800;
+            margin: 20px 0;
+        }
+
+        .plan-duration {
+            font-size: 15px;
+            color: rgba(245, 240, 225, 0.6);
+            margin-bottom: 30px;
+        }
+
+        .plan-features {
+            text-align: left;
+            margin: 30px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .feature-item i {
+            color: #f5f0e1;
+            font-size: 18px;
+        }
+
+        .feature-item span {
+            font-size: 15px;
+            color: rgba(245, 240, 225, 0.9);
+        }
+
+        .select-btn {
+            width: 100%;
+            padding: 16px;
+            background: #f5f0e1;
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+
+        .select-btn:hover {
+            background: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(245, 240, 225, 0.4);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: #f5f0e1;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px 24px;
+            border: 2px solid #f5f0e1;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: #f5f0e1;
+            color: #000;
+        }
+
+        .footer-actions {
+            text-align: center;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-icon">
+                <i class="fas fa-crown"></i>
+            </div>
+            <h1 class="header-title">Upgrade Your Listing Plan</h1>
+            <p class="header-subtitle">Choose the perfect plan to maximize your property visibility</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="plans-grid">
+                {% for key, plan in plans.items %}
+                <div class="plan-card {% if plan.popular %}popular{% endif %}">
+                    {% if plan.popular %}
+                    <div class="popular-badge">Popular</div>
+                    {% endif %}
+                    
+                    <h3 class="plan-name">{{ plan.name }}</h3>
+                    <div class="plan-price">₹{{ plan.price }}</div>
+                    <p class="plan-duration">{{ plan.duration }}</p>
+                    
+                    <div class="plan-features">
+                        {% for feature in plan.features %}
+                        <div class="feature-item">
+                            <i class="fas fa-check-circle"></i>
+                            <span>{{ feature }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <button type="submit" name="plan" value="{{ key }}" class="select-btn">
+                        Select Plan
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </form>
+
+        <div class="footer-actions">
+            <a href="{% url 'dashboard' %}" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</body>
+</html>

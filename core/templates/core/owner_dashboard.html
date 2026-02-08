@@ -259,6 +259,57 @@
             background: #ffffff;
         }
 
+        /* Pricing Cards in Dashboard */
+        .pricing-card-dashboard {
+            cursor: pointer;
+        }
+
+        .pricing-card-dashboard:hover {
+            transform: translateY(-8px) !important;
+            box-shadow: 0 15px 50px rgba(245, 240, 225, 0.3) !important;
+            border-color: #f5f0e1 !important;
+        }
+
+        .btn-plan:hover {
+            background: #fff !important;
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(245, 240, 225, 0.4);
+        }
+
+        /* Profile Dropdown */
+        .profile-avatar-small {
+            transition: all 0.3s ease;
+        }
+
+        .profile-btn:hover .profile-avatar-small {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(245, 240, 225, 0.4);
+        }
+
+        .profile-modal {
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .stat-icon {
             width: 60px;
             height: 60px;
@@ -1023,10 +1074,128 @@
                     <i class="fas fa-comments"></i>
                     Messages
                 </a>
-                <a href="{% url 'logout' %}" class="btn-logout">Logout</a>
+                
+                <!-- Profile Dropdown -->
+                <div class="profile-dropdown" style="position: relative;">
+                    <button class="profile-btn" onclick="toggleProfileDropdown()" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 50px; transition: all 0.3s;">
+                        <div class="profile-avatar-small" style="width: 40px; height: 40px; border-radius: 50%; background: #f5f0e1; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #000; border: 2px solid #f5f0e1; overflow: hidden;">
+                            {% if user.profile_image %}
+                                <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                {{ user.username|first|upper }}
+                            {% endif %}
+                        </div>
+                        <i class="fas fa-chevron-down" style="color: #f5f0e1; font-size: 12px;"></i>
+                    </button>
+                    
+                    <!-- Dropdown Menu -->
+                    <div id="profileDropdownMenu" class="profile-dropdown-menu" style="display: none; position: absolute; top: 60px; right: 0; background: #fff; border-radius: 15px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); min-width: 280px; z-index: 1000; overflow: hidden;">
+                        <div style="padding: 20px; background: linear-gradient(135deg, #000 0%, #1a1a1a 100%); border-bottom: 2px solid #f5f0e1;">
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <div style="width: 60px; height: 60px; border-radius: 50%; background: #f5f0e1; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: #000; overflow: hidden;">
+                                    {% if user.profile_image %}
+                                        <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    {% else %}
+                                        {{ user.username|first|upper }}
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div style="font-size: 18px; font-weight: 700; color: #f5f0e1; margin-bottom: 4px;">{{ user.username }}</div>
+                                    <div style="font-size: 13px; color: rgba(245, 240, 225, 0.7);">{{ user.email }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="padding: 10px;">
+                            <a href="#" onclick="openProfileModal(); return false;" style="display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: #000; text-decoration: none; border-radius: 10px; transition: all 0.3s;">
+                                <i class="fas fa-user-edit" style="font-size: 18px; color: #000;"></i>
+                                <span style="font-weight: 600;">Edit Profile</span>
+                            </a>
+                            <a href="{% url 'logout' %}" style="display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: #dc3545; text-decoration: none; border-radius: 10px; transition: all 0.3s;">
+                                <i class="fas fa-sign-out-alt" style="font-size: 18px;"></i>
+                                <span style="font-weight: 600;">Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
+
+    <!-- Profile Edit Modal -->
+    <div id="profileModal" class="profile-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 2000; align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: #fff; border-radius: 20px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div style="background: linear-gradient(135deg, #000 0%, #1a1a1a 100%); padding: 30px; border-radius: 20px 20px 0 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="font-size: 28px; font-weight: 700; color: #f5f0e1; margin: 0;">
+                        <i class="fas fa-user-edit" style="margin-right: 10px;"></i>
+                        Edit Profile
+                    </h2>
+                    <button onclick="closeProfileModal()" style="background: none; border: none; color: #f5f0e1; font-size: 24px; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data" action="{% url 'dashboard' %}" style="padding: 30px;">
+                {% csrf_token %}
+                
+                <!-- Profile Photo Upload -->
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="position: relative; display: inline-block;">
+                        <div id="profilePreview" style="width: 120px; height: 120px; border-radius: 50%; background: #f5f0e1; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: 700; color: #000; border: 4px solid #000; margin: 0 auto; overflow: hidden;">
+                            {% if user.profile_image %}
+                                <img src="{{ user.profile_image.url }}" alt="{{ user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                {{ user.username|first|upper }}
+                            {% endif %}
+                        </div>
+                        <label for="profilePhotoInput" style="position: absolute; bottom: 5px; right: 5px; width: 40px; height: 40px; border-radius: 50%; background: #000; border: 3px solid #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s;">
+                            <i class="fas fa-camera" style="color: #f5f0e1; font-size: 16px;"></i>
+                        </label>
+                        <input type="file" id="profilePhotoInput" name="profile_image" accept="image/*" style="display: none;" onchange="previewProfileImage(event)">
+                    </div>
+                    <p style="margin-top: 10px; font-size: 13px; color: #666;">Click camera icon to upload photo</p>
+                </div>
+                
+                <div style="display: grid; gap: 20px;">
+                    <div>
+                        <label style="display: block; color: #000; font-weight: 600; margin-bottom: 8px; font-size: 14px;">
+                            <i class="fas fa-user" style="margin-right: 8px;"></i>
+                            Full Name
+                        </label>
+                        <input type="text" name="username" value="{{ user.username }}" style="width: 100%; padding: 12px 16px; border: 2px solid #ddd; border-radius: 10px; font-size: 15px; transition: all 0.3s;" onfocus="this.style.borderColor='#000'" onblur="this.style.borderColor='#ddd'">
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; color: #000; font-weight: 600; margin-bottom: 8px; font-size: 14px;">
+                            <i class="fas fa-envelope" style="margin-right: 8px;"></i>
+                            Email Address
+                        </label>
+                        <input type="email" name="email" value="{{ user.email }}" style="width: 100%; padding: 12px 16px; border: 2px solid #ddd; border-radius: 10px; font-size: 15px; transition: all 0.3s;" onfocus="this.style.borderColor='#000'" onblur="this.style.borderColor='#ddd'">
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; color: #000; font-weight: 600; margin-bottom: 8px; font-size: 14px;">
+                            <i class="fas fa-phone" style="margin-right: 8px;"></i>
+                            Phone Number
+                        </label>
+                        <input type="tel" name="phone" value="{{ user.phone_number|default:'' }}" placeholder="Enter phone number" style="width: 100%; padding: 12px 16px; border: 2px solid #ddd; border-radius: 10px; font-size: 15px; transition: all 0.3s;" onfocus="this.style.borderColor='#000'" onblur="this.style.borderColor='#ddd'">
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <button type="button" onclick="closeProfileModal()" style="flex: 1; padding: 14px; background: #f5f5f5; color: #000; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        Cancel
+                    </button>
+                    <button type="submit" style="flex: 1; padding: 14px; background: #000; color: #f5f0e1; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.3s;">
+                        <i class="fas fa-save" style="margin-right: 8px;"></i>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Header -->
     <section class="dashboard-header">
@@ -1221,6 +1390,121 @@
             {% endif %}
         </div>
 
+        <!-- Pricing Plans Section -->
+        <div class="pricing-plans-section" style="margin: 40px 0; background: #000; border-radius: 20px; padding: 50px 40px;">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <h2 style="font-size: 36px; font-weight: 700; color: #f5f0e1; margin-bottom: 10px;">
+                    <i class="fas fa-crown" style="color: #f5f0e1; margin-right: 10px;"></i>
+                    Upgrade Your Listing Plan
+                </h2>
+                <p style="font-size: 16px; color: rgba(245, 240, 225, 0.7);">
+                    Choose the perfect plan to maximize your property visibility
+                </p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px;">
+                <!-- Basic Plan -->
+                <div class="pricing-card-dashboard" style="background: #1a1a1a; border: 2px solid rgba(245, 240, 225, 0.2); border-radius: 15px; padding: 35px 30px; text-align: center; transition: all 0.3s ease;">
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="font-size: 24px; font-weight: 700; color: #f5f0e1; margin-bottom: 8px;">Basic Plan</h3>
+                        <div style="font-size: 38px; font-weight: 800; color: #f5f0e1; margin: 12px 0;">₹99</div>
+                        <p style="font-size: 14px; color: rgba(245, 240, 225, 0.6);">3 Months</p>
+                    </div>
+                    
+                    <div style="text-align: left; margin: 25px 0;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 16px;"></i>
+                            <span style="font-size: 14px; color: rgba(245, 240, 225, 0.9);">List up to 1 property</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 16px;"></i>
+                            <span style="font-size: 14px; color: rgba(245, 240, 225, 0.9);">Visible for 90 days</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 16px;"></i>
+                            <span style="font-size: 14px; color: rgba(245, 240, 225, 0.9);">Standard visibility</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-plan" style="width: 100%; padding: 14px; background: #f5f0e1; color: #000; border: none; border-radius: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; font-size: 13px;">
+                        Select Plan
+                    </button>
+                </div>
+
+                <!-- Standard Plan -->
+                <div class="pricing-card-dashboard" style="background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); border: 3px solid #f5f0e1; border-radius: 15px; padding: 35px 30px; text-align: center; transition: all 0.3s ease; position: relative;">
+                    <div style="position: absolute; top: 12px; right: 12px; background: #f5f0e1; color: #000; padding: 5px 14px; border-radius: 15px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                        Popular
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="font-size: 24px; font-weight: 700; color: #f5f0e1; margin-bottom: 8px;">Standard Plan</h3>
+                        <div style="font-size: 38px; font-weight: 800; color: #f5f0e1; margin: 12px 0;">₹199</div>
+                        <p style="font-size: 14px; color: rgba(245, 240, 225, 0.6);">6 Months</p>
+                    </div>
+                    
+                    <div style="text-align: left; margin: 25px 0;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 16px;"></i>
+                            <span style="font-size: 14px; color: rgba(245, 240, 225, 0.9);">List up to 3 properties</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 16px;"></i>
+                            <span style="font-size: 14px; color: rgba(245, 240, 225, 0.9);">Visible for 180 days</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 16px;"></i>
+                            <span style="font-size: 14px; color: rgba(245, 240, 225, 0.9);">Priority visibility</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 16px;"></i>
+                            <span style="font-size: 14px; color: rgba(245, 240, 225, 0.9);">Shown above basic</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-plan" style="width: 100%; padding: 14px; background: #f5f0e1; color: #000; border: none; border-radius: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; font-size: 13px;">
+                        Select Plan
+                    </button>
+                </div>
+
+                <!-- Premium Plan -->
+                <div class="pricing-card-dashboard" style="background: #1a1a1a; border: 2px solid rgba(245, 240, 225, 0.2); border-radius: 15px; padding: 35px 30px; text-align: center; transition: all 0.3s ease;">
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="font-size: 24px; font-weight: 700; color: #f5f0e1; margin-bottom: 8px;">Premium Plan</h3>
+                        <div style="font-size: 38px; font-weight: 800; color: #f5f0e1; margin: 12px 0;">₹399</div>
+                        <p style="font-size: 14px; color: rgba(245, 240, 225, 0.6);">1 Year</p>
+                    </div>
+                    
+                    <div style="text-align: left; margin: 25px 0;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 16px;"></i>
+                            <span style="font-size: 14px; color: rgba(245, 240, 225, 0.9);">List up to 10 properties</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 16px;"></i>
+                            <span style="font-size: 14px; color: rgba(245, 240, 225, 0.9);">Visible for 365 days</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 16px;"></i>
+                            <span style="font-size: 14px; color: rgba(245, 240, 225, 0.9);">⭐ Featured badge</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 16px;"></i>
+                            <span style="font-size: 14px; color: rgba(245, 240, 225, 0.9);">Top search priority</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 16px;"></i>
+                            <span style="font-size: 14px; color: rgba(245, 240, 225, 0.9);">Premium support</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-plan" style="width: 100%; padding: 14px; background: #f5f0e1; color: #000; border: none; border-radius: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.3s; font-size: 13px;">
+                        Select Plan
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Reviews -->
         <div class="section-header" style="margin-top: 50px;">
             <h2 class="section-title">Your Reviews</h2>
@@ -1272,5 +1556,69 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Preview profile image before upload
+        function previewProfileImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('profilePreview');
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Toggle profile dropdown
+        function toggleProfileDropdown() {
+            const menu = document.getElementById('profileDropdownMenu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Open profile modal
+        function openProfileModal() {
+            document.getElementById('profileModal').style.display = 'flex';
+            toggleProfileDropdown(); // Close dropdown
+        }
+
+        // Close profile modal
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.profile-dropdown');
+            const menu = document.getElementById('profileDropdownMenu');
+            if (dropdown && !dropdown.contains(event.target)) {
+                menu.style.display = 'none';
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('profileModal')?.addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeProfileModal();
+            }
+        });
+
+        // Add hover effects
+        document.querySelectorAll('.profile-dropdown-menu a').forEach(link => {
+            link.addEventListener('mouseenter', function() {
+                this.style.background = '#f5f5f5';
+            });
+            link.addEventListener('mouseleave', function() {
+                this.style.background = 'transparent';
+            });
+        });
+
+        document.querySelector('.profile-btn')?.addEventListener('mouseenter', function() {
+            this.style.background = 'rgba(245, 240, 225, 0.1)';
+        });
+        document.querySelector('.profile-btn')?.addEventListener('mouseleave', function() {
+            this.style.background = 'none';
+        });
+    </script>
 </body>
 </html>

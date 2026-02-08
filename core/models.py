@@ -66,6 +66,7 @@ class Property(models.Model):
     bachelors_allowed = models.BooleanField(default=True, help_text="Are bachelors allowed?")
     total_floors = models.IntegerField(default=1, help_text="Total floors in the building")
     facing = models.CharField(max_length=50, choices=Facing.choices, default=Facing.NORTH)
+    built_year = models.IntegerField(blank=True, null=True, help_text="Year the property was built")
     amenities = models.TextField(help_text="Comma-separated list of amenities", blank=True)
     status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING_APPROVAL)
     # Added is_paid field

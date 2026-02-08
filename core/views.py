@@ -78,6 +78,21 @@ def logout_view(request):
 
 @login_required
 def dashboard_view(request):
+    # Handle profile update
+    if request.method == 'POST':
+        user = request.user
+        user.username = request.POST.get('username', user.username)
+        user.email = request.POST.get('email', user.email)
+        user.phone_number = request.POST.get('phone', user.phone_number)
+        
+        # Handle profile image upload
+        if 'profile_image' in request.FILES:
+            user.profile_image = request.FILES['profile_image']
+        
+        user.save()
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('dashboard')
+    
     context = {'user': request.user}
     
     # Check if user is superuser (Admin)
@@ -188,11 +203,66 @@ def add_photos_view(request, id):
         if images:
             for image in images:
                 PropertyImage.objects.create(property=property_obj, image=image)
-            messages.success(request, "Photos uploaded! Please complete payment to submit for approval.")
-            return redirect('payment', id=property_obj.id)
+            messages.success(request, "Photos uploaded! Now choose your listing plan.")
+            return redirect('select_plan', id=property_obj.id)
         else:
             messages.error(request, "Please select at least one image.")
     return render(request, 'core/add_property_photos.html', {'property': property_obj})
+
+@login_required
+def select_plan_view(request, id):
+    property_obj = get_object_or_404(Property, id=id, owner=request.user)
+    
+    if property_obj.is_paid:
+        messages.info(request, "Payment already completed for this property.")
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        selected_plan = request.POST.get('plan')
+        # Store the selected plan in session
+        request.session['selected_plan'] = selected_plan
+        request.session['property_id'] = property_obj.id
+        return redirect('payment', id=property_obj.id)
+    
+    # Define plans
+    plans = {
+        'basic': {
+            'name': 'Basic Plan',
+            'price': 99,
+            'duration': '3 Months',
+            'features': [
+                'List up to 1 property',
+                'Visible for 90 days',
+                'Standard visibility'
+            ]
+        },
+        'standard': {
+            'name': 'Standard Plan',
+            'price': 199,
+            'duration': '6 Months',
+            'features': [
+                'List up to 3 properties',
+                'Visible for 180 days',
+                'Priority visibility',
+                'Shown above basic listings'
+            ],
+            'popular': True
+        },
+        'premium': {
+            'name': 'Premium Plan',
+            'price': 399,
+            'duration': '1 Year',
+            'features': [
+                'List up to 10 properties',
+                'Visible for 365 days',
+                '⭐ Featured badge',
+                'Top search priority',
+                'Premium support'
+            ]
+        }
+    }
+    
+    return render(request, 'core/select_plan.html', {'property': property_obj, 'plans': plans})
 
 @login_required
 def payment_view(request, id):
@@ -200,6 +270,25 @@ def payment_view(request, id):
     if property_obj.is_paid:
         messages.info(request, "Payment already completed for this property.")
         return redirect('dashboard')
+    
+    # Get selected plan from session
+    selected_plan = request.session.get('selected_plan', 'basic')
+    
+    # Define plan prices
+    plan_prices = {
+        'basic': 99,
+        'standard': 199,
+        'premium': 399
+    }
+    
+    plan_names = {
+        'basic': 'Basic Plan',
+        'standard': 'Standard Plan',
+        'premium': 'Premium Plan'
+    }
+    
+    amount_inr = plan_prices.get(selected_plan, 99)
+    plan_name = plan_names.get(selected_plan, 'Basic Plan')
     
     # Check if Razorpay keys are configured
     if settings.RAZORPAY_KEY_ID.startswith('rzp_test_YOUR') or settings.RAZORPAY_KEY_ID == 'rzp_test_YOUR_KEY_ID':
@@ -218,7 +307,7 @@ def payment_view(request, id):
             # If payment exists but is not successful, create a new order
             if payment.status != Payment.PaymentStatus.SUCCESS:
                 # Amount in paise (1 INR = 100 paise)
-                amount = int(settings.PROPERTY_REGISTRATION_FEE * 100)
+                amount = int(amount_inr * 100)
                 
                 # Create new Razorpay order
                 order_data = {
@@ -234,10 +323,11 @@ def payment_view(request, id):
                 payment.razorpay_payment_id = None
                 payment.razorpay_signature = None
                 payment.status = Payment.PaymentStatus.PENDING
+                payment.amount = amount_inr
                 payment.save()
         except Payment.DoesNotExist:
             # No payment exists, create new one
-            amount = int(settings.PROPERTY_REGISTRATION_FEE * 100)
+            amount = int(amount_inr * 100)
             
             # Create Razorpay order
             order_data = {
@@ -253,7 +343,7 @@ def payment_view(request, id):
                 property=property_obj,
                 owner=request.user,
                 razorpay_order_id=razorpay_order['id'],
-                amount=settings.PROPERTY_REGISTRATION_FEE,
+                amount=amount_inr,
                 status=Payment.PaymentStatus.PENDING
             )
         
@@ -261,8 +351,10 @@ def payment_view(request, id):
             'property': property_obj,
             'razorpay_order_id': payment.razorpay_order_id,
             'razorpay_key_id': settings.RAZORPAY_KEY_ID,
-            'amount': settings.PROPERTY_REGISTRATION_FEE,
+            'amount': amount_inr,
             'payment_id': payment.id,
+            'plan_name': plan_name,
+            'selected_plan': selected_plan,
         }
         
         return render(request, 'core/payment.html', context)

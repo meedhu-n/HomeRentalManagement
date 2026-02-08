@@ -696,7 +696,7 @@
                             <i class="fas fa-calendar"></i>
                         </div>
                         <div class="detail-label">Built Year</div>
-                        <div class="detail-value">{{ property.created_at|date:"Y" }}</div>
+                        <div class="detail-value">{{ property.built_year|default:"N/A" }}</div>
                     </div>
 
                     <div class="detail-item">
@@ -760,9 +760,13 @@
                 <p class="owner-title">Realtor # {{ property.owner.id|stringformat:"03d" }}.456.78</p>
                 
                 <div class="owner-avatar">
-                    <div class="owner-avatar-placeholder">
-                        {{ property.owner.username|first|upper }}
-                    </div>
+                    {% if property.owner.profile_image %}
+                        <img src="{{ property.owner.profile_image.url }}" alt="{{ property.owner.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        <div class="owner-avatar-placeholder">
+                            {{ property.owner.username|first|upper }}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

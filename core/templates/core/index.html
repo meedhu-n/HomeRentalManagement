@@ -414,6 +414,34 @@
             transform: translateY(-2px);
         }
 
+        /* Plans for Owners Button */
+        .nav-link-plans {
+            background: #f5f0e1;
+            color: #000 !important;
+            padding: 12px 24px !important;
+            border-radius: 8px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 15px;
+        }
+
+        .nav-link-plans::after {
+            display: none;
+        }
+
+        .nav-link-plans:hover {
+            background: #fff;
+            color: #000 !important;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(245, 240, 225, 0.4);
+        }
+
+        .nav-link-plans i {
+            font-size: 16px;
+        }
+
         /* Counter Section */
         .counter-section {
             background: #f8f9fa;
@@ -594,6 +622,23 @@
             font-size: 15px;
             color: #666;
             line-height: 1.8;
+        }
+
+        /* Pricing Cards */
+        .pricing-card {
+            cursor: pointer;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px) !important;
+            box-shadow: 0 20px 60px rgba(245, 240, 225, 0.3) !important;
+            border-color: #f5f0e1 !important;
+        }
+
+        .pricing-card a:hover {
+            background: #000 !important;
+            color: #f5f0e1 !important;
+            transform: scale(1.05);
         }
         
         /* Featured Properties Section */
@@ -1220,6 +1265,10 @@
                     <a href="#features" class="nav-link">The List</a>
                     <a href="#how-it-works" class="nav-link">How It Works</a>
                     <a href="#counter" class="nav-link">Journal</a>
+                    <a href="#pricing-owners" class="nav-link nav-link-plans" onclick="showPricingPlans(event)">
+                        <i class="fas fa-crown"></i>
+                        Plans for Owners
+                    </a>
                 {% endif %}
             </div>
         </div>
@@ -1740,6 +1789,122 @@
         </div>
     </section>
 
+    <!-- Pricing Plans Section (Only for Owners) -->
+    <section class="pricing-section tab-content" id="pricing-owners" style="padding: 60px 40px; background: #000; color: #f5f0e1; display: none;">
+        <div style="max-width: 1400px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 50px;" class="animate-on-scroll">
+                <h2 style="font-size: 42px; font-weight: 700; margin-bottom: 15px; color: #f5f0e1;">
+                    Owner Listing Plans
+                </h2>
+                <p style="font-size: 18px; color: rgba(245, 240, 225, 0.7); max-width: 700px; margin: 0 auto;">
+                    Choose the perfect plan to showcase your properties and connect with quality tenants
+                </p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto;">
+                <!-- Basic Plan -->
+                <div class="pricing-card animate-on-scroll" style="background: #1a1a1a; border: 2px solid rgba(245, 240, 225, 0.2); border-radius: 20px; padding: 40px 35px; text-align: center; transition: all 0.3s ease; position: relative; overflow: hidden;">
+                    <div style="margin-bottom: 25px;">
+                        <h3 style="font-size: 26px; font-weight: 700; color: #f5f0e1; margin-bottom: 8px;">Basic Plan</h3>
+                        <div style="font-size: 42px; font-weight: 800; color: #f5f0e1; margin: 15px 0;">₹99</div>
+                        <p style="font-size: 15px; color: rgba(245, 240, 225, 0.6);">3 Months</p>
+                    </div>
+                    
+                    <div style="text-align: left; margin: 30px 0;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 18px;"></i>
+                            <span style="font-size: 15px; color: rgba(245, 240, 225, 0.9);">List up to 1 property</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 18px;"></i>
+                            <span style="font-size: 15px; color: rgba(245, 240, 225, 0.9);">Visible for 90 days</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 18px;"></i>
+                            <span style="font-size: 15px; color: rgba(245, 240, 225, 0.9);">Standard visibility</span>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'register' %}" style="display: block; width: 100%; padding: 15px; background: #f5f0e1; color: #000; text-decoration: none; border-radius: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s; margin-top: 25px; font-size: 14px;">
+                        Get Started
+                    </a>
+                </div>
+
+                <!-- Standard Plan -->
+                <div class="pricing-card animate-on-scroll" style="background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); border: 3px solid #f5f0e1; border-radius: 20px; padding: 40px 35px; text-align: center; transition: all 0.3s ease; position: relative; overflow: hidden; transform: scale(1.05);">
+                    <div style="position: absolute; top: 15px; right: 15px; background: #f5f0e1; color: #000; padding: 6px 16px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                        Popular
+                    </div>
+                    
+                    <div style="margin-bottom: 25px;">
+                        <h3 style="font-size: 26px; font-weight: 700; color: #f5f0e1; margin-bottom: 8px;">Standard Plan</h3>
+                        <div style="font-size: 42px; font-weight: 800; color: #f5f0e1; margin: 15px 0;">₹199</div>
+                        <p style="font-size: 15px; color: rgba(245, 240, 225, 0.6);">6 Months</p>
+                    </div>
+                    
+                    <div style="text-align: left; margin: 30px 0;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 18px;"></i>
+                            <span style="font-size: 15px; color: rgba(245, 240, 225, 0.9);">List up to 3 properties</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 18px;"></i>
+                            <span style="font-size: 15px; color: rgba(245, 240, 225, 0.9);">Visible for 180 days</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 18px;"></i>
+                            <span style="font-size: 15px; color: rgba(245, 240, 225, 0.9);">Priority visibility</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 18px;"></i>
+                            <span style="font-size: 15px; color: rgba(245, 240, 225, 0.9);">Shown above basic listings</span>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'register' %}" style="display: block; width: 100%; padding: 15px; background: #f5f0e1; color: #000; text-decoration: none; border-radius: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s; margin-top: 25px; font-size: 14px;">
+                        Get Started
+                    </a>
+                </div>
+
+                <!-- Premium Plan -->
+                <div class="pricing-card animate-on-scroll" style="background: #1a1a1a; border: 2px solid rgba(245, 240, 225, 0.2); border-radius: 20px; padding: 40px 35px; text-align: center; transition: all 0.3s ease; position: relative; overflow: hidden;">
+                    <div style="margin-bottom: 25px;">
+                        <h3 style="font-size: 26px; font-weight: 700; color: #f5f0e1; margin-bottom: 8px;">Premium Plan</h3>
+                        <div style="font-size: 42px; font-weight: 800; color: #f5f0e1; margin: 15px 0;">₹399</div>
+                        <p style="font-size: 15px; color: rgba(245, 240, 225, 0.6);">1 Year</p>
+                    </div>
+                    
+                    <div style="text-align: left; margin: 30px 0;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 18px;"></i>
+                            <span style="font-size: 15px; color: rgba(245, 240, 225, 0.9);">List up to 10 properties</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 18px;"></i>
+                            <span style="font-size: 15px; color: rgba(245, 240, 225, 0.9);">Visible for 365 days</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 18px;"></i>
+                            <span style="font-size: 15px; color: rgba(245, 240, 225, 0.9);">⭐ Featured badge</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 18px;"></i>
+                            <span style="font-size: 15px; color: rgba(245, 240, 225, 0.9);">Top search priority</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px;">
+                            <i class="fas fa-check-circle" style="color: #f5f0e1; font-size: 18px;"></i>
+                            <span style="font-size: 15px; color: rgba(245, 240, 225, 0.9);">Premium support</span>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'register' %}" style="display: block; width: 100%; padding: 15px; background: #f5f0e1; color: #000; text-decoration: none; border-radius: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s; margin-top: 25px; font-size: 14px;">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-logo">RentEase</div>
@@ -1818,6 +1983,28 @@
             // Add active class to selected tab and content
             document.getElementById(tab + '-tab').classList.add('active');
             document.getElementById(tab + '-content').classList.add('active');
+            
+            // Show/hide pricing section based on tab
+            const pricingSection = document.getElementById('pricing-owners');
+            if (tab === 'owners') {
+                pricingSection.style.display = 'block';
+            } else {
+                pricingSection.style.display = 'none';
+            }
+        }
+
+        // Function to show pricing plans when clicking the Plans button
+        function showPricingPlans(event) {
+            event.preventDefault();
+            
+            // Switch to owners tab first
+            switchTab('owners');
+            
+            // Scroll to pricing section
+            setTimeout(() => {
+                const pricingSection = document.getElementById('pricing-owners');
+                pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
         }
     </script>
 </body>

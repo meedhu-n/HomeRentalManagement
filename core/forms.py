@@ -6,7 +6,7 @@ class PropertyForm(forms.ModelForm):
         model = Property
         fields = ['title', 'ad_title', 'description', 'price', 'location', 'property_type', 'bhk', 
                   'bathrooms', 'furnishing', 'super_built_area', 'bachelors_allowed', 'total_floors', 
-                  'facing', 'amenities']
+                  'facing', 'built_year', 'amenities']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Property Title'}),
             'ad_title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Short ad title for listing'}),
@@ -21,5 +21,6 @@ class PropertyForm(forms.ModelForm):
             'bachelors_allowed': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'total_floors': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '100'}),
             'facing': forms.Select(attrs={'class': 'form-control'}),
+            'built_year': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 2020', 'min': '1900', 'max': '2030'}),
             'amenities': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Wi-Fi, Parking, Gym (comma separated)', 'rows': 2}),
         }
