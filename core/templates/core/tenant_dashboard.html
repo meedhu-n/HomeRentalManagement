@@ -33,6 +33,15 @@
         </div>
     </nav>
 
+    <!-- Hero Banner (Full Width) -->
+    <div class="hero-banner">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Find Your Dream Home</h1>
+            <p class="hero-subtitle">Discover the perfect rental property that matches your lifestyle</p>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <div class="main-container">
         <!-- Sidebar -->
@@ -47,8 +56,7 @@
             {% endif %}
 
             <div class="welcome-box">
-                <div class="welcome-text">Welcome back,</div>
-                <div class="user-name">{{ user.username }}</div>
+                <div class="welcome-text">Welcome back</div>
             </div>
 
             <div class="filter-section">
@@ -105,11 +113,6 @@
 
         <!-- Content Area -->
         <div class="content">
-            <div class="content-header">
-                <h1 class="page-title">Rental Properties</h1>
-                <p class="page-subtitle">Find your perfect home</p>
-            </div>
-
             <!-- Your Applications Section -->
             {% if applications %}
             <div class="applications-section">
