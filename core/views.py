@@ -16,7 +16,21 @@ User = get_user_model()
 
 # ... (Previous views: index, register, login, logout remain same) ...
 def index(request):
-    return render(request, 'core/index.html')
+    from django.utils import timezone
+    
+    # Get premium properties for home page display
+    premium_properties = Property.objects.filter(
+        status=Property.Status.AVAILABLE,
+        is_paid=True,
+        plan_type='premium',
+        plan_expiry_date__gt=timezone.now()
+    ).order_by('-created_at')[:6]  # Show top 6 premium properties
+    
+    context = {
+        'premium_properties': premium_properties
+    }
+    
+    return render(request, 'core/index.html', context)
 
 def register_view(request):
     if request.method == 'POST':
@@ -120,7 +134,18 @@ def dashboard_view(request):
     
     elif request.user.role == 'OWNER':
         from .models import Review
+        from django.utils import timezone
+        
         properties = Property.objects.filter(owner=request.user)
+        
+        # Add plan status to each property
+        for prop in properties:
+            if prop.plan_expiry_date:
+                prop.is_plan_active = prop.is_plan_active()
+                prop.days_left = prop.days_remaining()
+            else:
+                prop.is_plan_active = False
+                prop.days_left = 0
         
         # Get only conversations with unread messages for owner
         all_conversations = Conversation.objects.filter(owner=request.user).order_by('-updated_at')
@@ -138,15 +163,40 @@ def dashboard_view(request):
         # Get reviews given by this owner
         owner_reviews = Review.objects.filter(reviewer=request.user).select_related('property')
         
+        # Count active properties (with valid plans)
+        active_properties_count = properties.filter(
+            status=Property.Status.AVAILABLE,
+            is_paid=True,
+            plan_expiry_date__gt=timezone.now()
+        ).count()
+        
         context['properties'] = properties
-        context['active_listings_count'] = properties.filter(status=Property.Status.AVAILABLE).count()
+        context['active_listings_count'] = active_properties_count
         context['recent_conversations'] = conversations_with_unread
         context['owner_reviews'] = owner_reviews
         return render(request, 'core/owner_dashboard.html', context)
     
     elif request.user.role == 'TENANT':
         from .models import Review
-        available_properties = Property.objects.filter(status=Property.Status.AVAILABLE).order_by('-created_at')
+        from django.utils import timezone
+        from django.db.models import Case, When, IntegerField
+        
+        # Only show properties that are available, paid, and have active plans
+        # Sort by plan priority: Premium (3) > Standard (2) > Basic (1), then by created date
+        available_properties = Property.objects.filter(
+            status=Property.Status.AVAILABLE,
+            is_paid=True,
+            plan_expiry_date__gt=timezone.now()
+        ).annotate(
+            plan_priority=Case(
+                When(plan_type='premium', then=3),
+                When(plan_type='standard', then=2),
+                When(plan_type='basic', then=1),
+                default=0,
+                output_field=IntegerField()
+            )
+        ).order_by('-plan_priority', '-created_at')
+        
         user_applications = RentalApplication.objects.filter(tenant=request.user).order_by('-application_date')
         
         # Get reviews given by this tenant
@@ -166,6 +216,48 @@ def dashboard_view(request):
 def add_property_view(request):
     if request.user.role != 'OWNER':
         messages.error(request, "Access denied. Owners only.")
+        return redirect('dashboard')
+
+    # Check property limits based on active properties with valid plans
+    from django.utils import timezone
+    active_properties = Property.objects.filter(
+        owner=request.user,
+        is_paid=True,
+        plan_expiry_date__gt=timezone.now()
+    )
+    
+    # Count properties by plan type
+    basic_count = active_properties.filter(plan_type='basic').count()
+    standard_count = active_properties.filter(plan_type='standard').count()
+    premium_count = active_properties.filter(plan_type='premium').count()
+    
+    # Check if user has reached their limit
+    # Basic: 1 property, Standard: 3 properties, Premium: 10 properties
+    total_active = active_properties.count()
+    
+    # Determine if user can add more properties based on their highest plan
+    can_add_property = True
+    limit_message = ""
+    
+    # Check limits based on the highest active plan
+    if premium_count > 0:
+        # User has premium plan
+        if total_active >= 10:
+            can_add_property = False
+            limit_message = "You have reached your Premium Plan limit (10 properties)."
+    elif standard_count > 0:
+        # User has standard plan
+        if total_active >= 3:
+            can_add_property = False
+            limit_message = "You have reached your Standard Plan limit (3 properties). Please upgrade to Premium plan to list more properties."
+    elif basic_count > 0:
+        # User only has basic plan
+        if total_active >= 1:
+            can_add_property = False
+            limit_message = "You have reached your Basic Plan limit (1 property). Please upgrade to Standard or Premium plan to list more properties."
+    
+    if not can_add_property:
+        messages.error(request, limit_message)
         return redirect('dashboard')
 
     if request.method == 'POST':
@@ -400,9 +492,31 @@ def verify_payment_view(request):
             payment.status = Payment.PaymentStatus.SUCCESS
             payment.save()
             
-            # Update property as paid
+            # Update property with plan details
+            from django.utils import timezone
+            from datetime import timedelta
+            
             property_obj = payment.property
             property_obj.is_paid = True
+            
+            # Get selected plan from session
+            from django.contrib.sessions.models import Session
+            # Since this is a POST request without session, we need to get it from payment amount
+            # Map amount to plan type
+            if payment.amount == 99:
+                property_obj.plan_type = 'basic'
+                property_obj.plan_expiry_date = timezone.now() + timedelta(days=90)
+            elif payment.amount == 199:
+                property_obj.plan_type = 'standard'
+                property_obj.plan_expiry_date = timezone.now() + timedelta(days=180)
+            elif payment.amount == 399:
+                property_obj.plan_type = 'premium'
+                property_obj.plan_expiry_date = timezone.now() + timedelta(days=365)
+            else:
+                # Default to basic
+                property_obj.plan_type = 'basic'
+                property_obj.plan_expiry_date = timezone.now() + timedelta(days=90)
+            
             property_obj.save()
             
             return JsonResponse({

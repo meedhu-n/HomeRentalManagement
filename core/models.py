@@ -71,6 +71,13 @@ class Property(models.Model):
     status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING_APPROVAL)
     # Added is_paid field
     is_paid = models.BooleanField(default=False)
+    # Plan-related fields
+    plan_type = models.CharField(max_length=20, choices=[
+        ('basic', 'Basic Plan'),
+        ('standard', 'Standard Plan'),
+        ('premium', 'Premium Plan')
+    ], default='basic', help_text="Selected plan type")
+    plan_expiry_date = models.DateTimeField(blank=True, null=True, help_text="Date when the plan expires")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -79,6 +86,21 @@ class Property(models.Model):
 
     def __str__(self):
         return self.title
+
+    def is_plan_active(self):
+        """Check if the property plan is still active"""
+        from django.utils import timezone
+        if self.plan_expiry_date:
+            return timezone.now() < self.plan_expiry_date
+        return False
+
+    def days_remaining(self):
+        """Get the number of days remaining in the plan"""
+        from django.utils import timezone
+        if self.plan_expiry_date:
+            delta = self.plan_expiry_date - timezone.now()
+            return max(0, delta.days)
+        return 0
 
 # ... (Rest of the file remains the same: PropertyImage, RentalApplication, Lease, MaintenanceRequest, Inquiry) ...
 class PropertyImage(models.Model):

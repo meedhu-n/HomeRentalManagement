@@ -1334,6 +1334,11 @@
                                 <span class="status-badge status-{% if property.status == 'AVAILABLE' %}available{% elif property.status == 'PENDING' %}pending{% else %}rented{% endif %}">
                                     {{ property.get_status_display }}
                                 </span>
+                                {% if property.is_paid and property.plan_type %}
+                                <span class="plan-badge plan-{{ property.plan_type }}" style="position: absolute; top: 10px; left: 10px; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; {% if property.plan_type == 'basic' %}background: linear-gradient(135deg, #666 0%, #888 100%);{% elif property.plan_type == 'standard' %}background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);{% else %}background: linear-gradient(135deg, #f5a623 0%, #d68910 100%);{% endif %} color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
+                                    {% if property.plan_type == 'basic' %}Basic{% elif property.plan_type == 'standard' %}Standard{% else %}⭐ Premium{% endif %}
+                                </span>
+                                {% endif %}
                             </div>
                             <div class="property-content">
                                 <div class="property-header">
@@ -1342,6 +1347,16 @@
                                         <i class="fas fa-map-marker-alt"></i>
                                         {{ property.location }}
                                     </div>
+                                    {% if property.is_paid and property.plan_expiry_date %}
+                                    <div class="plan-expiry" style="margin-top: 10px; padding: 8px 12px; background: {% if property.days_left <= 7 %}rgba(255, 59, 48, 0.1); border: 1px solid rgba(255, 59, 48, 0.3);{% elif property.days_left <= 30 %}rgba(255, 149, 0, 0.1); border: 1px solid rgba(255, 149, 0, 0.3);{% else %}rgba(52, 199, 89, 0.1); border: 1px solid rgba(52, 199, 89, 0.3);{% endif %} border-radius: 8px; font-size: 12px; font-weight: 600; {% if property.days_left <= 7 %}color: #ff3b30;{% elif property.days_left <= 30 %}color: #ff9500;{% else %}color: #34c759;{% endif %}">
+                                        <i class="fas fa-clock"></i>
+                                        {% if property.is_plan_active %}
+                                            {{ property.days_left }} days remaining
+                                        {% else %}
+                                            <span style="color: #ff3b30;">Plan Expired</span>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
                                     <div class="property-stats">
                                         <div class="property-stat">
                                             <i class="fas fa-bed"></i>
