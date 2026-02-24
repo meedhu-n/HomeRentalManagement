@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Property, PropertyImage, RentalApplication, Lease, MaintenanceRequest, Inquiry, Payment, Review
+from .models import User, Property, PropertyImage, RentalApplication, Lease, MaintenanceRequest, Inquiry, Payment, Review, Wishlist
 
 # Custom Admin configuration
 class PropertyImageInline(admin.TabularInline):
@@ -50,3 +50,10 @@ class ReviewAdmin(admin.ModelAdmin):
     list_filter = ('rating', 'created_at')
     search_fields = ('property__title', 'reviewer__username', 'comment')
     readonly_fields = ('created_at', 'updated_at')
+
+@admin.register(Wishlist)
+class WishlistAdmin(admin.ModelAdmin):
+    list_display = ('tenant', 'property', 'created_at')
+    list_filter = ('created_at',)
+    search_fields = ('tenant__username', 'property__title')
+    readonly_fields = ('created_at',)

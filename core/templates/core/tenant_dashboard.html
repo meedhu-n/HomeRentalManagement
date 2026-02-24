@@ -26,6 +26,14 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'wishlist' %}">
+                            <i class="fas fa-heart"></i> Wishlist
+                            {% if wishlist_count > 0 %}
+                            <span class="badge bg-danger ms-1">{{ wishlist_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="btn-acid" href="{% url 'logout' %}">Logout</a>
                     </li>
                 </ul>
@@ -99,6 +107,12 @@
                 <div class="stat-box">
                     <div class="stat-value">{{ total_available }}</div>
                     <div class="stat-label">Available Properties</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">{{ wishlist_count|default:0 }}</div>
+                    <div class="stat-label">
+                        <i class="fas fa-heart" style="color: #dc3545;"></i> Wishlist
+                    </div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-value">{{ total_applications }}</div>
@@ -187,6 +201,24 @@
                                     {% if property.plan_type == 'premium' %}<i class="fas fa-crown"></i> PREMIUM{% elif property.plan_type == 'standard' %}<i class="fas fa-star"></i> PRIORITY{% else %}BASIC{% endif %}
                                 </span>
                                 {% endif %}
+                                
+                                <!-- Wishlist Button -->
+                                {% if property.id in wishlist_property_ids %}
+                                <form method="POST" action="{% url 'remove_from_wishlist' property.id %}" style="position: absolute; top: 10px; right: 10px; z-index: 10;">
+                                    {% csrf_token %}
+                                    <button type="submit" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);" title="Remove from wishlist">
+                                        <i class="fas fa-heart" style="color: #dc3545; font-size: 18px;"></i>
+                                    </button>
+                                </form>
+                                {% else %}
+                                <form method="POST" action="{% url 'add_to_wishlist' property.id %}" style="position: absolute; top: 10px; right: 10px; z-index: 10;">
+                                    {% csrf_token %}
+                                    <button type="submit" style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.95); border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);" title="Add to wishlist">
+                                        <i class="far fa-heart" style="color: #0d3b3b; font-size: 18px;"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                                
                                 <div class="listing-price">₹{{ property.price }}</div>
                             </div>
                             <div class="listing-content">

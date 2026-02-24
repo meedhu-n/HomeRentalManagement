@@ -251,3 +251,17 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.reviewer.username} for {self.property.title} - {self.rating} stars"
+
+# Wishlist System
+class Wishlist(models.Model):
+    """Wishlist for tenants to save favorite properties"""
+    tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist_items')
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='wishlisted_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ('tenant', 'property')  # One wishlist entry per tenant per property
+
+    def __str__(self):
+        return f"{self.tenant.username}'s wishlist - {self.property.title}"

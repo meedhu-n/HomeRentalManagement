@@ -177,7 +177,7 @@ def dashboard_view(request):
         return render(request, 'core/owner_dashboard.html', context)
     
     elif request.user.role == 'TENANT':
-        from .models import Review
+        from .models import Review, Wishlist
         from django.utils import timezone
         from django.db.models import Case, When, IntegerField
         
@@ -202,12 +202,18 @@ def dashboard_view(request):
         # Get reviews given by this tenant
         tenant_reviews = Review.objects.filter(reviewer=request.user).select_related('property')
         
+        # Get wishlist items
+        wishlist_items = Wishlist.objects.filter(tenant=request.user).select_related('property')
+        wishlist_property_ids = list(wishlist_items.values_list('property_id', flat=True))
+        
         context['available_properties'] = available_properties
         context['total_available'] = available_properties.count()
         context['applications'] = user_applications
         context['total_applications'] = user_applications.count()
         context['approved_applications'] = user_applications.filter(status=RentalApplication.Status.APPROVED).count()
         context['tenant_reviews'] = tenant_reviews
+        context['wishlist_count'] = wishlist_items.count()
+        context['wishlist_property_ids'] = wishlist_property_ids
         return render(request, 'core/tenant_dashboard.html', context)
     
     return render(request, 'core/dashboard.html', context)
@@ -901,3 +907,78 @@ def send_inquiry_view(request):
             return redirect('dashboard')
     
     return redirect('dashboard')
+
+# Wishlist Views
+@login_required
+def add_to_wishlist_view(request, property_id):
+    """Add a property to tenant's wishlist"""
+    if request.user.role != 'TENANT':
+        messages.error(request, "Only tenants can add properties to wishlist.")
+        return redirect('dashboard')
+    
+    from .models import Wishlist
+    
+    property_obj = get_object_or_404(Property, id=property_id)
+    
+    # Check if already in wishlist
+    wishlist_item, created = Wishlist.objects.get_or_create(
+        tenant=request.user,
+        property=property_obj
+    )
+    
+    if created:
+        messages.success(request, f"'{property_obj.title}' added to your wishlist!")
+    else:
+        messages.info(request, "This property is already in your wishlist.")
+    
+    # Redirect back to the referring page or dashboard
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+
+@login_required
+def remove_from_wishlist_view(request, property_id):
+    """Remove a property from tenant's wishlist"""
+    if request.user.role != 'TENANT':
+        messages.error(request, "Access denied.")
+        return redirect('dashboard')
+    
+    from .models import Wishlist
+    
+    property_obj = get_object_or_404(Property, id=property_id)
+    
+    try:
+        wishlist_item = Wishlist.objects.get(tenant=request.user, property=property_obj)
+        wishlist_item.delete()
+        messages.success(request, f"'{property_obj.title}' removed from your wishlist.")
+    except Wishlist.DoesNotExist:
+        messages.error(request, "Property not found in your wishlist.")
+    
+    # Redirect back to the referring page or dashboard
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+
+@login_required
+def wishlist_view(request):
+    """View all wishlist items for the tenant"""
+    if request.user.role != 'TENANT':
+        messages.error(request, "Only tenants can access wishlist.")
+        return redirect('dashboard')
+    
+    from .models import Wishlist
+    from django.utils import timezone
+    
+    # Get all wishlist items with active properties
+    wishlist_items = Wishlist.objects.filter(tenant=request.user).select_related('property')
+    
+    # Filter to only show properties that are still available and have active plans
+    active_wishlist = []
+    for item in wishlist_items:
+        if (item.property.status == Property.Status.AVAILABLE and 
+            item.property.is_paid and 
+            item.property.plan_expiry_date and
+            item.property.plan_expiry_date > timezone.now()):
+            active_wishlist.append(item)
+    
+    context = {
+        'wishlist_items': active_wishlist,
+        'total_wishlist': len(active_wishlist)
+    }
+    return render(request, 'core/wishlist.html', context)

@@ -43,4 +43,9 @@ urlpatterns = [
     path('add-review/<int:property_id>/', views.add_review_view, name='add_review'),
     path('delete-review/<int:review_id>/', views.delete_review_view, name='delete_review'),
 
+    # Wishlist
+    path('wishlist/', views.wishlist_view, name='wishlist'),
+    path('add-to-wishlist/<int:property_id>/', views.add_to_wishlist_view, name='add_to_wishlist'),
+    path('remove-from-wishlist/<int:property_id>/', views.remove_from_wishlist_view, name='remove_from_wishlist'),
+
 ]
