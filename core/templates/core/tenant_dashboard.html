@@ -10,9 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'core/css/tenant_dashboard.css' %}?v=5">
 </head>
-<body>
+<body style="padding-top: 0; margin: 0;">
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg" id="mainNavbar" style="position: fixed; top: 0; left: 0; right: 0; z-index: 1000; transition: all 0.3s ease; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px);">
         <div class="container-fluid px-4">
             <a class="navbar-brand" href="{% url 'index' %}">RENT<span>EASE</span></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -42,16 +42,67 @@
     </nav>
 
     <!-- Hero Banner (Full Width) -->
-    <div class="hero-banner">
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <h1 class="hero-title">Find Your Dream Home</h1>
-            <p class="hero-subtitle">Discover the perfect rental property that matches your lifestyle</p>
+    <div class="hero-banner" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; background: url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover; margin: 0;">
+        <div class="hero-overlay" style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.5) 100%); z-index: 1;"></div>
+        <div class="hero-content" style="position: relative; z-index: 2; text-align: center; padding: 40px; max-width: 900px;">
+            <h1 class="hero-title" style="font-size: 64px; font-weight: 800; color: #f5f0e1; margin-bottom: 20px; line-height: 1.2; text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); animation: fadeInUp 0.8s ease;">
+                Find Your Dream Home
+            </h1>
+            <p class="hero-subtitle" style="font-size: 20px; color: rgba(245, 240, 225, 0.9); margin-bottom: 40px; line-height: 1.6; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); animation: fadeInUp 0.8s ease 0.2s both;">
+                Discover the perfect rental property that matches your lifestyle
+            </p>
+            <a href="#properties-section" class="scroll-down-btn" style="display: inline-flex; align-items: center; gap: 10px; background: #f5f0e1; color: #000; padding: 16px 40px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 16px; transition: all 0.3s; box-shadow: 0 8px 25px rgba(245, 240, 225, 0.3); animation: fadeInUp 0.8s ease 0.4s both;">
+                <span>Explore Properties</span>
+                <i class="fas fa-arrow-down"></i>
+            </a>
+        </div>
+        
+        <!-- Scroll Down Indicator -->
+        <div style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 2; animation: bounce 2s infinite;">
+            <a href="#properties-section" style="color: #f5f0e1; text-decoration: none; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <span style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Scroll Down</span>
+                <i class="fas fa-chevron-down" style="font-size: 24px;"></i>
+            </a>
         </div>
     </div>
 
+    <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+        
+        .scroll-down-btn:hover {
+            background: #e8e3d4 !important;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(245, 240, 225, 0.5) !important;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+
     <!-- Main Container -->
-    <div class="main-container">
+    <div class="main-container" id="properties-section" style="scroll-margin-top: 80px;">
         <!-- Sidebar -->
         <div class="sidebar">
             {% if messages %}
@@ -197,7 +248,7 @@
                                 {% endif %}
                                 <span class="listing-featured-badge">Available</span>
                                 {% if property.plan_type %}
-                                <span class="listing-plan-badge" style="position: absolute; top: 10px; left: 10px; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; z-index: 10; {% if property.plan_type == 'premium' %}background: linear-gradient(135deg, #f5a623 0%, #d68910 100%); box-shadow: 0 4px 15px rgba(245, 166, 35, 0.4);{% elif property.plan_type == 'standard' %}background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);{% else %}background: linear-gradient(135deg, #666 0%, #888 100%); box-shadow: 0 4px 15px rgba(102, 102, 102, 0.3);{% endif %} color: #fff;">
+                                <span class="listing-plan-badge" style="position: absolute; bottom: 10px; left: 10px; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; z-index: 10; {% if property.plan_type == 'premium' %}background: linear-gradient(135deg, #f5a623 0%, #d68910 100%); box-shadow: 0 4px 15px rgba(245, 166, 35, 0.4);{% elif property.plan_type == 'standard' %}background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);{% else %}background: linear-gradient(135deg, #666 0%, #888 100%); box-shadow: 0 4px 15px rgba(102, 102, 102, 0.3);{% endif %} color: #fff;">
                                     {% if property.plan_type == 'premium' %}<i class="fas fa-crown"></i> PREMIUM{% elif property.plan_type == 'standard' %}<i class="fas fa-star"></i> PRIORITY{% else %}BASIC{% endif %}
                                 </span>
                                 {% endif %}
@@ -501,6 +552,19 @@
             images[newIndex].classList.add('active');
             dots[newIndex].classList.add('active');
         }
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('mainNavbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(0, 0, 0, 0.95)';
+                navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.5)';
+            } else {
+                navbar.style.background = 'rgba(0, 0, 0, 0.3)';
+                navbar.style.boxShadow = 'none';
+            }
+        });
     </script>
 </body>
 </html>
+
