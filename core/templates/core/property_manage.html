@@ -578,29 +578,7 @@
                 {% endif %}
             </div>
 
-            <!-- Maintenance Section -->
-            <div class="content-section">
-                <h2 class="section-title">Maintenance Requests</h2>
-                {% if maintenance_requests %}
-                    {% for req in maintenance_requests %}
-                        <div class="item-card">
-                            <div class="item-header">
-                                <div class="item-title">{{ req.title }}</div>
-                                <span class="status-badge" style="background: {% if req.priority == 'HIGH' %}#dc3545{% else %}#17a2b8{% endif %}; color: white;">
-                                    {{ req.get_priority_display }}
-                                </span>
-                            </div>
-                            <div class="item-text">{{ req.description|truncatechars:100 }}</div>
-                            <div class="item-date">Status: {{ req.get_status_display }}</div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-state">
-                        <i class="fas fa-tools" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
-                        <p>No maintenance requests.</p>
-                    </div>
-                {% endif %}
-            </div>
+
         </div>
     </div>
 
@@ -619,7 +597,7 @@
                     <p>Are you sure you want to delete property <strong style="color: #dc3545;">{{ property.title }}</strong>?</p>
                     <p style="color: #6c757d; font-size: 14px;">
                         <i class="fas fa-info-circle"></i>
-                        This action will permanently delete the property and all associated data (images, applications, maintenance requests).
+                        This action will permanently delete the property and all associated data (images, applications).
                     </p>
                 </div>
                 <div class="modal-footer">

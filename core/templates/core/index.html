@@ -248,7 +248,7 @@
         }
 
         .btn-login {
-            background: #f5f0e1;
+            background: #ffffff;
             color: #000000;
             padding: 14px 35px;
             border-radius: 8px;
@@ -257,9 +257,9 @@
             text-transform: uppercase;
             font-size: 14px;
             letter-spacing: 0.5px;
-            border: 2px solid #f5f0e1;
+            border: 2px solid #ffffff;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(245, 240, 225, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
             display: inline-flex;
             align-items: center;
             gap: 10px;
@@ -286,11 +286,11 @@
         }
 
         .btn-login:hover {
-            background: #e8e3d4;
-            border-color: #e8e3d4;
+            background: #f5f5f5;
+            border-color: #f5f5f5;
             color: #000000;
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(245, 240, 225, 0.5);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.5);
         }
         
         .btn-login i {
@@ -302,7 +302,7 @@
         }
 
         .btn-signup {
-            background: #f5f0e1;
+            background: #ffffff;
             color: #000000;
             padding: 14px 35px;
             border-radius: 8px;
@@ -312,8 +312,8 @@
             font-size: 14px;
             letter-spacing: 0.5px;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid #f5f0e1;
-            box-shadow: 0 4px 15px rgba(245, 240, 225, 0.3);
+            border: 2px solid #ffffff;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
             display: inline-flex;
             align-items: center;
             gap: 10px;
@@ -340,11 +340,11 @@
         }
 
         .btn-signup:hover {
-            background: #e8e3d4;
-            border-color: #e8e3d4;
+            background: #f5f5f5;
+            border-color: #f5f5f5;
             color: #000000;
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(245, 240, 225, 0.5);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.5);
         }
         
         .btn-signup i {
@@ -1926,6 +1926,207 @@
             </div>
         </div>
     </section>
+
+    <!-- Website Reviews Section -->
+    <section class="reviews-section" style="padding: 100px 60px; background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); position: relative; overflow: hidden;">
+        <div style="position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover; opacity: 0.05;"></div>
+        
+        <div style="max-width: 1400px; margin: 0 auto; position: relative; z-index: 1;">
+            <div style="text-align: center; margin-bottom: 60px;" class="animate-on-scroll">
+                <div class="section-badge"><i class="fas fa-star"></i> User Reviews</div>
+                <h2 class="section-title-white">What Our Users Say</h2>
+                <p class="section-description">
+                    Real experiences from tenants and property owners who trust RentEase
+                </p>
+            </div>
+            
+            {% if featured_feedbacks %}
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
+                {% for feedback in featured_feedbacks %}
+                <div class="review-card animate-on-scroll" style="background: rgba(245, 240, 225, 0.98); backdrop-filter: blur(10px); border-radius: 20px; padding: 35px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid rgba(245, 240, 225, 0.3); position: relative; overflow: hidden;">
+                    <!-- Decorative quote icon -->
+                    <div style="position: absolute; top: 20px; right: 20px; font-size: 60px; color: rgba(0, 0, 0, 0.05); font-family: Georgia, serif; line-height: 1;">"</div>
+                    
+                    <!-- Rating Stars -->
+                    <div style="display: flex; gap: 5px; margin-bottom: 20px;">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= feedback.rating %}
+                                <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                            {% else %}
+                                <i class="far fa-star" style="color: rgba(0, 0, 0, 0.2); font-size: 20px;"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Feedback Title -->
+                    <h3 style="font-size: 20px; font-weight: 700; color: #000000; margin-bottom: 15px; line-height: 1.3;">
+                        {{ feedback.title }}
+                    </h3>
+                    
+                    <!-- Feedback Comment -->
+                    <p style="font-size: 15px; color: rgba(0, 0, 0, 0.8); line-height: 1.8; margin-bottom: 25px; font-style: italic;">
+                        "{{ feedback.comment }}"
+                    </p>
+                    
+                    <!-- User Info -->
+                    <div style="display: flex; align-items: center; gap: 15px; padding-top: 20px; border-top: 2px solid rgba(0, 0, 0, 0.1);">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #f5f0e1; font-weight: 700; font-size: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); flex-shrink: 0;">
+                            {{ feedback.user.username|slice:":1"|upper }}
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: #000000; font-size: 16px; margin-bottom: 3px;">
+                                {{ feedback.user.username }}
+                            </div>
+                            <div style="font-size: 13px; color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-user" style="font-size: 11px;"></i>
+                                <span>{{ feedback.user.get_role_display }}</span>
+                                <span style="margin: 0 5px;">•</span>
+                                <i class="fas fa-calendar" style="font-size: 11px;"></i>
+                                <span>{{ feedback.created_at|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- Fallback when no reviews -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
+                <!-- Sample Review 1 -->
+                <div class="review-card animate-on-scroll" style="background: rgba(245, 240, 225, 0.98); backdrop-filter: blur(10px); border-radius: 20px; padding: 35px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid rgba(245, 240, 225, 0.3); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 20px; right: 20px; font-size: 60px; color: rgba(0, 0, 0, 0.05); font-family: Georgia, serif; line-height: 1;">"</div>
+                    <div style="display: flex; gap: 5px; margin-bottom: 20px;">
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                    </div>
+                    <h3 style="font-size: 20px; font-weight: 700; color: #000000; margin-bottom: 15px; line-height: 1.3;">
+                        Best Platform for Finding Homes
+                    </h3>
+                    <p style="font-size: 15px; color: rgba(0, 0, 0, 0.8); line-height: 1.8; margin-bottom: 25px; font-style: italic;">
+                        "RentEase made my home search incredibly easy. The verified listings gave me confidence, and I found my perfect apartment within a week!"
+                    </p>
+                    <div style="display: flex; align-items: center; gap: 15px; padding-top: 20px; border-top: 2px solid rgba(0, 0, 0, 0.1);">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #f5f0e1; font-weight: 700; font-size: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);">
+                            S
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: #000000; font-size: 16px; margin-bottom: 3px;">Sarah Johnson</div>
+                            <div style="font-size: 13px; color: rgba(0, 0, 0, 0.6);"><i class="fas fa-user" style="font-size: 11px;"></i> Tenant</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sample Review 2 -->
+                <div class="review-card animate-on-scroll" style="background: rgba(245, 240, 225, 0.98); backdrop-filter: blur(10px); border-radius: 20px; padding: 35px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid rgba(245, 240, 225, 0.3); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 20px; right: 20px; font-size: 60px; color: rgba(0, 0, 0, 0.05); font-family: Georgia, serif; line-height: 1;">"</div>
+                    <div style="display: flex; gap: 5px; margin-bottom: 20px;">
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                    </div>
+                    <h3 style="font-size: 20px; font-weight: 700; color: #000000; margin-bottom: 15px; line-height: 1.3;">
+                        Excellent for Property Owners
+                    </h3>
+                    <p style="font-size: 15px; color: rgba(0, 0, 0, 0.8); line-height: 1.8; margin-bottom: 25px; font-style: italic;">
+                        "As a property owner, RentEase has been a game-changer. I get quality inquiries from verified tenants, and the platform is so easy to use."
+                    </p>
+                    <div style="display: flex; align-items: center; gap: 15px; padding-top: 20px; border-top: 2px solid rgba(0, 0, 0, 0.1);">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #f5f0e1; font-weight: 700; font-size: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);">
+                            R
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: #000000; font-size: 16px; margin-bottom: 3px;">Rajesh Kumar</div>
+                            <div style="font-size: 13px; color: rgba(0, 0, 0, 0.6);"><i class="fas fa-home" style="font-size: 11px;"></i> Owner</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sample Review 3 -->
+                <div class="review-card animate-on-scroll" style="background: rgba(245, 240, 225, 0.98); backdrop-filter: blur(10px); border-radius: 20px; padding: 35px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid rgba(245, 240, 225, 0.3); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 20px; right: 20px; font-size: 60px; color: rgba(0, 0, 0, 0.05); font-family: Georgia, serif; line-height: 1;">"</div>
+                    <div style="display: flex; gap: 5px; margin-bottom: 20px;">
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                        <i class="fas fa-star" style="color: #f5a623; font-size: 20px;"></i>
+                    </div>
+                    <h3 style="font-size: 20px; font-weight: 700; color: #000000; margin-bottom: 15px; line-height: 1.3;">
+                        Trustworthy and Transparent
+                    </h3>
+                    <p style="font-size: 15px; color: rgba(0, 0, 0, 0.8); line-height: 1.8; margin-bottom: 25px; font-style: italic;">
+                        "Finally, a rental platform that's transparent and trustworthy. No hidden fees, verified properties, and excellent customer support!"
+                    </p>
+                    <div style="display: flex; align-items: center; gap: 15px; padding-top: 20px; border-top: 2px solid rgba(0, 0, 0, 0.1);">
+                        <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #f5f0e1; font-weight: 700; font-size: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);">
+                            P
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: #000000; font-size: 16px; margin-bottom: 3px;">Priya Sharma</div>
+                            <div style="font-size: 13px; color: rgba(0, 0, 0, 0.6);"><i class="fas fa-user" style="font-size: 11px;"></i> Tenant</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Call to Action -->
+            <div style="text-align: center; margin-top: 60px;" class="animate-on-scroll">
+                <p style="font-size: 18px; color: rgba(245, 240, 225, 0.9); margin-bottom: 25px;">
+                    Join thousands of satisfied users on RentEase
+                </p>
+                <a href="{% url 'register' %}" style="display: inline-flex; align-items: center; gap: 12px; background: #f5f0e1; color: #000000; padding: 18px 45px; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 8px 25px rgba(245, 240, 225, 0.3);">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Get Started Today</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .review-card::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            background: linear-gradient(45deg, #000000, #1a1a1a, #000000, #1a1a1a);
+            background-size: 300% 300%;
+            border-radius: 24px;
+            opacity: 0;
+            z-index: -2;
+            transition: opacity 0.5s ease;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        .review-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(245, 240, 225, 0.98);
+            border-radius: 20px;
+            z-index: -1;
+        }
+        
+        .review-card:hover::after {
+            opacity: 1;
+        }
+        
+        .review-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border-color: transparent;
+        }
+    </style>
 
     <!-- Footer -->
     <footer class="footer">

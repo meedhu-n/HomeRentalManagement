@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.conf import settings
-from .models import Property, PropertyImage, Payment, RentalApplication, MaintenanceRequest, Conversation, Message
+from .models import Property, PropertyImage, Payment, RentalApplication, Conversation, Message
 from .forms import PropertyForm
 import razorpay
 import json
@@ -17,6 +17,7 @@ User = get_user_model()
 # ... (Previous views: index, register, login, logout remain same) ...
 def index(request):
     from django.utils import timezone
+    from .models import WebsiteFeedback
     
     # Get premium properties for home page display
     premium_properties = Property.objects.filter(
@@ -26,8 +27,15 @@ def index(request):
         plan_expiry_date__gt=timezone.now()
     ).order_by('-created_at')[:6]  # Show top 6 premium properties
     
+    # Get featured website feedbacks for home page
+    featured_feedbacks = WebsiteFeedback.objects.filter(
+        is_featured=True,
+        is_approved=True
+    ).select_related('user').order_by('-created_at')[:6]
+    
     context = {
-        'premium_properties': premium_properties
+        'premium_properties': premium_properties,
+        'featured_feedbacks': featured_feedbacks
     }
     
     return render(request, 'core/index.html', context)
@@ -654,12 +662,10 @@ def manage_property_view(request, id):
     
     # Fetch related data
     applications = RentalApplication.objects.filter(property=property_obj)
-    maintenance_requests = MaintenanceRequest.objects.filter(property=property_obj)
     
     context = {
         'property': property_obj,
         'applications': applications,
-        'maintenance_requests': maintenance_requests
     }
     return render(request, 'core/property_manage.html', context)
 
@@ -982,3 +988,71 @@ def wishlist_view(request):
         'total_wishlist': len(active_wishlist)
     }
     return render(request, 'core/wishlist.html', context)
+
+
+# Website Feedback Views
+@login_required
+def submit_website_feedback_view(request):
+    """Submit feedback about the RentEase platform"""
+    from .models import WebsiteFeedback
+    
+    if request.method == 'POST':
+        rating = request.POST.get('rating')
+        title = request.POST.get('title')
+        comment = request.POST.get('comment')
+        
+        if not rating or not title or not comment:
+            messages.error(request, "Please provide all required fields.")
+            return redirect('website_feedback')
+        
+        try:
+            rating = int(rating)
+            if rating < 1 or rating > 5:
+                messages.error(request, "Rating must be between 1 and 5.")
+                return redirect('website_feedback')
+            
+            WebsiteFeedback.objects.create(
+                user=request.user,
+                rating=rating,
+                title=title,
+                comment=comment
+            )
+            messages.success(request, "Thank you for your feedback! We appreciate your input.")
+            return redirect('dashboard')
+        except ValueError:
+            messages.error(request, "Invalid rating value.")
+            return redirect('website_feedback')
+    
+    return render(request, 'core/website_feedback.html')
+
+@login_required
+def website_feedback_list_view(request):
+    """View all website feedbacks (for admins)"""
+    if not (request.user.is_superuser or request.user.role == 'ADMIN'):
+        messages.error(request, "Access denied.")
+        return redirect('dashboard')
+    
+    from .models import WebsiteFeedback
+    
+    feedbacks = WebsiteFeedback.objects.all().select_related('user').order_by('-created_at')
+    
+    context = {
+        'feedbacks': feedbacks,
+        'total_feedbacks': feedbacks.count(),
+        'average_rating': feedbacks.aggregate(models.Avg('rating'))['rating__avg'] or 0
+    }
+    return render(request, 'core/feedback_list.html', context)
+
+def public_feedbacks_view(request):
+    """Public view of featured feedbacks (for homepage)"""
+    from .models import WebsiteFeedback
+    
+    featured_feedbacks = WebsiteFeedback.objects.filter(
+        is_featured=True,
+        is_approved=True
+    ).select_related('user').order_by('-created_at')[:6]
+    
+    context = {
+        'featured_feedbacks': featured_feedbacks
+    }
+    return render(request, 'core/public_feedbacks.html', context)

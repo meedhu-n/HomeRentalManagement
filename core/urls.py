@@ -48,4 +48,9 @@ urlpatterns = [
     path('add-to-wishlist/<int:property_id>/', views.add_to_wishlist_view, name='add_to_wishlist'),
     path('remove-from-wishlist/<int:property_id>/', views.remove_from_wishlist_view, name='remove_from_wishlist'),
 
+    # Website Feedback
+    path('website-feedback/', views.submit_website_feedback_view, name='website_feedback'),
+    path('feedbacks/', views.website_feedback_list_view, name='feedback_list'),
+    path('public-feedbacks/', views.public_feedbacks_view, name='public_feedbacks'),
+
 ]

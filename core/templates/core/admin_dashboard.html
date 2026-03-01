@@ -10,7 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-green: #0d3b3b;
+            --primary-black: #000000;
+            --secondary-black: #1a1a1a;
             --cream: #f5f0e1;
         }
         
@@ -23,7 +24,7 @@
         body {
             font-family: 'Poppins', sans-serif !important;
             background-color: #ffffff !important;
-            color: #0d3b3b !important;
+            color: #1a1a1a !important;
             min-height: 100vh;
         }
         
@@ -32,19 +33,116 @@
             position: fixed;
             inset: 0;
             background: url('https://images.unsplash.com/photo-1600607687644-c7171b42498f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover fixed;
-            opacity: 0.03;
+            opacity: 0.02;
             z-index: 0;
+            filter: grayscale(100%);
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px rgba(245, 240, 225, 0.5),
+                             0 0 20px rgba(245, 240, 225, 0.3),
+                             0 0 30px rgba(245, 240, 225, 0.2);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(245, 240, 225, 0.8),
+                             0 0 30px rgba(245, 240, 225, 0.6),
+                             0 0 40px rgba(245, 240, 225, 0.4);
+            }
+        }
+        
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
         }
         
         /* Navbar */
         .navbar {
-            background: rgba(13, 59, 59, 0.95) !important;
+            background: rgba(0, 0, 0, 0.95) !important;
             backdrop-filter: blur(20px);
-            border-bottom: 2px solid rgba(245, 240, 225, 0.2);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(245, 240, 225, 0.15);
             padding: 1.25rem 0;
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            animation: slideInLeft 0.8s ease;
+        }
+        
+        .navbar * {
+            background: transparent !important;
+        }
+        
+        .navbar .container-fluid {
+            background: transparent !important;
+        }
+        
+        .navbar-nav {
+            background: transparent !important;
+        }
+        
+        .nav-item {
+            background: transparent !important;
         }
         
         .navbar-brand {
@@ -53,6 +151,12 @@
             font-weight: 800 !important;
             color: var(--cream) !important;
             letter-spacing: 2px;
+            transition: all 0.3s ease;
+            background: transparent !important;
+        }
+        
+        .navbar-brand:hover {
+            transform: scale(1.05);
         }
         
         .navbar-brand span {
@@ -62,49 +166,82 @@
         .nav-link {
             color: var(--cream) !important;
             font-weight: 600 !important;
+            transition: all 0.3s ease;
+            background: transparent !important;
+        }
+        
+        .nav-link:hover {
+            color: rgba(245, 240, 225, 0.7) !important;
+            transform: translateY(-2px);
         }
         
         .btn-outline-acid {
             border: 2px solid var(--cream) !important;
             color: var(--cream) !important;
-            padding: 8px 24px !important;
+            padding: 10px 25px !important;
             border-radius: 8px !important;
             font-weight: 700 !important;
-            transition: all 0.3s !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative;
+            overflow: hidden;
+            background: transparent !important;
+        }
+        
+        .btn-outline-acid::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--cream);
+            transition: left 0.4s ease;
+            z-index: 0;
+        }
+        
+        .btn-outline-acid:hover::before {
+            left: 0;
         }
         
         .btn-outline-acid:hover {
-            background: var(--cream) !important;
-            color: var(--primary-green) !important;
+            color: var(--primary-black) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 240, 225, 0.3);
         }
         
         /* Header Section */
         .dashboard-header {
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7));
-            padding: 4rem 0 3rem;
+            background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+            padding: 80px 0;
             position: relative;
             margin-bottom: 3rem;
+            overflow: hidden;
         }
         
         .dashboard-header::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
-            z-index: -1;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.75) 100%);
+            z-index: 0;
         }
         
         .dashboard-header::after {
             content: '';
             position: absolute;
-            inset: 0;
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6));
-            z-index: 0;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(245, 240, 225, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
         }
         
         .dashboard-header .container {
             position: relative;
             z-index: 1;
+            animation: fadeInUp 0.8s ease;
         }
         
         .role-badge {
@@ -112,12 +249,20 @@
             padding: 8px 20px;
             border: 2px solid var(--cream);
             color: var(--cream);
-            background: rgba(245, 240, 225, 0.1);
+            background: rgba(245, 240, 225, 0.15);
+            backdrop-filter: blur(10px);
             border-radius: 25px;
             font-size: 0.75rem;
             font-weight: 700;
             letter-spacing: 2px;
             margin-bottom: 1rem;
+            animation: scaleIn 0.6s ease 0.2s both;
+            transition: all 0.3s ease;
+        }
+        
+        .role-badge:hover {
+            background: rgba(245, 240, 225, 0.25);
+            transform: translateY(-2px);
         }
         
         .welcome-text {
@@ -125,56 +270,97 @@
             font-size: 1rem;
             font-weight: 500;
             margin-bottom: 0.5rem;
+            animation: fadeInUp 0.8s ease 0.4s both;
         }
         
         .glow-text {
-            color: #ffffff !important;
+            color: #f5f0e1 !important;
             font-weight: 800 !important;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
-                         0 0 20px rgba(255, 255, 255, 0.3),
-                         0 0 30px rgba(255, 255, 255, 0.2) !important;
-            animation: glow 2s ease-in-out infinite alternate !important;
-        }
-        
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
-                             0 0 20px rgba(255, 255, 255, 0.3),
-                             0 0 30px rgba(255, 255, 255, 0.2);
-            }
-            to {
-                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
-                             0 0 30px rgba(255, 255, 255, 0.6),
-                             0 0 40px rgba(255, 255, 255, 0.4);
-            }
+            text-shadow: 0 0 10px rgba(245, 240, 225, 0.5),
+                         0 0 20px rgba(245, 240, 225, 0.3),
+                         0 0 30px rgba(245, 240, 225, 0.2) !important;
+            animation: glow 2s ease-in-out infinite alternate, fadeInUp 0.8s ease 0.6s both !important;
         }
         
         /* Stats Cards */
         .card-dash {
             background: #ffffff !important;
-            border: 2px solid rgba(13, 59, 59, 0.15) !important;
-            border-radius: 16px !important;
+            border: 2px solid rgba(0, 0, 0, 0.1) !important;
+            border-radius: 20px !important;
             padding: 2rem !important;
-            box-shadow: 0 4px 20px rgba(13, 59, 59, 0.08) !important;
-            transition: all 0.3s !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative;
+            overflow: hidden;
+            animation: scaleIn 0.6s ease both;
+        }
+        
+        .card-dash::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            background: linear-gradient(45deg, #000000, #1a1a1a, #000000, #1a1a1a);
+            background-size: 300% 300%;
+            border-radius: 24px;
+            opacity: 0;
+            z-index: -2;
+            transition: opacity 0.5s ease;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        .card-dash::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ffffff;
+            border-radius: 20px;
+            z-index: -1;
+        }
+        
+        .card-dash:hover::after {
+            opacity: 1;
         }
         
         .card-dash:hover {
-            transform: translateY(-5px) !important;
-            box-shadow: 0 8px 30px rgba(13, 59, 59, 0.15) !important;
-            border-color: var(--primary-green) !important;
+            transform: translateY(-10px) scale(1.02) !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2) !important;
+            border-color: transparent !important;
+        }
+        
+        .card-dash:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+        
+        .card-dash:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .card-dash:nth-child(3) {
+            animation-delay: 0.3s;
         }
         
         .stat-number {
             font-size: 3rem !important;
             font-weight: 800 !important;
-            color: var(--primary-green) !important;
+            color: #000000 !important;
             line-height: 1 !important;
             margin-bottom: 0.5rem !important;
+            transition: all 0.3s ease;
+        }
+        
+        .card-dash:hover .stat-number {
+            transform: scale(1.1);
+            animation: pulse 1s ease-in-out infinite;
         }
         
         .stat-label {
-            color: rgba(13, 59, 59, 0.7) !important;
+            color: #666 !important;
             font-size: 0.85rem !important;
             font-weight: 600 !important;
             text-transform: uppercase !important;
@@ -185,24 +371,42 @@
         .section-title {
             font-size: 1.5rem !important;
             font-weight: 700 !important;
-            color: rgba(13, 59, 59, 0.7) !important;
+            color: #666 !important;
+            animation: slideInLeft 0.8s ease;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 32px;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            border-radius: 2px;
         }
         
         .section-title span {
-            color: var(--primary-green) !important;
+            color: #000000 !important;
         }
         
         /* Tables */
         .table-dark {
-            background: #ffffff !important;
-            border: 2px solid rgba(13, 59, 59, 0.15) !important;
-            border-radius: 12px !important;
+            background: #000000 !important;
+            border: 2px solid rgba(245, 240, 225, 0.2) !important;
+            border-radius: 16px !important;
             overflow: hidden !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 0.8s ease;
         }
         
         .table-dark thead {
-            background: linear-gradient(135deg, var(--primary-green) 0%, #0a2828 100%) !important;
+            background: #000000 !important;
             border: none !important;
+            border-bottom: 2px solid rgba(245, 240, 225, 0.2) !important;
         }
         
         .table-dark thead th {
@@ -210,58 +414,110 @@
             font-weight: 700 !important;
             padding: 1rem !important;
             border: none !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
         }
         
         .table-dark tbody tr {
-            background: #ffffff !important;
-            border-bottom: 1px solid rgba(13, 59, 59, 0.1) !important;
+            background: #000000 !important;
+            border-bottom: 1px solid rgba(245, 240, 225, 0.1) !important;
+            transition: all 0.3s ease;
         }
         
         .table-dark tbody tr:hover {
-            background: rgba(13, 59, 59, 0.03) !important;
+            background: #1a1a1a !important;
+            transform: translateX(5px);
         }
         
         .table-dark tbody td {
-            color: rgba(13, 59, 59, 0.8) !important;
+            color: rgba(245, 240, 225, 0.8) !important;
             padding: 1rem !important;
             border: none !important;
         }
         
         .table-dark tbody td:first-child {
-            color: rgba(13, 59, 59, 0.5) !important;
+            color: rgba(245, 240, 225, 0.5) !important;
         }
         
         .table-dark tbody td:nth-child(2) {
-            color: var(--primary-green) !important;
+            color: #f5f0e1 !important;
             font-weight: 700 !important;
         }
         
         .user-section-title {
-            border-bottom: 3px solid var(--primary-green) !important;
+            border-bottom: 3px solid #000000 !important;
             padding-bottom: 12px !important;
-            color: var(--primary-green) !important;
+            color: #000000 !important;
             font-weight: 700 !important;
+            animation: slideInLeft 0.8s ease;
         }
         
         .user-section-icon {
-            color: var(--primary-green) !important;
+            color: #000000 !important;
+        }
+        
+        /* Plan Badge in Table */
+        .plan-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .plan-badge.basic {
+            background: linear-gradient(135deg, #666 0%, #888 100%);
+            color: #fff;
+        }
+        
+        .plan-badge.standard {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: #fff;
+        }
+        
+        .plan-badge.premium {
+            background: linear-gradient(135deg, #f5a623 0%, #d68910 100%);
+            color: #fff;
         }
         
         /* Buttons */
         .btn-success {
-            background: linear-gradient(135deg, var(--primary-green) 0%, #0a2828 100%) !important;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important;
             border: none !important;
             color: var(--cream) !important;
             font-weight: 700 !important;
-            padding: 8px 20px !important;
+            padding: 10px 24px !important;
             border-radius: 8px !important;
-            transition: all 0.3s !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-success::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(245, 240, 225, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-success:hover::before {
+            width: 300px;
+            height: 300px;
         }
         
         .btn-success:hover {
-            background: linear-gradient(135deg, #0a2828 0%, var(--primary-green) 100%) !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 4px 15px rgba(13, 59, 59, 0.3) !important;
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%) !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
         }
         
         .btn-danger {
@@ -269,27 +525,50 @@
             border: none !important;
             color: white !important;
             font-weight: 700 !important;
-            padding: 8px 20px !important;
+            padding: 10px 24px !important;
             border-radius: 8px !important;
-            transition: all 0.3s !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-danger::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-danger:hover::before {
+            width: 300px;
+            height: 300px;
         }
         
         .btn-danger:hover {
             background-color: #c82333 !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4) !important;
         }
         
         .btn-outline-light {
-            border: 2px solid var(--primary-green) !important;
-            color: var(--primary-green) !important;
+            border: 2px solid #000000 !important;
+            color: #000000 !important;
             background: transparent !important;
             font-weight: 600 !important;
+            transition: all 0.3s ease;
         }
         
         .btn-outline-light:hover {
-            background: var(--primary-green) !important;
+            background: #000000 !important;
             color: var(--cream) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
         
         /* Badges */
@@ -297,10 +576,11 @@
             padding: 6px 12px !important;
             font-weight: 600 !important;
             border-radius: 6px !important;
+            animation: scaleIn 0.4s ease;
         }
         
         .bg-success {
-            background-color: var(--primary-green) !important;
+            background-color: #000000 !important;
         }
         
         .bg-secondary {
@@ -308,65 +588,68 @@
         }
         
         .text-success {
-            color: var(--primary-green) !important;
+            color: #000000 !important;
         }
         
         /* Alerts */
         .alert-info {
-            background: rgba(13, 59, 59, 0.1) !important;
-            border: 2px solid var(--primary-green) !important;
-            color: var(--primary-green) !important;
+            background: rgba(0, 0, 0, 0.05) !important;
+            border: 2px solid rgba(0, 0, 0, 0.2) !important;
+            color: #1a1a1a !important;
             border-radius: 12px !important;
+            animation: fadeInUp 0.6s ease;
         }
         
         /* Empty State */
         .empty-state {
-            background: rgba(13, 59, 59, 0.03) !important;
-            border: 2px dashed rgba(13, 59, 59, 0.2) !important;
-            border-radius: 12px !important;
+            background: rgba(0, 0, 0, 0.02) !important;
+            border: 2px dashed rgba(0, 0, 0, 0.15) !important;
+            border-radius: 16px !important;
             padding: 3rem !important;
+            animation: fadeInUp 0.8s ease;
         }
         
         .empty-state p {
-            color: rgba(13, 59, 59, 0.6) !important;
+            color: #666 !important;
         }
         
         /* Modal */
         .modal-content {
             background: #ffffff !important;
-            border: 2px solid rgba(13, 59, 59, 0.2) !important;
-            border-radius: 16px !important;
+            border: 2px solid rgba(0, 0, 0, 0.2) !important;
+            border-radius: 20px !important;
+            animation: scaleIn 0.4s ease;
         }
         
         .modal-header {
-            border-bottom: 2px solid rgba(13, 59, 59, 0.1) !important;
-            background: rgba(13, 59, 59, 0.03) !important;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1) !important;
+            background: rgba(0, 0, 0, 0.02) !important;
         }
         
         .modal-title {
-            color: var(--primary-green) !important;
+            color: #000000 !important;
         }
         
         .modal-body {
-            color: rgba(13, 59, 59, 0.8) !important;
+            color: #666 !important;
         }
         
         .modal-body strong {
-            color: var(--primary-green) !important;
+            color: #000000 !important;
         }
         
         .modal-footer {
-            border-top: 2px solid rgba(13, 59, 59, 0.1) !important;
-            background: rgba(13, 59, 59, 0.03) !important;
+            border-top: 2px solid rgba(0, 0, 0, 0.1) !important;
+            background: rgba(0, 0, 0, 0.02) !important;
         }
         
         .btn-close {
-            filter: invert(1) grayscale(100%) brightness(0.3) !important;
+            filter: none !important;
         }
         
         /* HR */
         hr {
-            border-color: rgba(13, 59, 59, 0.2) !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
             opacity: 1 !important;
         }
         
@@ -382,25 +665,37 @@
         }
         
         .text-white {
-            color: var(--primary-green) !important;
+            color: #f5f0e1 !important;
         }
         
         .text-gray {
-            color: rgba(13, 59, 59, 0.7) !important;
+            color: #666 !important;
+        }
+        
+        /* Property Cards in Pending Section */
+        .card-dash.property-card {
+            animation: fadeInUp 0.6s ease both;
+        }
+        
+        .card-dash.property-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+        
+        .card-dash.property-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .card-dash.property-card:nth-child(3) {
+            animation-delay: 0.3s;
         }
     </style>
 </head>
 <body>
 
     <nav class="navbar navbar-expand-lg sticky-top">
-        <div class="container-fluid px-5">
+        <div class="container-fluid px-5" style="display: flex; justify-content: space-between; align-items: center;">
             <a class="navbar-brand" href="{% url 'index' %}">RENT<span>EASE</span></a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link text-white" href="#">Admin Panel</a></li>
-                    <li class="nav-item ms-4"><a href="{% url 'logout' %}" class="btn-outline-acid">LOGOUT</a></li>
-                </ul>
-            </div>
+            <a href="{% url 'logout' %}" class="btn-outline-acid">LOGOUT</a>
         </div>
     </nav>
 
@@ -428,8 +723,8 @@
             <div class="row mb-5">
                 <div class="col-md-4">
                     <div class="card-dash stats-card">
-                        <div class="stat-number text-white">{{ pending_count }}</div>
-                        <div class="stat-label" style="color: var(--primary-green);">PENDING APPROVALS</div>
+                        <div class="stat-number">{{ pending_count }}</div>
+                        <div class="stat-label">PENDING APPROVALS</div>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -452,9 +747,9 @@
                 <div class="row g-4">
                 {% for property in pending_properties %}
                     <div class="col-12">
-                        <div class="card-dash p-4 d-flex align-items-center justify-content-between">
+                        <div class="card-dash property-card p-4 d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center flex-grow-1">
-                                <div class="me-4" style="width: 100px; height: 80px; overflow: hidden; border-radius: 4px;">
+                                <div class="me-4" style="width: 100px; height: 80px; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
                                     {% if property.images.first %}
                                         <img src="{{ property.images.first.image.url }}" alt="Prop" style="width: 100%; height: 100%; object-fit: cover;">
                                     {% else %}
@@ -462,7 +757,7 @@
                                     {% endif %}
                                 </div>
                                 <div>
-                                    <h5 class="text-white mb-1">{{ property.title }}</h5>
+                                    <h5 class="mb-1" style="color: #000000; font-weight: 700;">{{ property.title }}</h5>
                                     <p class="text-gray mb-0 small"><i class="fas fa-user me-2"></i> {{ property.owner.username }} | <i class="fas fa-map-marker-alt ms-2 me-2"></i> {{ property.location }}</p>
                                     <p class="mb-0 small mt-1 fw-bold {% if property.is_paid %}text-success{% else %}text-warning{% endif %}">
                                         {% if property.is_paid %}<i class="fas fa-check-circle me-1"></i>PAYMENT COMPLETED{% else %}<i class="fas fa-clock me-1"></i>PAYMENT PENDING{% endif %}
@@ -480,17 +775,18 @@
                 </div>
             {% else %}
                 <div class="empty-state text-center py-5">
-                    <p class="text-gray">No pending properties to review.</p>
+                    <i class="fas fa-check-circle" style="font-size: 64px; color: rgba(0, 0, 0, 0.2); margin-bottom: 20px;"></i>
+                    <p class="text-gray mb-0" style="font-size: 1.1rem; font-weight: 600;">No pending properties to review.</p>
                 </div>
             {% endif %}
 
             <!-- All Users Section -->
-            <hr class="my-5" style="border-color: rgba(255, 255, 255, 0.1);">
+            <hr class="my-5">
             <h4 class="mb-4 text-gray section-title">SYSTEM <span>USERS</span></h4>
             
             <!-- Owners Section -->
             <div class="mb-5">
-                <h5 class="mb-3 text-white user-section-title">
+                <h5 class="mb-3 user-section-title">
                     <i class="fas fa-building me-2 user-section-icon"></i>PROPERTY OWNERS ({{ total_owners }})
                 </h5>
                 {% if owners %}
@@ -502,6 +798,8 @@
                                     <th>USERNAME</th>
                                     <th>EMAIL</th>
                                     <th>PHONE</th>
+                                    <th>PROPERTIES</th>
+                                    <th>ACTIVE PLANS</th>
                                     <th>JOINED</th>
                                     <th>ACTION</th>
                                 </tr>
@@ -509,11 +807,37 @@
                             <tbody>
                                 {% for user in owners %}
                                     <tr>
-                                        <td style="color: #b0b0b0;">{{ forloop.counter }}</td>
-                                        <td style="color: #ffffff; font-weight: bold;">{{ user.username }}</td>
-                                        <td style="color: #b0b0b0;">{{ user.email }}</td>
-                                        <td style="color: #b0b0b0;">{{ user.phone_number|default:"-" }}</td>
-                                        <td style="color: #b0b0b0; font-size: 0.9rem;">{{ user.date_joined|date:"d M Y" }}</td>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ user.username }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td>{{ user.phone_number|default:"-" }}</td>
+                                        <td style="text-align: center;">
+                                            {% with user.properties.count as prop_count %}
+                                                <span style="font-weight: 700; color: #f5f0e1;">{{ prop_count }}</span>
+                                            {% endwith %}
+                                        </td>
+                                        <td>
+                                            {% with user.properties.all as properties %}
+                                                {% if properties %}
+                                                    {% for property in properties %}
+                                                        {% if property.is_plan_active %}
+                                                            <span class="plan-badge {{ property.plan_type }}">
+                                                                {% if property.plan_type == 'premium' %}
+                                                                    <i class="fas fa-crown"></i> PREMIUM
+                                                                {% elif property.plan_type == 'standard' %}
+                                                                    <i class="fas fa-star"></i> STANDARD
+                                                                {% else %}
+                                                                    BASIC
+                                                                {% endif %}
+                                                            </span>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    <span style="color: rgba(245, 240, 225, 0.5); font-size: 0.85rem;">No active plans</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </td>
+                                        <td style="font-size: 0.9rem;">{{ user.date_joined|date:"d M Y" }}</td>
                                         <td style="text-align: right;">
                                             {% if user.id != request.user.id %}
                                                 <button type="button" class="btn btn-danger btn-sm px-3" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ user.id }}">
@@ -537,7 +861,7 @@
 
             <!-- Tenants Section -->
             <div class="mb-5">
-                <h5 class="mb-3 text-white user-section-title">
+                <h5 class="mb-3 user-section-title">
                     <i class="fas fa-users me-2 user-section-icon"></i>TENANTS ({{ total_tenants }})
                 </h5>
                 {% if tenants %}
@@ -556,11 +880,11 @@
                             <tbody>
                                 {% for user in tenants %}
                                     <tr>
-                                        <td style="color: #b0b0b0;">{{ forloop.counter }}</td>
-                                        <td style="color: #ffffff; font-weight: bold;">{{ user.username }}</td>
-                                        <td style="color: #b0b0b0;">{{ user.email }}</td>
-                                        <td style="color: #b0b0b0;">{{ user.phone_number|default:"-" }}</td>
-                                        <td style="color: #b0b0b0; font-size: 0.9rem;">{{ user.date_joined|date:"d M Y" }}</td>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ user.username }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td>{{ user.phone_number|default:"-" }}</td>
+                                        <td style="font-size: 0.9rem;">{{ user.date_joined|date:"d M Y" }}</td>
                                         <td style="text-align: right;">
                                             {% if user.id != request.user.id %}
                                                 <button type="button" class="btn btn-danger btn-sm px-3" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ user.id }}">
@@ -583,15 +907,15 @@
             </div>
 
             <!-- All Properties Section -->
-            <hr class="my-5" style="border-color: rgba(255, 255, 255, 0.1);">
+            <hr class="my-5">
             <h4 class="mb-4 text-gray section-title">ALL <span>PROPERTIES</span></h4>
             {% if all_properties %}
                 <div class="row g-4">
                 {% for property in all_properties %}
                     <div class="col-12">
-                        <div class="card-dash p-4 d-flex align-items-center justify-content-between">
+                        <div class="card-dash property-card p-4 d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center flex-grow-1">
-                                <div class="me-4" style="width: 100px; height: 80px; overflow: hidden; border-radius: 4px;">
+                                <div class="me-4" style="width: 100px; height: 80px; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
                                     {% if property.images.first %}
                                         <img src="{{ property.images.first.image.url }}" alt="Prop" style="width: 100%; height: 100%; object-fit: cover;">
                                     {% else %}
@@ -599,9 +923,9 @@
                                     {% endif %}
                                 </div>
                                 <div class="flex-grow-1">
-                                    <h5 class="text-white mb-1">{{ property.title }}</h5>
+                                    <h5 class="mb-1" style="color: #000000; font-weight: 700;">{{ property.title }}</h5>
                                     <p class="text-gray mb-0 small"><i class="fas fa-user me-2"></i> {{ property.owner.username }} | <i class="fas fa-map-marker-alt ms-2 me-2"></i> {{ property.location }}</p>
-                                    <p class="text-gray mb-1 small"><i class="fas fa-dollar-sign me-1"></i>${{ property.price }}/mo | <i class="fas fa-home me-1"></i>{{ property.property_type }}</p>
+                                    <p class="text-gray mb-1 small"><i class="fas fa-dollar-sign me-1"></i>₹{{ property.price }}/mo | <i class="fas fa-home me-1"></i>{{ property.property_type }}</p>
                                     <div style="margin-top: 8px;">
                                         <span class="badge {% if property.status == 'AVAILABLE' %}bg-success{% elif property.status == 'PENDING' %}bg-warning text-dark{% elif property.status == 'RENTED' %}bg-info{% else %}bg-secondary{% endif %} me-2">
                                             {{ property.get_status_display }}
@@ -621,7 +945,8 @@
                 </div>
             {% else %}
                 <div class="empty-state text-center py-5">
-                    <p class="text-gray">No properties found.</p>
+                    <i class="fas fa-home" style="font-size: 64px; color: rgba(0, 0, 0, 0.2); margin-bottom: 20px;"></i>
+                    <p class="text-gray mb-0" style="font-size: 1.1rem; font-weight: 600;">No properties found.</p>
                 </div>
             {% endif %}
 
@@ -635,10 +960,10 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header border-bottom">
-                            <h5 class="modal-title text-white" id="deleteUserLabel{{ user.id }}"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Deletion</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <h5 class="modal-title" id="deleteUserLabel{{ user.id }}"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Deletion</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body text-white">
+                        <div class="modal-body">
                             <p>Are you sure you want to delete user <strong>{{ user.username }}</strong>?</p>
                             <p style="color: #ffc107; font-size: 0.9rem;"><i class="fas fa-info-circle me-2"></i>This action will permanently delete the user account and all associated properties and data.</p>
                         </div>
@@ -660,10 +985,10 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header border-bottom">
-                            <h5 class="modal-title text-white" id="deleteUserLabel{{ user.id }}"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Deletion</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <h5 class="modal-title" id="deleteUserLabel{{ user.id }}"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Confirm Deletion</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body text-white">
+                        <div class="modal-body">
                             <p>Are you sure you want to delete user <strong>{{ user.username }}</strong>?</p>
                             <p style="color: #ffc107; font-size: 0.9rem;"><i class="fas fa-info-circle me-2"></i>This action will permanently delete the user account and all associated data.</p>
                         </div>

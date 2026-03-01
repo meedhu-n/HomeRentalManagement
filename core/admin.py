@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Property, PropertyImage, RentalApplication, Lease, MaintenanceRequest, Inquiry, Payment, Review, Wishlist
+from .models import User, Property, PropertyImage, RentalApplication, Inquiry, Payment, Review, Wishlist, WebsiteFeedback
 
 # Custom Admin configuration
 class PropertyImageInline(admin.TabularInline):
@@ -22,16 +22,6 @@ class PropertyAdmin(admin.ModelAdmin):
 class RentalApplicationAdmin(admin.ModelAdmin):
     list_display = ('property', 'tenant', 'status', 'application_date')
     list_filter = ('status',)
-
-@admin.register(Lease)
-class LeaseAdmin(admin.ModelAdmin):
-    list_display = ('property', 'tenant', 'start_date', 'end_date', 'is_active')
-    list_filter = ('is_active',)
-
-@admin.register(MaintenanceRequest)
-class MaintenanceRequestAdmin(admin.ModelAdmin):
-    list_display = ('title', 'property', 'priority', 'status', 'created_at')
-    list_filter = ('status', 'priority')
 
 @admin.register(Inquiry)
 class InquiryAdmin(admin.ModelAdmin):
@@ -57,3 +47,12 @@ class WishlistAdmin(admin.ModelAdmin):
     list_filter = ('created_at',)
     search_fields = ('tenant__username', 'property__title')
     readonly_fields = ('created_at',)
+
+
+@admin.register(WebsiteFeedback)
+class WebsiteFeedbackAdmin(admin.ModelAdmin):
+    list_display = ('user', 'rating', 'title', 'is_featured', 'is_approved', 'created_at')
+    list_filter = ('rating', 'is_featured', 'is_approved', 'created_at')
+    search_fields = ('user__username', 'title', 'comment')
+    readonly_fields = ('created_at', 'updated_at')
+    list_editable = ('is_featured', 'is_approved')

@@ -125,44 +125,6 @@ class RentalApplication(models.Model):
     def __str__(self):
         return f"Application by {self.tenant.username} for {self.property.title}"
 
-class Lease(models.Model):
-    tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='leases')
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='leases')
-    start_date = models.DateField()
-    end_date = models.DateField()
-    monthly_rent = models.DecimalField(max_digits=10, decimal_places=2)
-    document = models.FileField(upload_to='leases/', blank=True, null=True)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Lease: {self.property.title} - {self.tenant.username}"
-
-class MaintenanceRequest(models.Model):
-    class Priority(models.TextChoices):
-        LOW = "LOW", "Low"
-        MEDIUM = "MEDIUM", "Medium"
-        HIGH = "HIGH", "High"
-        EMERGENCY = "EMERGENCY", "Emergency"
-
-    class Status(models.TextChoices):
-        OPEN = "OPEN", "Open"
-        IN_PROGRESS = "IN_PROGRESS", "In Progress"
-        RESOLVED = "RESOLVED", "Resolved"
-
-    tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='maintenance_requests')
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='maintenance_requests')
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    priority = models.CharField(max_length=20, choices=Priority.choices, default=Priority.MEDIUM)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.OPEN)
-    image = models.ImageField(upload_to='maintenance/', blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.priority} - {self.title}"
-
 class Inquiry(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='inquiries')
     tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_inquiries')
@@ -265,3 +227,30 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"{self.tenant.username}'s wishlist - {self.property.title}"
+
+# Website Feedback System
+class WebsiteFeedback(models.Model):
+    """Feedback about the RentEase platform itself"""
+    class Rating(models.IntegerChoices):
+        ONE = 1, "1 Star - Poor"
+        TWO = 2, "2 Stars - Fair"
+        THREE = 3, "3 Stars - Good"
+        FOUR = 4, "4 Stars - Very Good"
+        FIVE = 5, "5 Stars - Excellent"
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='website_feedbacks')
+    rating = models.IntegerField(choices=Rating.choices)
+    title = models.CharField(max_length=200, help_text="Brief title for your feedback")
+    comment = models.TextField(help_text="Share your experience with RentEase")
+    is_featured = models.BooleanField(default=False, help_text="Display on homepage")
+    is_approved = models.BooleanField(default=True, help_text="Admin approval status")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Website Feedback"
+        verbose_name_plural = "Website Feedbacks"
+
+    def __str__(self):
+        return f"Feedback by {self.user.username} - {self.rating} stars"
