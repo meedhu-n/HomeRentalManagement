@@ -699,6 +699,27 @@ def mark_property_rented_view(request, id):
     messages.success(request, f"Property '{property_obj.title}' has been marked as RENTED. It will only be visible to you and the tenant.")
     return redirect('manage_property', id=id)
 
+@login_required
+def delete_property_image_view(request, id):
+    """Delete a property image - Owner only"""
+    image = get_object_or_404(PropertyImage, id=id)
+    property_obj = image.property
+    
+    # Check if user is the owner
+    if property_obj.owner != request.user:
+        messages.error(request, "You don't have permission to delete this image.")
+        return redirect('dashboard')
+    
+    # Delete the image file from storage
+    if image.image:
+        image.image.delete()
+    
+    # Delete the image record
+    image.delete()
+    
+    messages.success(request, "Image deleted successfully.")
+    return redirect('manage_property', id=property_obj.id)
+
 
 @login_required
 def property_details_view(request, id):

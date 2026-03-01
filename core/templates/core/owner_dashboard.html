@@ -980,53 +980,6 @@
             color: #000000;
         }
 
-        /* Reviews Section */
-        .review-card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid #000000;
-            border: 2px solid rgba(0, 0, 0, 0.1);
-        }
-
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 15px;
-        }
-
-        .review-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 10px;
-        }
-
-        .review-stars {
-            color: #000000;
-            font-size: 18px;
-        }
-
-        .review-date {
-            font-size: 12px;
-            color: #999;
-            margin-left: 10px;
-        }
-
-        .review-text {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.6;
-        }
-
-        .review-actions {
-            display: flex;
-            gap: 10px;
-        }
-
         .btn-edit, .btn-delete {
             padding: 8px 16px;
             border-radius: 6px;
@@ -1553,53 +1506,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Reviews -->
-        <div class="section-header" style="margin-top: 50px;">
-            <h2 class="section-title">Your Reviews</h2>
-        </div>
-
-        {% if owner_reviews %}
-            {% for review in owner_reviews %}
-                <div class="review-card">
-                    <div class="review-header">
-                        <div>
-                            <div class="review-title">{{ review.property.title }}</div>
-                            <div>
-                                <span class="review-stars">
-                                    {% for i in "12345" %}
-                                        {% if forloop.counter <= review.rating %}
-                                            <i class="fas fa-star"></i>
-                                        {% else %}
-                                            <i class="far fa-star"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                </span>
-                                <span class="review-date">{{ review.created_at|date:"M d, Y" }}</span>
-                            </div>
-                        </div>
-                        <div class="review-actions">
-                            <a href="{% url 'add_review' review.property.id %}" class="btn-edit">
-                                <i class="fas fa-edit"></i>
-                                Edit
-                            </a>
-                            <a href="{% url 'delete_review' review.id %}" class="btn-delete" onclick="return confirm('Delete this review?')">
-                                <i class="fas fa-trash"></i>
-                                Delete
-                            </a>
-                        </div>
-                    </div>
-                    <div class="review-text">{{ review.comment }}</div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="fas fa-star"></i>
-                </div>
-                <div class="empty-text">No reviews yet. Review properties you've experienced!</div>
-            </div>
-        {% endif %}
     </div>
 
     </div>

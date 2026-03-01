@@ -20,6 +20,7 @@ urlpatterns = [
     path('select-plan/<int:id>/', views.select_plan_view, name='select_plan'),
     path('manage-property/<int:id>/', views.manage_property_view, name='manage_property'),
     path('delete-property/<int:id>/', views.delete_property_view, name='delete_property'),
+    path('delete-property-image/<int:id>/', views.delete_property_image_view, name='delete_property_image'),
     path('mark-rented/<int:id>/', views.mark_property_rented_view, name='mark_rented'),
     path('property-details/<int:id>/', views.property_details_view, name='property_details'),
     
