@@ -155,6 +155,13 @@
             flex-shrink: 0;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             border: 2px solid rgba(245, 240, 225, 0.3);
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .conversation-content {
@@ -280,6 +287,13 @@
             color: #0d3b3b;
             box-shadow: 0 4px 15px rgba(245, 240, 225, 0.3);
             border: 2px solid rgba(245, 240, 225, 0.3);
+            overflow: hidden;
+        }
+
+        .chat-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .chat-user-info h3 {
@@ -585,7 +599,11 @@
                     {% for conv in user.tenant_conversations.all %}
                         <a href="{% url 'conversation_detail' conv.id %}" class="conversation-item {% if conv.id == conversation.id %}active{% endif %}">
                             <div class="avatar">
-                                {{ conv.owner.username|first|upper }}
+                                {% if conv.owner.profile_image %}
+                                    <img src="{{ conv.owner.profile_image.url }}" alt="{{ conv.owner.username }}">
+                                {% else %}
+                                    {{ conv.owner.username|first|upper }}
+                                {% endif %}
                             </div>
                             <div class="conversation-content">
                                 <div class="conversation-header">
@@ -603,7 +621,11 @@
                     {% for conv in user.owner_conversations.all %}
                         <a href="{% url 'conversation_detail' conv.id %}" class="conversation-item {% if conv.id == conversation.id %}active{% endif %}">
                             <div class="avatar">
-                                {{ conv.tenant.username|first|upper }}
+                                {% if conv.tenant.profile_image %}
+                                    <img src="{{ conv.tenant.profile_image.url }}" alt="{{ conv.tenant.username }}">
+                                {% else %}
+                                    {{ conv.tenant.username|first|upper }}
+                                {% endif %}
                             </div>
                             <div class="conversation-content">
                                 <div class="conversation-header">
@@ -636,9 +658,17 @@
                     </a>
                     <div class="chat-user-avatar">
                         {% if user.role == 'TENANT' %}
-                            {{ conversation.owner.username|first|upper }}
+                            {% if conversation.owner.profile_image %}
+                                <img src="{{ conversation.owner.profile_image.url }}" alt="{{ conversation.owner.username }}">
+                            {% else %}
+                                {{ conversation.owner.username|first|upper }}
+                            {% endif %}
                         {% else %}
-                            {{ conversation.tenant.username|first|upper }}
+                            {% if conversation.tenant.profile_image %}
+                                <img src="{{ conversation.tenant.profile_image.url }}" alt="{{ conversation.tenant.username }}">
+                            {% else %}
+                                {{ conversation.tenant.username|first|upper }}
+                            {% endif %}
                         {% endif %}
                     </div>
                     <div class="chat-user-info">

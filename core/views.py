@@ -160,8 +160,10 @@ def dashboard_view(request):
         
         # Filter to only show conversations with unread messages
         conversations_with_unread = []
+        unread_messages_count = 0
         for conversation in all_conversations:
             unread_count = conversation.messages.filter(is_read=False).exclude(sender=request.user).count()
+            unread_messages_count += unread_count
             if unread_count > 0:
                 conversation.has_unread = True
                 conversations_with_unread.append(conversation)
@@ -182,6 +184,7 @@ def dashboard_view(request):
         context['active_listings_count'] = active_properties_count
         context['recent_conversations'] = conversations_with_unread
         context['owner_reviews'] = owner_reviews
+        context['unread_messages_count'] = unread_messages_count
         return render(request, 'core/owner_dashboard.html', context)
     
     elif request.user.role == 'TENANT':
@@ -214,6 +217,12 @@ def dashboard_view(request):
         wishlist_items = Wishlist.objects.filter(tenant=request.user).select_related('property')
         wishlist_property_ids = list(wishlist_items.values_list('property_id', flat=True))
         
+        # Count unread messages for tenant
+        tenant_conversations = Conversation.objects.filter(tenant=request.user)
+        unread_messages_count = 0
+        for conversation in tenant_conversations:
+            unread_messages_count += conversation.messages.filter(is_read=False).exclude(sender=request.user).count()
+        
         context['available_properties'] = available_properties
         context['total_available'] = available_properties.count()
         context['applications'] = user_applications
@@ -222,6 +231,7 @@ def dashboard_view(request):
         context['tenant_reviews'] = tenant_reviews
         context['wishlist_count'] = wishlist_items.count()
         context['wishlist_property_ids'] = wishlist_property_ids
+        context['unread_messages_count'] = unread_messages_count
         return render(request, 'core/tenant_dashboard.html', context)
     
     return render(request, 'core/dashboard.html', context)
