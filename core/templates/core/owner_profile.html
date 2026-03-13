@@ -629,6 +629,11 @@
                             
                             <div class="property-price">₹{{ property.price }}<span style="font-size: 14px; font-weight: 500; color: var(--text-light);">/mo</span></div>
                             
+                            <div class="property-info" style="color: #4a90e2; margin-top: 8px;">
+                                <i class="fas fa-eye"></i>
+                                <span style="font-weight: 600;">{{ property.views_count }} views</span>
+                            </div>
+                            
                             <div class="property-badges">
                                 <span class="badge {% if property.status == 'AVAILABLE' %}bg-success{% elif property.status == 'PENDING' %}bg-warning{% elif property.status == 'RENTED' %}bg-info{% else %}bg-secondary{% endif %}">
                                     {{ property.get_status_display }}

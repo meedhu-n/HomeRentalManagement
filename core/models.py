@@ -78,6 +78,7 @@ class Property(models.Model):
         ('premium', 'Premium Plan')
     ], default='basic', help_text="Selected plan type")
     plan_expiry_date = models.DateTimeField(blank=True, null=True, help_text="Date when the plan expires")
+    views_count = models.IntegerField(default=0, help_text="Number of times this property has been viewed")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -109,33 +110,6 @@ class PropertyImage(models.Model):
     
     def __str__(self):
         return f"Image for {self.property.title}"
-
-class RentalApplication(models.Model):
-    class Status(models.TextChoices):
-        PENDING = "PENDING", "Pending"
-        APPROVED = "APPROVED", "Approved"
-        REJECTED = "REJECTED", "Rejected"
-
-    tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications')
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='applications')
-    application_date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
-    message = models.TextField(blank=True)
-    
-    def __str__(self):
-        return f"Application by {self.tenant.username} for {self.property.title}"
-
-class Inquiry(models.Model):
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='inquiries')
-    tenant = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_inquiries')
-    message = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name_plural = "Inquiries"
-
-    def __str__(self):
-        return f"Inquiry from {self.tenant.username} for {self.property.title}"
 
 # 3. Payment Model for Property Registration Fee
 class Payment(models.Model):
@@ -189,30 +163,6 @@ class Message(models.Model):
 
     def __str__(self):
         return f"Message from {self.sender.username} at {self.created_at}"
-
-# Review System
-class Review(models.Model):
-    """Reviews for properties by tenants and owners"""
-    class Rating(models.IntegerChoices):
-        ONE = 1, "1 Star"
-        TWO = 2, "2 Stars"
-        THREE = 3, "3 Stars"
-        FOUR = 4, "4 Stars"
-        FIVE = 5, "5 Stars"
-
-    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='reviews')
-    reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews_given')
-    rating = models.IntegerField(choices=Rating.choices)
-    comment = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ['-created_at']
-        unique_together = ('property', 'reviewer')  # One review per user per property
-
-    def __str__(self):
-        return f"Review by {self.reviewer.username} for {self.property.title} - {self.rating} stars"
 
 # Wishlist System
 class Wishlist(models.Model):

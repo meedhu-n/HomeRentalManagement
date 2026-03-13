@@ -135,3 +135,22 @@ RAZORPAY_KEY_ID = 'rzp_test_S9fLenZdpjfCe5'  # Your Razorpay test key
 RAZORPAY_KEY_SECRET = 'zgZONsgaIua7F8zQLKImYs3i'  # Your Razorpay test secret
 RAZORPAY_WEBHOOK_SECRET = ''  # Optional: Add webhook secret from Razorpay dashboard
 PROPERTY_REGISTRATION_FEE = 100  # Amount in INR (e.g., 100 INR)
+
+
+# Email Configuration
+# For development, we'll use console backend (prints emails to console)
+# For production, configure with your SMTP server
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# For production with Gmail (uncomment and configure):
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your-email@gmail.com'
+# EMAIL_HOST_PASSWORD = 'your-app-password'  # Use App Password, not regular password
+# DEFAULT_FROM_EMAIL = 'RentEase <your-email@gmail.com>'
+
+# Email settings
+DEFAULT_FROM_EMAIL = 'RentEase <noreply@rentease.com>'
+EMAIL_SUBJECT_PREFIX = '[RentEase] '

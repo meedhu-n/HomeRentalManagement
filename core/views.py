@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.conf import settings
-from .models import Property, PropertyImage, Payment, RentalApplication, Conversation, Message
+from .models import Property, PropertyImage, Payment, Conversation, Message
 from .forms import PropertyForm
 import razorpay
 import json
@@ -152,7 +152,6 @@ def dashboard_view(request):
         return render(request, 'core/admin_dashboard.html', context)
     
     elif request.user.role == 'OWNER':
-        from .models import Review
         from django.utils import timezone
         
         properties = Property.objects.filter(owner=request.user)
@@ -181,9 +180,6 @@ def dashboard_view(request):
                 if len(conversations_with_unread) >= 5:  # Limit to 5 unread conversations
                     break
         
-        # Get reviews given by this owner
-        owner_reviews = Review.objects.filter(reviewer=request.user).select_related('property')
-        
         # Count active properties (with valid plans)
         active_properties_count = properties.filter(
             status=Property.Status.AVAILABLE,
@@ -194,12 +190,11 @@ def dashboard_view(request):
         context['properties'] = properties
         context['active_listings_count'] = active_properties_count
         context['recent_conversations'] = conversations_with_unread
-        context['owner_reviews'] = owner_reviews
         context['unread_messages_count'] = unread_messages_count
         return render(request, 'core/owner_dashboard.html', context)
     
     elif request.user.role == 'TENANT':
-        from .models import Review, Wishlist
+        from .models import Wishlist
         from django.utils import timezone
         from django.db.models import Case, When, IntegerField, Q
         
@@ -302,11 +297,6 @@ def dashboard_view(request):
         else:  # priority (default)
             available_properties = available_properties.order_by('-plan_priority', '-created_at')
         
-        user_applications = RentalApplication.objects.filter(tenant=request.user).order_by('-application_date')
-        
-        # Get reviews given by this tenant
-        tenant_reviews = Review.objects.filter(reviewer=request.user).select_related('property')
-        
         # Get wishlist items
         wishlist_items = Wishlist.objects.filter(tenant=request.user).select_related('property')
         wishlist_property_ids = list(wishlist_items.values_list('property_id', flat=True))
@@ -326,10 +316,6 @@ def dashboard_view(request):
         
         context['available_properties'] = available_properties
         context['total_available'] = available_properties.count()
-        context['applications'] = user_applications
-        context['total_applications'] = user_applications.count()
-        context['approved_applications'] = user_applications.filter(status=RentalApplication.Status.APPROVED).count()
-        context['tenant_reviews'] = tenant_reviews
         context['wishlist_count'] = wishlist_items.count()
         context['wishlist_property_ids'] = wishlist_property_ids
         context['unread_messages_count'] = unread_messages_count
@@ -910,12 +896,8 @@ def reject_property_view(request, id):
 def manage_property_view(request, id):
     property_obj = get_object_or_404(Property, id=id, owner=request.user)
     
-    # Fetch related data
-    applications = RentalApplication.objects.filter(property=property_obj)
-    
     context = {
         'property': property_obj,
-        'applications': applications,
     }
     return render(request, 'core/property_manage.html', context)
 
@@ -980,6 +962,11 @@ def property_details_view(request, id):
     else:
         messages.error(request, "You don't have permission to view this property.")
         return redirect('dashboard')
+    
+    # Increment view counter (only for tenants viewing, not owners viewing their own property)
+    if request.user.role == 'TENANT' or (request.user.role == 'OWNER' and property_obj.owner != request.user):
+        property_obj.views_count += 1
+        property_obj.save(update_fields=['views_count'])
     
     context = {
         'property': property_obj,
@@ -1089,6 +1076,8 @@ def conversations_view(request):
 @login_required
 def conversation_detail_view(request, id):
     """View a specific conversation and send messages"""
+    from .email_utils import send_new_message_notification
+    
     conversation = get_object_or_404(Conversation, id=id)
     
     # Check if user is part of this conversation
@@ -1103,12 +1092,31 @@ def conversation_detail_view(request, id):
     if request.method == 'POST':
         content = request.POST.get('message')
         if content:
-            Message.objects.create(
+            # Create the message
+            new_message = Message.objects.create(
                 conversation=conversation,
                 sender=request.user,
                 content=content
             )
             conversation.save()  # Update the updated_at timestamp
+            
+            # Send email notification to the recipient
+            recipient = conversation.owner if request.user == conversation.tenant else conversation.tenant
+            message_preview = content[:100] if len(content) > 100 else content
+            conversation_url = request.build_absolute_uri(reverse('conversation_detail', args=[conversation.id]))
+            
+            # Send email notification (runs in background, won't block the response)
+            try:
+                send_new_message_notification(
+                    recipient=recipient,
+                    sender=request.user,
+                    message_preview=message_preview,
+                    conversation_url=conversation_url
+                )
+            except Exception as e:
+                # Log the error but don't fail the request
+                print(f"Failed to send email notification: {e}")
+            
             return redirect('conversation_detail', id=id)
     
     context = {
@@ -1140,70 +1148,10 @@ def start_conversation_view(request, property_id):
     return redirect('conversation_detail', id=conversation.id)
 
 @login_required
-def add_review_view(request, property_id):
-    """Add or update a review for a property"""
-    from .models import Review
-    
-    property_obj = get_object_or_404(Property, id=property_id)
-    
-    # Check if user already has a review for this property
-    existing_review = Review.objects.filter(property=property_obj, reviewer=request.user).first()
-    
-    if request.method == 'POST':
-        rating = request.POST.get('rating')
-        comment = request.POST.get('comment')
-        
-        if not rating or not comment:
-            messages.error(request, "Please provide both rating and comment.")
-            return redirect('dashboard')
-        
-        try:
-            rating = int(rating)
-            if rating < 1 or rating > 5:
-                messages.error(request, "Rating must be between 1 and 5.")
-                return redirect('dashboard')
-            
-            if existing_review:
-                # Update existing review
-                existing_review.rating = rating
-                existing_review.comment = comment
-                existing_review.save()
-                messages.success(request, "Review updated successfully!")
-            else:
-                # Create new review
-                Review.objects.create(
-                    property=property_obj,
-                    reviewer=request.user,
-                    rating=rating,
-                    comment=comment
-                )
-                messages.success(request, "Review added successfully!")
-            
-            return redirect('dashboard')
-        except ValueError:
-            messages.error(request, "Invalid rating value.")
-            return redirect('dashboard')
-    
-    # For GET request, show the form
-    context = {
-        'property': property_obj,
-        'existing_review': existing_review
-    }
-    return render(request, 'core/add_review.html', context)
-
-@login_required
-def delete_review_view(request, review_id):
-    """Delete a review"""
-    from .models import Review
-    
-    review = get_object_or_404(Review, id=review_id, reviewer=request.user)
-    review.delete()
-    messages.success(request, "Review deleted successfully!")
-    return redirect('dashboard')
-
-@login_required
 def send_inquiry_view(request):
     """Handle inquiry submission from tenant dashboard"""
+    from .email_utils import send_new_message_notification
+    
     if request.method == 'POST':
         property_id = request.POST.get('property_id')
         message = request.POST.get('message')
@@ -1223,11 +1171,25 @@ def send_inquiry_view(request):
             )
             
             # Create message
-            Message.objects.create(
+            new_message = Message.objects.create(
                 conversation=conversation,
                 sender=request.user,
                 content=message
             )
+            
+            # Send email notification to property owner
+            message_preview = message[:100] if len(message) > 100 else message
+            conversation_url = request.build_absolute_uri(reverse('conversation_detail', args=[conversation.id]))
+            
+            try:
+                send_new_message_notification(
+                    recipient=property_obj.owner,
+                    sender=request.user,
+                    message_preview=message_preview,
+                    conversation_url=conversation_url
+                )
+            except Exception as e:
+                print(f"Failed to send email notification: {e}")
             
             messages.success(request, "Inquiry sent successfully! The owner will respond soon.")
             return redirect('dashboard')
@@ -1357,13 +1319,14 @@ def website_feedback_list_view(request):
         return redirect('dashboard')
     
     from .models import WebsiteFeedback
+    from django.db.models import Avg
     
     feedbacks = WebsiteFeedback.objects.all().select_related('user').order_by('-created_at')
     
     context = {
         'feedbacks': feedbacks,
         'total_feedbacks': feedbacks.count(),
-        'average_rating': feedbacks.aggregate(models.Avg('rating'))['rating__avg'] or 0
+        'average_rating': feedbacks.aggregate(Avg('rating'))['rating__avg'] or 0
     }
     return render(request, 'core/feedback_list.html', context)
 

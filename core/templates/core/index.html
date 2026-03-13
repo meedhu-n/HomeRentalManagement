@@ -1210,12 +1210,216 @@
     <div class="hero-split">
         <!-- Left Side -->
         <div class="hero-left">
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-home"></i>
+            <div class="logo logo-hero-animated">
+                <div class="logo-icon-wrapper-hero">
+                    <img src="{% static 'core/images/rentease-icon.svg' %}" alt="RentEase" class="logo-icon-hero" style="width: 60px; height: auto; filter: drop-shadow(0 4px 15px rgba(245, 166, 35, 0.5));">
                 </div>
-                <span>RentEase</span>
+                <span class="logo-text-hero" style="font-family: 'Poppins', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: 1px;">
+                    <span class="logo-rent-hero" style="color: #f5a623; font-style: italic;">Rent</span><span class="logo-ease-hero" style="color: #f5f0e1; font-style: italic;">Ease</span>
+                </span>
             </div>
+            
+            <style>
+                /* Hero Logo Animation Styles */
+                .logo-hero-animated {
+                    position: absolute;
+                    top: 40px;
+                    left: 60px;
+                    overflow: visible;
+                    animation: fadeInScale 1s ease-out;
+                    z-index: 100;
+                }
+                
+                @keyframes fadeInScale {
+                    0% {
+                        opacity: 0;
+                        transform: scale(0.8);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                }
+                
+                .logo-icon-wrapper-hero {
+                    position: relative;
+                    animation: float-hero 3s ease-in-out infinite;
+                }
+                
+                @keyframes float-hero {
+                    0%, 100% {
+                        transform: translateY(0px) rotate(0deg);
+                    }
+                    25% {
+                        transform: translateY(-8px) rotate(2deg);
+                    }
+                    75% {
+                        transform: translateY(-8px) rotate(-2deg);
+                    }
+                }
+                
+                .logo-icon-hero {
+                    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                    animation: pulse-glow-hero 2.5s ease-in-out infinite;
+                }
+                
+                @keyframes pulse-glow-hero {
+                    0%, 100% {
+                        filter: drop-shadow(0 4px 15px rgba(245, 166, 35, 0.5));
+                    }
+                    50% {
+                        filter: drop-shadow(0 6px 25px rgba(245, 166, 35, 0.8));
+                    }
+                }
+                
+                .logo-hero-animated:hover .logo-icon-hero {
+                    transform: scale(1.15) rotate(360deg);
+                    filter: drop-shadow(0 8px 30px rgba(245, 166, 35, 1)) !important;
+                }
+                
+                .logo-text-hero {
+                    position: relative;
+                    display: inline-block;
+                }
+                
+                .logo-rent-hero, .logo-ease-hero {
+                    display: inline-block;
+                    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                    position: relative;
+                    animation: slideInLeft 0.8s ease-out;
+                }
+                
+                @keyframes slideInLeft {
+                    0% {
+                        opacity: 0;
+                        transform: translateX(-30px);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+                
+                .logo-ease-hero {
+                    animation: slideInRight 0.8s ease-out;
+                }
+                
+                @keyframes slideInRight {
+                    0% {
+                        opacity: 0;
+                        transform: translateX(30px);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+                
+                .logo-rent-hero::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -3px;
+                    left: 0;
+                    width: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, #f5a623, #d68910);
+                    transition: width 0.5s ease;
+                    box-shadow: 0 2px 10px rgba(245, 166, 35, 0.5);
+                }
+                
+                .logo-ease-hero::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -3px;
+                    left: 0;
+                    width: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, #f5f0e1, #e8e3d4);
+                    transition: width 0.5s ease;
+                    box-shadow: 0 2px 10px rgba(245, 240, 225, 0.5);
+                }
+                
+                .logo-hero-animated:hover .logo-rent-hero {
+                    transform: translateY(-5px) scale(1.05);
+                    text-shadow: 0 6px 20px rgba(245, 166, 35, 0.8);
+                }
+                
+                .logo-hero-animated:hover .logo-ease-hero {
+                    transform: translateY(-5px) scale(1.05);
+                    text-shadow: 0 6px 20px rgba(245, 240, 225, 0.8);
+                }
+                
+                .logo-hero-animated:hover .logo-rent-hero::after,
+                .logo-hero-animated:hover .logo-ease-hero::after {
+                    width: 100%;
+                }
+                
+                /* Shimmer effect */
+                .logo-hero-animated::before {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    left: -100%;
+                    width: 50%;
+                    height: 200%;
+                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+                    transform: skewX(-20deg);
+                    animation: shimmer 3s infinite;
+                }
+                
+                @keyframes shimmer {
+                    0% {
+                        left: -100%;
+                    }
+                    20%, 100% {
+                        left: 200%;
+                    }
+                }
+                
+                /* Particle effect on hover */
+                .logo-icon-wrapper-hero::after {
+                    content: '✨';
+                    position: absolute;
+                    top: -10px;
+                    right: -10px;
+                    font-size: 20px;
+                    opacity: 0;
+                    animation: sparkle 2s ease-in-out infinite;
+                }
+                
+                @keyframes sparkle {
+                    0%, 100% {
+                        opacity: 0;
+                        transform: scale(0) rotate(0deg);
+                    }
+                    50% {
+                        opacity: 1;
+                        transform: scale(1) rotate(180deg);
+                    }
+                }
+                
+                .logo-hero-animated:hover .logo-icon-wrapper-hero::after {
+                    animation: sparkle 0.8s ease-in-out infinite;
+                }
+                
+                /* Responsive positioning */
+                @media (max-width: 768px) {
+                    .logo-hero-animated {
+                        position: relative;
+                        top: 0;
+                        left: 0;
+                        margin-bottom: 30px;
+                    }
+                    
+                    .logo-icon-hero {
+                        width: 50px !important;
+                    }
+                    
+                    .logo-text-hero {
+                        font-size: 1.5rem !important;
+                    }
+                }
+            </style>
 
             <div class="hero-content">
                 <div class="badge">

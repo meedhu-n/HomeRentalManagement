@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" width="800" height="200">
+  <!-- House Icon -->
+  <g id="house">
+    <!-- Roof -->
+    <path d="M 50 120 L 180 60 L 310 120 L 280 120 L 180 75 L 80 120 Z" fill="url(#goldGradient)" stroke="#d68910" stroke-width="3"/>
+    <!-- Window -->
+    <rect x="155" y="85" width="50" height="40" rx="5" fill="#f5f0e1"/>
+    <line x1="180" y1="85" x2="180" y2="125" stroke="#1a1a1a" stroke-width="3"/>
+    <line x1="155" y1="105" x2="205" y2="105" stroke="#1a1a1a" stroke-width="3"/>
+    <!-- Base curve -->
+    <path d="M 80 140 Q 180 120 280 140" fill="none" stroke="url(#goldGradient)" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Text: RentEase -->
+  <text x="340" y="130" font-family="'Poppins', Arial, sans-serif" font-size="72" font-weight="800" font-style="italic">
+    <tspan fill="#f5a623">Rent</tspan><tspan fill="#f5f0e1">Ease</tspan>
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="380" y="155" font-family="'Poppins', Arial, sans-serif" font-size="16" font-weight="400" letter-spacing="4" fill="#a0a0a0">
+    HOME RENTAL PLATFORM
+  </text>
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f5a623;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d68910;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>
