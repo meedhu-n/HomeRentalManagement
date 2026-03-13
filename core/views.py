@@ -119,6 +119,8 @@ def dashboard_view(request):
     
     # Check if user is superuser (Admin)
     if request.user.is_superuser or request.user.role == 'ADMIN':
+        from django.utils import timezone
+        
         # Admin Dashboard Logic
         # Show all properties with PENDING status (whether paid or not)
         pending_properties = Property.objects.filter(status=Property.Status.PENDING_APPROVAL).order_by('-created_at')
@@ -127,6 +129,15 @@ def dashboard_view(request):
         tenants = User.objects.filter(role='TENANT', is_superuser=False).order_by('-date_joined')
         all_users = User.objects.exclude(is_superuser=True).order_by('-date_joined')
         all_properties = Property.objects.all().order_by('-created_at')
+        
+        # Add plan status to each property
+        for prop in all_properties:
+            if prop.plan_expiry_date:
+                prop.is_plan_active = prop.is_plan_active()
+                prop.days_left = prop.days_remaining()
+            else:
+                prop.is_plan_active = False
+                prop.days_left = 0
         
         context['pending_properties'] = pending_properties
         context['pending_count'] = pending_properties.count()
@@ -190,15 +201,84 @@ def dashboard_view(request):
     elif request.user.role == 'TENANT':
         from .models import Review, Wishlist
         from django.utils import timezone
-        from django.db.models import Case, When, IntegerField
+        from django.db.models import Case, When, IntegerField, Q
         
-        # Only show properties that are available, paid, and have active plans
-        # Sort by plan priority: Premium (3) > Standard (2) > Basic (1), then by created date
+        # Get filter parameters from request
+        location = request.GET.get('location', '').strip()
+        property_type = request.GET.get('property_type', '').strip()
+        min_price = request.GET.get('min_price', '').strip()
+        max_price = request.GET.get('max_price', '').strip()
+        bhk = request.GET.get('bhk', '').strip()
+        furnishing = request.GET.get('furnishing', '').strip()
+        bachelors_allowed = request.GET.get('bachelors_allowed', '').strip()
+        min_area = request.GET.get('min_area', '').strip()
+        max_area = request.GET.get('max_area', '').strip()
+        amenities = request.GET.get('amenities', '').strip()
+        sort_by = request.GET.get('sort_by', 'priority').strip()
+        
+        # Base queryset - only show properties that are available, paid, and have active plans
         available_properties = Property.objects.filter(
             status=Property.Status.AVAILABLE,
             is_paid=True,
             plan_expiry_date__gt=timezone.now()
-        ).annotate(
+        )
+        
+        # Apply filters
+        if location:
+            available_properties = available_properties.filter(
+                Q(location__icontains=location) | Q(title__icontains=location)
+            )
+        
+        if property_type:
+            available_properties = available_properties.filter(property_type__iexact=property_type)
+        
+        if min_price:
+            try:
+                available_properties = available_properties.filter(price__gte=float(min_price))
+            except ValueError:
+                pass
+        
+        if max_price:
+            try:
+                available_properties = available_properties.filter(price__lte=float(max_price))
+            except ValueError:
+                pass
+        
+        if bhk:
+            try:
+                available_properties = available_properties.filter(bhk=int(bhk))
+            except ValueError:
+                pass
+        
+        if furnishing:
+            available_properties = available_properties.filter(furnishing=furnishing)
+        
+        if bachelors_allowed == 'yes':
+            available_properties = available_properties.filter(bachelors_allowed=True)
+        elif bachelors_allowed == 'no':
+            available_properties = available_properties.filter(bachelors_allowed=False)
+        
+        if min_area:
+            try:
+                available_properties = available_properties.filter(super_built_area__gte=float(min_area))
+            except ValueError:
+                pass
+        
+        if max_area:
+            try:
+                available_properties = available_properties.filter(super_built_area__lte=float(max_area))
+            except ValueError:
+                pass
+        
+        if amenities:
+            # Filter by amenities (comma-separated)
+            amenity_list = [a.strip() for a in amenities.split(',')]
+            for amenity in amenity_list:
+                if amenity:
+                    available_properties = available_properties.filter(amenities__icontains=amenity)
+        
+        # Annotate with plan priority
+        available_properties = available_properties.annotate(
             plan_priority=Case(
                 When(plan_type='premium', then=3),
                 When(plan_type='standard', then=2),
@@ -206,7 +286,21 @@ def dashboard_view(request):
                 default=0,
                 output_field=IntegerField()
             )
-        ).order_by('-plan_priority', '-created_at')
+        )
+        
+        # Apply sorting
+        if sort_by == 'price_low':
+            available_properties = available_properties.order_by('price', '-plan_priority')
+        elif sort_by == 'price_high':
+            available_properties = available_properties.order_by('-price', '-plan_priority')
+        elif sort_by == 'newest':
+            available_properties = available_properties.order_by('-created_at', '-plan_priority')
+        elif sort_by == 'area_low':
+            available_properties = available_properties.order_by('super_built_area', '-plan_priority')
+        elif sort_by == 'area_high':
+            available_properties = available_properties.order_by('-super_built_area', '-plan_priority')
+        else:  # priority (default)
+            available_properties = available_properties.order_by('-plan_priority', '-created_at')
         
         user_applications = RentalApplication.objects.filter(tenant=request.user).order_by('-application_date')
         
@@ -223,6 +317,13 @@ def dashboard_view(request):
         for conversation in tenant_conversations:
             unread_messages_count += conversation.messages.filter(is_read=False).exclude(sender=request.user).count()
         
+        # Get unique property types for filter dropdown
+        property_types = Property.objects.filter(
+            status=Property.Status.AVAILABLE,
+            is_paid=True,
+            plan_expiry_date__gt=timezone.now()
+        ).values_list('property_type', flat=True).distinct().order_by('property_type')
+        
         context['available_properties'] = available_properties
         context['total_available'] = available_properties.count()
         context['applications'] = user_applications
@@ -232,6 +333,20 @@ def dashboard_view(request):
         context['wishlist_count'] = wishlist_items.count()
         context['wishlist_property_ids'] = wishlist_property_ids
         context['unread_messages_count'] = unread_messages_count
+        context['property_types'] = property_types
+        context['filters'] = {
+            'location': location,
+            'property_type': property_type,
+            'min_price': min_price,
+            'max_price': max_price,
+            'bhk': bhk,
+            'furnishing': furnishing,
+            'bachelors_allowed': bachelors_allowed,
+            'min_area': min_area,
+            'max_area': max_area,
+            'amenities': amenities,
+            'sort_by': sort_by,
+        }
         return render(request, 'core/tenant_dashboard.html', context)
     
     return render(request, 'core/dashboard.html', context)
@@ -242,47 +357,59 @@ def add_property_view(request):
         messages.error(request, "Access denied. Owners only.")
         return redirect('dashboard')
 
-    # Check property limits based on active properties with valid plans
-    from django.utils import timezone
-    active_properties = Property.objects.filter(
-        owner=request.user,
-        is_paid=True,
-        plan_expiry_date__gt=timezone.now()
-    )
+    # Check if user is coming from upgrade page (bypass limit check for this session)
+    bypass_limit_check = request.session.get('bypass_limit_check', False)
     
-    # Count properties by plan type
-    basic_count = active_properties.filter(plan_type='basic').count()
-    standard_count = active_properties.filter(plan_type='standard').count()
-    premium_count = active_properties.filter(plan_type='premium').count()
-    
-    # Check if user has reached their limit
-    # Basic: 1 property, Standard: 3 properties, Premium: 10 properties
-    total_active = active_properties.count()
-    
-    # Determine if user can add more properties based on their highest plan
-    can_add_property = True
-    limit_message = ""
-    
-    # Check limits based on the highest active plan
-    if premium_count > 0:
-        # User has premium plan
-        if total_active >= 10:
-            can_add_property = False
-            limit_message = "You have reached your Premium Plan limit (10 properties)."
-    elif standard_count > 0:
-        # User has standard plan
-        if total_active >= 3:
-            can_add_property = False
-            limit_message = "You have reached your Standard Plan limit (3 properties). Please upgrade to Premium plan to list more properties."
-    elif basic_count > 0:
-        # User only has basic plan
-        if total_active >= 1:
-            can_add_property = False
-            limit_message = "You have reached your Basic Plan limit (1 property). Please upgrade to Standard or Premium plan to list more properties."
-    
-    if not can_add_property:
-        messages.error(request, limit_message)
-        return redirect('dashboard')
+    if not bypass_limit_check:
+        # Check property limits based on active properties with valid plans
+        from django.utils import timezone
+        active_properties = Property.objects.filter(
+            owner=request.user,
+            is_paid=True,
+            plan_expiry_date__gt=timezone.now()
+        )
+        
+        # Count properties by plan type
+        basic_count = active_properties.filter(plan_type='basic').count()
+        standard_count = active_properties.filter(plan_type='standard').count()
+        premium_count = active_properties.filter(plan_type='premium').count()
+        
+        # Check if user has reached their limit
+        # Basic: 1 property, Standard: 3 properties, Premium: 10 properties
+        total_active = active_properties.count()
+        
+        # Determine if user can add more properties based on their highest plan
+        can_add_property = True
+        limit_message = ""
+        current_plan = None
+        
+        # Check limits based on the highest active plan
+        if premium_count > 0:
+            # User has premium plan
+            current_plan = 'premium'
+            if total_active >= 10:
+                can_add_property = False
+                limit_message = "You have reached your Premium Plan limit (10 properties)."
+        elif standard_count > 0:
+            # User has standard plan
+            current_plan = 'standard'
+            if total_active >= 3:
+                can_add_property = False
+                limit_message = "You have reached your Standard Plan limit (3 properties). Upgrade to Premium to list more properties."
+        elif basic_count > 0:
+            # User only has basic plan
+            current_plan = 'basic'
+            if total_active >= 1:
+                can_add_property = False
+                limit_message = "You have reached your Basic Plan limit (1 property). Upgrade to Standard or Premium to list more properties."
+        
+        if not can_add_property:
+            messages.warning(request, limit_message)
+            # Redirect to upgrade plan page instead of just showing error
+            return redirect('upgrade_plan')
+    else:
+        # Clear the bypass flag after using it
+        request.session['bypass_limit_check'] = False
 
     if request.method == 'POST':
         form = PropertyForm(request.POST, request.FILES)
@@ -636,6 +763,119 @@ def razorpay_webhook(request):
         print(f"Webhook error: {str(e)}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
+@login_required
+def upgrade_plan_view(request):
+    """View to upgrade plan - allows owners to purchase higher tier plans"""
+    if request.user.role != 'OWNER':
+        messages.error(request, "Access denied. Owners only.")
+        return redirect('dashboard')
+    
+    from django.utils import timezone
+    
+    # Get user's current active properties
+    active_properties = Property.objects.filter(
+        owner=request.user,
+        is_paid=True,
+        plan_expiry_date__gt=timezone.now()
+    )
+    
+    # Count properties by plan type
+    basic_count = active_properties.filter(plan_type='basic').count()
+    standard_count = active_properties.filter(plan_type='standard').count()
+    premium_count = active_properties.filter(plan_type='premium').count()
+    total_active = active_properties.count()
+    
+    # Determine current plan tier
+    current_plan = None
+    current_limit = 0
+    if premium_count > 0:
+        current_plan = 'premium'
+        current_limit = 10
+    elif standard_count > 0:
+        current_plan = 'standard'
+        current_limit = 3
+    elif basic_count > 0:
+        current_plan = 'basic'
+        current_limit = 1
+    else:
+        current_plan = 'none'
+        current_limit = 0
+    
+    # Define available upgrade plans
+    plans = {
+        'basic': {
+            'name': 'Basic Plan',
+            'price': 99,
+            'duration': '3 Months',
+            'limit': 1,
+            'features': [
+                'List up to 1 property',
+                'Visible for 90 days',
+                'Standard visibility'
+            ],
+            'available': current_plan == 'none'
+        },
+        'standard': {
+            'name': 'Standard Plan',
+            'price': 199,
+            'duration': '6 Months',
+            'limit': 3,
+            'features': [
+                'List up to 3 properties',
+                'Visible for 180 days',
+                'Priority visibility',
+                'Shown above basic listings'
+            ],
+            'popular': True,
+            'available': current_plan in ['none', 'basic']
+        },
+        'premium': {
+            'name': 'Premium Plan',
+            'price': 399,
+            'duration': '1 Year',
+            'limit': 10,
+            'features': [
+                'List up to 10 properties',
+                'Visible for 365 days',
+                '⭐ Featured badge',
+                'Top search priority',
+                'Premium support'
+            ],
+            'available': current_plan in ['none', 'basic', 'standard']
+        }
+    }
+    
+    context = {
+        'plans': plans,
+        'current_plan': current_plan,
+        'current_limit': current_limit,
+        'total_active': total_active,
+        'basic_count': basic_count,
+        'standard_count': standard_count,
+        'premium_count': premium_count,
+    }
+    
+    return render(request, 'core/upgrade_plan.html', context)
+
+@login_required
+def proceed_with_upgrade_view(request, plan_type):
+    """Set session flag to bypass limit check and redirect to add property"""
+    if request.user.role != 'OWNER':
+        messages.error(request, "Access denied. Owners only.")
+        return redirect('dashboard')
+    
+    # Validate plan type
+    if plan_type not in ['basic', 'standard', 'premium']:
+        messages.error(request, "Invalid plan type.")
+        return redirect('upgrade_plan')
+    
+    # Set session flag to bypass limit check
+    request.session['bypass_limit_check'] = True
+    request.session['selected_upgrade_plan'] = plan_type
+    
+    messages.info(request, f"Great! Now add your property details and select the {plan_type.title()} plan.")
+    return redirect('add_property')
+
 # NEW: Admin Action View
 @login_required
 def approve_property_view(request, id):
@@ -768,6 +1008,59 @@ def delete_user_view(request, id):
     
     messages.success(request, f"User '{username}' and all associated data have been deleted successfully.")
     return redirect('dashboard')
+
+@login_required
+def owner_profile_view(request, id):
+    """View owner profile with all their properties - Admin only"""
+    # Only allow admin to view owner profiles
+    if not (request.user.is_superuser or request.user.role == 'ADMIN'):
+        messages.error(request, "You don't have permission to view this page.")
+        return redirect('dashboard')
+    
+    from django.utils import timezone
+    
+    owner = get_object_or_404(User, id=id, role='OWNER')
+    
+    # Get all properties by this owner
+    properties = Property.objects.filter(owner=owner).order_by('-created_at')
+    
+    # Add plan status to each property
+    for prop in properties:
+        if prop.plan_expiry_date:
+            prop.is_plan_active = prop.is_plan_active()
+            prop.days_left = prop.days_remaining()
+        else:
+            prop.is_plan_active = False
+            prop.days_left = 0
+    
+    # Calculate statistics
+    total_properties = properties.count()
+    active_properties = properties.filter(
+        status=Property.Status.AVAILABLE,
+        is_paid=True,
+        plan_expiry_date__gt=timezone.now()
+    ).count()
+    pending_properties = properties.filter(status=Property.Status.PENDING_APPROVAL).count()
+    rented_properties = properties.filter(status=Property.Status.RENTED).count()
+    
+    # Count by plan type
+    basic_count = properties.filter(plan_type='basic', is_paid=True, plan_expiry_date__gt=timezone.now()).count()
+    standard_count = properties.filter(plan_type='standard', is_paid=True, plan_expiry_date__gt=timezone.now()).count()
+    premium_count = properties.filter(plan_type='premium', is_paid=True, plan_expiry_date__gt=timezone.now()).count()
+    
+    context = {
+        'owner': owner,
+        'properties': properties,
+        'total_properties': total_properties,
+        'active_properties': active_properties,
+        'pending_properties': pending_properties,
+        'rented_properties': rented_properties,
+        'basic_count': basic_count,
+        'standard_count': standard_count,
+        'premium_count': premium_count,
+    }
+    
+    return render(request, 'core/owner_profile.html', context)
 
 
 # Messaging System Views

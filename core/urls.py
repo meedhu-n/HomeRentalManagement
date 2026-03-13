@@ -28,11 +28,14 @@ urlpatterns = [
     path('payment/<int:id>/', views.payment_view, name='payment'),
     path('verify-payment/', views.verify_payment_view, name='verify_payment'),
     path('razorpay-webhook/', views.razorpay_webhook, name='razorpay_webhook'),
+    path('upgrade-plan/', views.upgrade_plan_view, name='upgrade_plan'),
+    path('proceed-upgrade/<str:plan_type>/', views.proceed_with_upgrade_view, name='proceed_upgrade'),
 
     # Admin
     path('admin-approve/<int:id>/', views.approve_property_view, name='approve_property'),
     path('admin-reject/<int:id>/', views.reject_property_view, name='reject_property'),
     path('admin-delete-user/<int:id>/', views.delete_user_view, name='delete_user'),
+    path('admin-owner-profile/<int:id>/', views.owner_profile_view, name='owner_profile'),
 
     # Messaging
     path('conversations/', views.conversations_view, name='conversations'),

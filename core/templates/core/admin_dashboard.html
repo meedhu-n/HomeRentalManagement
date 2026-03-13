@@ -10,21 +10,45 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
+            --bg-core: #ffffff;
+            --bg-surface: #f5f0e1;
             --primary-black: #000000;
             --secondary-black: #1a1a1a;
             --cream: #f5f0e1;
+            --text-dark: #1a1a1a;
+            --text-light: #666666;
+            --card-bg: #ffffff;
+            --table-bg: #000000;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Dark Mode Variables */
+        [data-theme="dark"] {
+            --bg-core: #0a0a0a;
+            --bg-surface: #1a1a1a;
+            --primary-black: #f5f0e1;
+            --secondary-black: #2a2a2a;
+            --cream: #f5f0e1;
+            --text-dark: #f5f0e1;
+            --text-light: rgba(245, 240, 225, 0.7);
+            --card-bg: #1a1a1a;
+            --table-bg: #1a1a1a;
+            --border-color: rgba(245, 240, 225, 0.2);
+            --shadow-color: rgba(0, 0, 0, 0.5);
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
         
         body {
             font-family: 'Poppins', sans-serif !important;
-            background-color: #ffffff !important;
-            color: #1a1a1a !important;
+            background-color: var(--bg-core) !important;
+            color: var(--text-dark) !important;
             min-height: 100vh;
         }
         
@@ -36,6 +60,10 @@
             opacity: 0.02;
             z-index: 0;
             filter: grayscale(100%);
+        }
+
+        [data-theme="dark"] body::before {
+            opacity: 0.05;
         }
         
         /* Animations */
@@ -81,19 +109,24 @@
             }
         }
         
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 10px rgba(245, 240, 225, 0.5),
-                             0 0 20px rgba(245, 240, 225, 0.3),
-                             0 0 30px rgba(245, 240, 225, 0.2);
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
             }
-            to {
-                text-shadow: 0 0 20px rgba(245, 240, 225, 0.8),
-                             0 0 30px rgba(245, 240, 225, 0.6),
-                             0 0 40px rgba(245, 240, 225, 0.4);
+            50% {
+                transform: scale(1.05);
             }
         }
         
+        @keyframes shimmer {
+            0% {
+                background-position: 0% center;
+            }
+            100% {
+                background-position: 200% center;
+            }
+        }
+
         @keyframes gradientShift {
             0% {
                 background-position: 0% 50%;
@@ -103,15 +136,6 @@
             }
             100% {
                 background-position: 0% 50%;
-            }
-        }
-        
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
             }
         }
         
@@ -176,37 +200,54 @@
         }
         
         .btn-outline-acid {
-            border: 2px solid var(--cream) !important;
-            color: var(--cream) !important;
-            padding: 10px 25px !important;
+            border: 2px solid rgba(245, 240, 225, 0.4) !important;
+            color: #f5f0e1 !important;
+            padding: 10px 20px !important;
             border-radius: 8px !important;
             font-weight: 700 !important;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            font-size: 13px !important;
+            transition: all 0.3s ease !important;
             position: relative;
             overflow: hidden;
             background: transparent !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none !important;
         }
         
         .btn-outline-acid::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: var(--cream);
-            transition: left 0.4s ease;
-            z-index: 0;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: #f5f0e1;
+            transform: translate(-50%, -50%);
+            transition: width 0.5s ease, height 0.5s ease;
+            z-index: -1;
         }
         
         .btn-outline-acid:hover::before {
-            left: 0;
+            width: 300px;
+            height: 300px;
         }
         
         .btn-outline-acid:hover {
             color: var(--primary-black) !important;
+            border-color: #f5f0e1 !important;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(245, 240, 225, 0.3);
+            box-shadow: 0 6px 20px rgba(245, 240, 225, 0.3);
+            text-decoration: none !important;
+        }
+
+        [data-theme="light"] .btn-outline-acid:hover {
+            color: #000000 !important;
+        }
+
+        [data-theme="dark"] .btn-outline-acid:hover {
+            color: #0a0a0a !important;
         }
         
         /* Header Section */
@@ -276,19 +317,63 @@
         .glow-text {
             color: #f5f0e1 !important;
             font-weight: 800 !important;
-            text-shadow: 0 0 10px rgba(245, 240, 225, 0.5),
-                         0 0 20px rgba(245, 240, 225, 0.3),
-                         0 0 30px rgba(245, 240, 225, 0.2) !important;
-            animation: glow 2s ease-in-out infinite alternate, fadeInUp 0.8s ease 0.6s both !important;
+            background: linear-gradient(135deg, #f5f0e1 0%, #ffffff 50%, #f5f0e1 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none !important;
+            animation: shimmer 3s linear infinite, fadeInUp 0.8s ease 0.6s both !important;
+            position: relative;
+            display: inline-block;
+            letter-spacing: 3px;
+        }
+
+        .glow-text::before {
+            content: 'CONTROL CENTER';
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background: linear-gradient(135deg, rgba(245, 240, 225, 0.3) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(245, 240, 225, 0.3) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: blur(15px);
+            animation: shimmer 3s linear infinite;
+        }
+
+        .glow-text::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent 0%, #f5f0e1 20%, #ffffff 50%, #f5f0e1 80%, transparent 100%);
+            background-size: 200% auto;
+            border-radius: 2px;
+            animation: shimmer 3s linear infinite;
+            box-shadow: 0 0 20px rgba(245, 240, 225, 0.5);
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 0% center;
+            }
+            100% {
+                background-position: 200% center;
+            }
         }
         
         /* Stats Cards */
         .card-dash {
-            background: #ffffff !important;
-            border: 2px solid rgba(0, 0, 0, 0.1) !important;
+            background: var(--card-bg) !important;
+            border: 2px solid var(--border-color) !important;
             border-radius: 20px !important;
             padding: 2rem !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 4px 20px var(--shadow-color) !important;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
             position: relative;
             overflow: hidden;
@@ -302,13 +387,21 @@
             left: -6px;
             right: -6px;
             bottom: -6px;
-            background: linear-gradient(45deg, #000000, #1a1a1a, #000000, #1a1a1a);
+            background: linear-gradient(45deg, var(--primary-black), var(--secondary-black), var(--primary-black), var(--secondary-black));
             background-size: 300% 300%;
             border-radius: 24px;
             opacity: 0;
             z-index: -2;
             transition: opacity 0.5s ease;
             animation: gradientShift 3s ease infinite;
+        }
+        
+        [data-theme="light"] .card-dash::after {
+            background: linear-gradient(45deg, #000000, #1a1a1a, #000000, #1a1a1a);
+        }
+
+        [data-theme="dark"] .card-dash::after {
+            background: linear-gradient(45deg, #f5f0e1, #d4cdb8, #f5f0e1, #d4cdb8);
         }
         
         .card-dash::before {
@@ -318,7 +411,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: #ffffff;
+            background: var(--card-bg);
             border-radius: 20px;
             z-index: -1;
         }
@@ -329,7 +422,7 @@
         
         .card-dash:hover {
             transform: translateY(-10px) scale(1.02) !important;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2) !important;
+            box-shadow: 0 15px 40px var(--shadow-color) !important;
             border-color: transparent !important;
         }
         
@@ -348,7 +441,7 @@
         .stat-number {
             font-size: 3rem !important;
             font-weight: 800 !important;
-            color: #000000 !important;
+            color: var(--text-dark) !important;
             line-height: 1 !important;
             margin-bottom: 0.5rem !important;
             transition: all 0.3s ease;
@@ -360,7 +453,7 @@
         }
         
         .stat-label {
-            color: #666 !important;
+            color: var(--text-light) !important;
             font-size: 0.85rem !important;
             font-weight: 600 !important;
             text-transform: uppercase !important;
@@ -371,7 +464,7 @@
         .section-title {
             font-size: 1.5rem !important;
             font-weight: 700 !important;
-            color: #666 !important;
+            color: var(--text-light) !important;
             animation: slideInLeft 0.8s ease;
             position: relative;
             padding-left: 20px;
@@ -385,28 +478,36 @@
             transform: translateY(-50%);
             width: 4px;
             height: 32px;
-            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-black) 100%);
             border-radius: 2px;
+        }
+
+        [data-theme="light"] .section-title::before {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+        }
+
+        [data-theme="dark"] .section-title::before {
+            background: linear-gradient(135deg, #f5f0e1 0%, #d4cdb8 100%);
         }
         
         .section-title span {
-            color: #000000 !important;
+            color: var(--text-dark) !important;
         }
         
         /* Tables */
         .table-dark {
-            background: #000000 !important;
-            border: 2px solid rgba(245, 240, 225, 0.2) !important;
+            background: var(--table-bg) !important;
+            border: 2px solid var(--border-color) !important;
             border-radius: 16px !important;
             overflow: hidden !important;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 20px var(--shadow-color);
             animation: fadeInUp 0.8s ease;
         }
         
         .table-dark thead {
-            background: #000000 !important;
+            background: var(--table-bg) !important;
             border: none !important;
-            border-bottom: 2px solid rgba(245, 240, 225, 0.2) !important;
+            border-bottom: 2px solid var(--border-color) !important;
         }
         
         .table-dark thead th {
@@ -420,14 +521,22 @@
         }
         
         .table-dark tbody tr {
-            background: #000000 !important;
-            border-bottom: 1px solid rgba(245, 240, 225, 0.1) !important;
+            background: var(--table-bg) !important;
+            border-bottom: 1px solid var(--border-color) !important;
             transition: all 0.3s ease;
         }
         
         .table-dark tbody tr:hover {
-            background: #1a1a1a !important;
+            background: var(--secondary-black) !important;
             transform: translateX(5px);
+        }
+
+        [data-theme="light"] .table-dark tbody tr:hover {
+            background: #1a1a1a !important;
+        }
+
+        [data-theme="dark"] .table-dark tbody tr:hover {
+            background: #2a2a2a !important;
         }
         
         .table-dark tbody td {
@@ -446,15 +555,15 @@
         }
         
         .user-section-title {
-            border-bottom: 3px solid #000000 !important;
+            border-bottom: 3px solid var(--text-dark) !important;
             padding-bottom: 12px !important;
-            color: #000000 !important;
+            color: var(--text-dark) !important;
             font-weight: 700 !important;
             animation: slideInLeft 0.8s ease;
         }
         
         .user-section-icon {
-            color: #000000 !important;
+            color: var(--text-dark) !important;
         }
         
         /* Plan Badge in Table */
@@ -485,7 +594,7 @@
         
         /* Buttons */
         .btn-success {
-            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important;
+            background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-black) 100%) !important;
             border: none !important;
             color: var(--cream) !important;
             font-weight: 700 !important;
@@ -494,6 +603,15 @@
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
             position: relative;
             overflow: hidden;
+        }
+
+        [data-theme="light"] .btn-success {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important;
+        }
+
+        [data-theme="dark"] .btn-success {
+            background: linear-gradient(135deg, #f5f0e1 0%, #d4cdb8 100%) !important;
+            color: #000000 !important;
         }
         
         .btn-success::before {
@@ -515,9 +633,16 @@
         }
         
         .btn-success:hover {
-            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%) !important;
             transform: translateY(-3px) !important;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
+            box-shadow: 0 8px 25px var(--shadow-color) !important;
+        }
+
+        [data-theme="light"] .btn-success:hover {
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%) !important;
+        }
+
+        [data-theme="dark"] .btn-success:hover {
+            background: linear-gradient(135deg, #d4cdb8 0%, #f5f0e1 100%) !important;
         }
         
         .btn-danger {
@@ -557,18 +682,69 @@
         }
         
         .btn-outline-light {
-            border: 2px solid #000000 !important;
-            color: #000000 !important;
+            border: 2px solid var(--text-dark) !important;
+            color: var(--text-dark) !important;
             background: transparent !important;
             font-weight: 600 !important;
             transition: all 0.3s ease;
         }
         
         .btn-outline-light:hover {
-            background: #000000 !important;
-            color: var(--cream) !important;
+            background: var(--text-dark) !important;
+            color: var(--bg-core) !important;
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        [data-theme="light"] .btn-outline-light {
+            border-color: #000000 !important;
+            color: #000000 !important;
+        }
+
+        [data-theme="light"] .btn-outline-light:hover {
+            background: #000000 !important;
+            color: #ffffff !important;
+        }
+
+        [data-theme="dark"] .btn-outline-light {
+            border-color: #f5f0e1 !important;
+            color: #f5f0e1 !important;
+        }
+
+        [data-theme="dark"] .btn-outline-light:hover {
+            background: #f5f0e1 !important;
+            color: #0a0a0a !important;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            background: rgba(245, 240, 225, 0.1);
+            border: 2px solid rgba(245, 240, 225, 0.3);
+            color: #f5f0e1;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(245, 240, 225, 0.2);
+            transform: translateY(-2px) rotate(15deg);
+            box-shadow: 0 4px 15px rgba(245, 240, 225, 0.3);
+        }
+
+        .theme-toggle i {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle:active i {
+            transform: scale(0.9);
         }
         
         /* Badges */
@@ -595,56 +771,82 @@
         .alert-info {
             background: rgba(0, 0, 0, 0.05) !important;
             border: 2px solid rgba(0, 0, 0, 0.2) !important;
-            color: #1a1a1a !important;
+            color: var(--text-dark) !important;
             border-radius: 12px !important;
             animation: fadeInUp 0.6s ease;
+        }
+
+        [data-theme="dark"] .alert-info {
+            background: rgba(245, 240, 225, 0.05) !important;
+            border-color: rgba(245, 240, 225, 0.2) !important;
         }
         
         /* Empty State */
         .empty-state {
             background: rgba(0, 0, 0, 0.02) !important;
-            border: 2px dashed rgba(0, 0, 0, 0.15) !important;
+            border: 2px dashed var(--border-color) !important;
             border-radius: 16px !important;
             padding: 3rem !important;
             animation: fadeInUp 0.8s ease;
         }
+
+        [data-theme="dark"] .empty-state {
+            background: rgba(245, 240, 225, 0.02) !important;
+        }
         
         .empty-state p {
-            color: #666 !important;
+            color: var(--text-light) !important;
+        }
+
+        .empty-state i {
+            color: var(--border-color) !important;
+            opacity: 0.5;
         }
         
         /* Modal */
         .modal-content {
-            background: #ffffff !important;
-            border: 2px solid rgba(0, 0, 0, 0.2) !important;
+            background: var(--card-bg) !important;
+            border: 2px solid var(--border-color) !important;
             border-radius: 20px !important;
             animation: scaleIn 0.4s ease;
         }
         
         .modal-header {
-            border-bottom: 2px solid rgba(0, 0, 0, 0.1) !important;
+            border-bottom: 2px solid var(--border-color) !important;
             background: rgba(0, 0, 0, 0.02) !important;
+        }
+
+        [data-theme="dark"] .modal-header {
+            background: rgba(245, 240, 225, 0.02) !important;
         }
         
         .modal-title {
-            color: #000000 !important;
+            color: var(--text-dark) !important;
         }
         
         .modal-body {
-            color: #666 !important;
+            color: var(--text-light) !important;
         }
         
         .modal-body strong {
-            color: #000000 !important;
+            color: var(--text-dark) !important;
         }
         
         .modal-footer {
-            border-top: 2px solid rgba(0, 0, 0, 0.1) !important;
+            border-top: 2px solid var(--border-color) !important;
             background: rgba(0, 0, 0, 0.02) !important;
+        }
+
+        [data-theme="dark"] .modal-footer {
+            background: rgba(245, 240, 225, 0.02) !important;
         }
         
         .btn-close {
             filter: none !important;
+        }
+
+        [data-theme="dark"] .btn-close {
+            filter: invert(1) !important;
         }
         
         /* HR */
@@ -688,6 +890,140 @@
         .card-dash.property-card:nth-child(3) {
             animation-delay: 0.3s;
         }
+
+        /* Small Property Cards for All Properties Section */
+        .property-card-small {
+            background: var(--card-bg) !important;
+            border: 2px solid var(--border-color) !important;
+            border-radius: 16px !important;
+            overflow: hidden;
+            box-shadow: 0 4px 15px var(--shadow-color) !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative;
+            animation: scaleIn 0.6s ease both;
+        }
+
+        .property-card-small::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            background: linear-gradient(45deg, var(--primary-black), var(--secondary-black), var(--primary-black), var(--secondary-black));
+            background-size: 300% 300%;
+            border-radius: 18px;
+            opacity: 0;
+            z-index: -2;
+            transition: opacity 0.5s ease;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        [data-theme="light"] .property-card-small::after {
+            background: linear-gradient(45deg, #000000, #1a1a1a, #000000, #1a1a1a);
+        }
+
+        [data-theme="dark"] .property-card-small::after {
+            background: linear-gradient(45deg, #f5f0e1, #d4cdb8, #f5f0e1, #d4cdb8);
+        }
+
+        .property-card-small::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--card-bg);
+            border-radius: 16px;
+            z-index: -1;
+        }
+
+        .property-card-small:hover::after {
+            opacity: 1;
+        }
+
+        .property-card-small:hover {
+            transform: translateY(-8px) scale(1.02) !important;
+            box-shadow: 0 12px 30px var(--shadow-color) !important;
+            border-color: transparent !important;
+        }
+
+        .property-card-small .property-image {
+            width: 100%;
+            height: 140px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .property-card-small .property-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .property-card-small:hover .property-image img {
+            transform: scale(1.1);
+        }
+
+        .property-card-small .property-content {
+            padding: 16px;
+        }
+
+        .property-card-small .property-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.3;
+        }
+
+        .property-card-small .property-info {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .property-card-small .property-info i {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .property-card-small .property-price {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 10px 0;
+        }
+
+        .property-card-small .property-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .property-card-small .badge {
+            font-size: 10px;
+            padding: 4px 8px;
+        }
+
+        .property-card-small .btn-view {
+            width: 100%;
+            padding: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
@@ -695,7 +1031,13 @@
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container-fluid px-5" style="display: flex; justify-content: space-between; align-items: center;">
             <a class="navbar-brand" href="{% url 'index' %}">RENT<span>EASE</span></a>
-            <a href="{% url 'logout' %}" class="btn-outline-acid">LOGOUT</a>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <!-- Theme Toggle Button -->
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <a href="{% url 'logout' %}" class="btn-outline-acid">LOGOUT</a>
+            </div>
         </div>
     </nav>
 
@@ -839,13 +1181,18 @@
                                         </td>
                                         <td style="font-size: 0.9rem;">{{ user.date_joined|date:"d M Y" }}</td>
                                         <td style="text-align: right;">
-                                            {% if user.id != request.user.id %}
-                                                <button type="button" class="btn btn-danger btn-sm px-3" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ user.id }}">
-                                                    <i class="fas fa-trash me-1"></i>DELETE
-                                                </button>
-                                            {% else %}
-                                                <span class="badge bg-secondary">CURRENT ADMIN</span>
-                                            {% endif %}
+                                            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                                <a href="{% url 'owner_profile' user.id %}" class="btn btn-outline-light btn-sm px-3">
+                                                    <i class="fas fa-user me-1"></i>VIEW PROFILE
+                                                </a>
+                                                {% if user.id != request.user.id %}
+                                                    <button type="button" class="btn btn-danger btn-sm px-3" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ user.id }}">
+                                                        <i class="fas fa-trash me-1"></i>DELETE
+                                                    </button>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">CURRENT ADMIN</span>
+                                                {% endif %}
+                                            </div>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -910,34 +1257,69 @@
             <hr class="my-5">
             <h4 class="mb-4 text-gray section-title">ALL <span>PROPERTIES</span></h4>
             {% if all_properties %}
-                <div class="row g-4">
+                <div class="row g-3">
                 {% for property in all_properties %}
-                    <div class="col-12">
-                        <div class="card-dash property-card p-4 d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-center flex-grow-1">
-                                <div class="me-4" style="width: 100px; height: 80px; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
-                                    {% if property.images.first %}
-                                        <img src="{{ property.images.first.image.url }}" alt="Prop" style="width: 100%; height: 100%; object-fit: cover;">
-                                    {% else %}
-                                        <div class="bg-secondary w-100 h-100 d-flex align-items-center justify-content-center text-white"><i class="fas fa-home"></i></div>
+                    <div class="col-lg-3 col-md-4 col-sm-6">
+                        <div class="property-card-small">
+                            <div class="property-image">
+                                {% if property.images.first %}
+                                    <img src="{{ property.images.first.image.url }}" alt="{{ property.title }}">
+                                {% else %}
+                                    <div class="bg-secondary w-100 h-100 d-flex align-items-center justify-content-center text-white">
+                                        <i class="fas fa-home" style="font-size: 32px;"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="property-content">
+                                <h6 class="property-title">{{ property.title }}</h6>
+                                
+                                <div class="property-info">
+                                    <i class="fas fa-user"></i>
+                                    <span>{{ property.owner.username }}</span>
+                                </div>
+                                
+                                <div class="property-info">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>{{ property.location|truncatewords:3 }}</span>
+                                </div>
+                                
+                                <div class="property-info">
+                                    <i class="fas fa-home"></i>
+                                    <span>{{ property.property_type }}</span>
+                                </div>
+                                
+                                <div class="property-price">₹{{ property.price }}<span style="font-size: 12px; font-weight: 500; color: var(--text-light);">/mo</span></div>
+                                
+                                <div class="property-badges">
+                                    <span class="badge {% if property.status == 'AVAILABLE' %}bg-success{% elif property.status == 'PENDING' %}bg-warning text-dark{% elif property.status == 'RENTED' %}bg-info{% else %}bg-secondary{% endif %}">
+                                        {{ property.get_status_display }}
+                                    </span>
+                                    <span class="badge {% if property.is_paid %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                                        {% if property.is_paid %}<i class="fas fa-check-circle me-1"></i>PAID{% else %}<i class="fas fa-clock me-1"></i>PENDING{% endif %}
+                                    </span>
+                                    {% if property.is_paid and property.plan_type %}
+                                        <span class="badge {% if property.plan_type == 'premium' %}bg-warning{% elif property.plan_type == 'standard' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                            {% if property.plan_type == 'premium' %}⭐ PREMIUM{% elif property.plan_type == 'standard' %}STANDARD{% else %}BASIC{% endif %}
+                                        </span>
                                     {% endif %}
                                 </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="mb-1" style="color: #000000; font-weight: 700;">{{ property.title }}</h5>
-                                    <p class="text-gray mb-0 small"><i class="fas fa-user me-2"></i> {{ property.owner.username }} | <i class="fas fa-map-marker-alt ms-2 me-2"></i> {{ property.location }}</p>
-                                    <p class="text-gray mb-1 small"><i class="fas fa-dollar-sign me-1"></i>₹{{ property.price }}/mo | <i class="fas fa-home me-1"></i>{{ property.property_type }}</p>
-                                    <div style="margin-top: 8px;">
-                                        <span class="badge {% if property.status == 'AVAILABLE' %}bg-success{% elif property.status == 'PENDING' %}bg-warning text-dark{% elif property.status == 'RENTED' %}bg-info{% else %}bg-secondary{% endif %} me-2">
-                                            {{ property.get_status_display }}
-                                        </span>
-                                        <span class="badge {% if property.is_paid %}bg-success{% else %}bg-warning text-dark{% endif %}">
-                                            {% if property.is_paid %}<i class="fas fa-check-circle me-1"></i>PAID{% else %}<i class="fas fa-clock me-1"></i>PAYMENT PENDING{% endif %}
+                                
+                                {% if property.is_paid and property.plan_expiry_date %}
+                                    <div class="property-info" style="margin-top: 10px; padding: 8px; background: {% if property.is_plan_active %}rgba(52, 199, 89, 0.1){% else %}rgba(255, 59, 48, 0.1){% endif %}; border-radius: 6px; border: 1px solid {% if property.is_plan_active %}rgba(52, 199, 89, 0.3){% else %}rgba(255, 59, 48, 0.3){% endif %};">
+                                        <i class="fas fa-clock" style="color: {% if property.is_plan_active %}#34c759{% else %}#ff3b30{% endif %};"></i>
+                                        <span style="font-weight: 600; color: {% if property.is_plan_active %}#34c759{% else %}#ff3b30{% endif %};">
+                                            {% if property.is_plan_active %}
+                                                Expires: {{ property.plan_expiry_date|date:"d M Y" }}
+                                            {% else %}
+                                                Expired: {{ property.plan_expiry_date|date:"d M Y" }}
+                                            {% endif %}
                                         </span>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="d-flex gap-3">
-                                <a href="{% url 'property_details' property.id %}" class="btn btn-outline-light btn-sm px-3">VIEW DETAILS</a>
+                                {% endif %}
+                                
+                                <a href="{% url 'property_details' property.id %}" class="btn btn-outline-light btn-sm btn-view">
+                                    <i class="fas fa-eye me-1"></i>VIEW DETAILS
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -945,7 +1327,7 @@
                 </div>
             {% else %}
                 <div class="empty-state text-center py-5">
-                    <i class="fas fa-home" style="font-size: 64px; color: rgba(0, 0, 0, 0.2); margin-bottom: 20px;"></i>
+                    <i class="fas fa-home" style="font-size: 64px; margin-bottom: 20px;"></i>
                     <p class="text-gray mb-0" style="font-size: 1.1rem; font-weight: 600;">No properties found.</p>
                 </div>
             {% endif %}
@@ -1005,5 +1387,61 @@
     {% endfor %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ============================================
+        // DARK MODE FUNCTIONALITY
+        // ============================================
+        
+        // Check for saved theme preference or default to system preference
+        function getPreferredTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                return savedTheme;
+            }
+            // Check system preference
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        // Apply theme to document
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            
+            // Update icon
+            const icon = document.getElementById('themeIcon');
+            if (icon) {
+                if (theme === 'dark') {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            }
+            
+            // Save preference
+            localStorage.setItem('theme', theme);
+        }
+
+        // Toggle between light and dark themes
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+        }
+
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const preferredTheme = getPreferredTheme();
+            applyTheme(preferredTheme);
+        });
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            // Only auto-switch if user hasn't manually set a preference
+            if (!localStorage.getItem('theme')) {
+                applyTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+    </script>
 </body>
 </html>
