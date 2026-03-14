@@ -120,6 +120,7 @@ def dashboard_view(request):
     # Check if user is superuser (Admin)
     if request.user.is_superuser or request.user.role == 'ADMIN':
         from django.utils import timezone
+        from django.db.models import Sum, Count, Q
         
         # Admin Dashboard Logic
         # Show all properties with PENDING status (whether paid or not)
@@ -139,6 +140,37 @@ def dashboard_view(request):
                 prop.is_plan_active = False
                 prop.days_left = 0
         
+        # Revenue/Payment Analytics
+        all_payments = Payment.objects.all().select_related('property', 'owner').order_by('-created_at')
+        
+        # Calculate revenue statistics
+        total_revenue = all_payments.filter(status=Payment.PaymentStatus.SUCCESS).aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+        
+        pending_revenue = all_payments.filter(status=Payment.PaymentStatus.PENDING).aggregate(
+            total=Sum('amount')
+        )['total'] or 0
+        
+        failed_payments_count = all_payments.filter(status=Payment.PaymentStatus.FAILED).count()
+        successful_payments_count = all_payments.filter(status=Payment.PaymentStatus.SUCCESS).count()
+        
+        # Revenue by plan type
+        revenue_by_plan = {
+            'basic': all_payments.filter(status=Payment.PaymentStatus.SUCCESS, amount=99).aggregate(
+                total=Sum('amount'), count=Count('id')
+            ),
+            'standard': all_payments.filter(status=Payment.PaymentStatus.SUCCESS, amount=199).aggregate(
+                total=Sum('amount'), count=Count('id')
+            ),
+            'premium': all_payments.filter(status=Payment.PaymentStatus.SUCCESS, amount=399).aggregate(
+                total=Sum('amount'), count=Count('id')
+            ),
+        }
+        
+        # Recent payments (last 10)
+        recent_payments = all_payments[:10]
+        
         context['pending_properties'] = pending_properties
         context['pending_count'] = pending_properties.count()
         context['all_users'] = all_users
@@ -149,12 +181,27 @@ def dashboard_view(request):
         context['total_tenants'] = tenants.count()
         context['all_properties'] = all_properties
         context['total_properties'] = all_properties.count()
+        
+        # Payment/Revenue context
+        context['all_payments'] = all_payments
+        context['total_payments'] = all_payments.count()
+        context['total_revenue'] = total_revenue
+        context['pending_revenue'] = pending_revenue
+        context['failed_payments_count'] = failed_payments_count
+        context['successful_payments_count'] = successful_payments_count
+        context['revenue_by_plan'] = revenue_by_plan
+        context['recent_payments'] = recent_payments
+        
         return render(request, 'core/admin_dashboard.html', context)
     
     elif request.user.role == 'OWNER':
         from django.utils import timezone
         
         properties = Property.objects.filter(owner=request.user)
+        
+        # Separate properties by status
+        rented_properties = properties.filter(status=Property.Status.RENTED).order_by('-updated_at')
+        active_properties = properties.exclude(status=Property.Status.RENTED)
         
         # Add plan status to each property
         for prop in properties:
@@ -187,7 +234,9 @@ def dashboard_view(request):
             plan_expiry_date__gt=timezone.now()
         ).count()
         
-        context['properties'] = properties
+        context['properties'] = active_properties
+        context['rented_properties'] = rented_properties
+        context['rented_count'] = rented_properties.count()
         context['active_listings_count'] = active_properties_count
         context['recent_conversations'] = conversations_with_unread
         context['unread_messages_count'] = unread_messages_count
@@ -414,19 +463,38 @@ def add_property_view(request):
 @login_required
 def edit_property_view(request, id):
     property_obj = get_object_or_404(Property, id=id, owner=request.user)
+    
+    # Check if this is a re-listing
+    is_relisting = request.session.get('relist_property_id') == property_obj.id
+    
     if request.method == 'POST':
         form = PropertyForm(request.POST, request.FILES, instance=property_obj)
         if form.is_valid():
             form.save()
-            messages.success(request, "Property details updated. Continue to photos.")
+            if is_relisting:
+                messages.success(request, "Property details updated. Continue to photos.")
+            else:
+                messages.success(request, "Property details updated. Continue to photos.")
             return redirect('add_photos', id=property_obj.id)
     else:
         form = PropertyForm(instance=property_obj)
-    return render(request, 'core/add_property.html', {'form': form})
+        if is_relisting:
+            messages.info(request, "Re-listing: Review and update your property details if needed.")
+    
+    context = {
+        'form': form,
+        'is_relisting': is_relisting,
+        'property': property_obj
+    }
+    return render(request, 'core/add_property.html', context)
 
 @login_required
 def add_photos_view(request, id):
     property_obj = get_object_or_404(Property, id=id, owner=request.user)
+    
+    # Check if this is a re-listing
+    is_relisting = request.session.get('relist_property_id') == property_obj.id
+    
     if request.method == 'POST':
         images = request.FILES.getlist('images')
         if images:
@@ -435,14 +503,29 @@ def add_photos_view(request, id):
             messages.success(request, "Photos uploaded! Now choose your listing plan.")
             return redirect('select_plan', id=property_obj.id)
         else:
-            messages.error(request, "Please select at least one image.")
-    return render(request, 'core/add_property_photos.html', {'property': property_obj})
+            # If no new images uploaded but it's a re-listing, allow to continue
+            if is_relisting and property_obj.images.exists():
+                messages.info(request, "Using existing photos. Now choose your listing plan.")
+                return redirect('select_plan', id=property_obj.id)
+            else:
+                messages.error(request, "Please select at least one image.")
+    
+    # Pass context to show existing images and re-listing status
+    context = {
+        'property': property_obj,
+        'is_relisting': is_relisting,
+        'existing_images': property_obj.images.all()
+    }
+    return render(request, 'core/add_property_photos.html', context)
 
 @login_required
 def select_plan_view(request, id):
     property_obj = get_object_or_404(Property, id=id, owner=request.user)
     
-    if property_obj.is_paid:
+    # Check if this is a re-listing (rented property) or if payment is already completed
+    is_relisting = property_obj.status == Property.Status.RENTED
+    
+    if property_obj.is_paid and not is_relisting:
         messages.info(request, "Payment already completed for this property.")
         return redirect('dashboard')
     
@@ -451,6 +534,7 @@ def select_plan_view(request, id):
         # Store the selected plan in session
         request.session['selected_plan'] = selected_plan
         request.session['property_id'] = property_obj.id
+        request.session['is_relisting'] = is_relisting  # Track if this is a re-listing
         return redirect('payment', id=property_obj.id)
     
     # Define plans
@@ -496,7 +580,11 @@ def select_plan_view(request, id):
 @login_required
 def payment_view(request, id):
     property_obj = get_object_or_404(Property, id=id, owner=request.user)
-    if property_obj.is_paid:
+    
+    # Check if this is a re-listing
+    is_relisting = property_obj.status == Property.Status.RENTED
+    
+    if property_obj.is_paid and not is_relisting:
         messages.info(request, "Payment already completed for this property.")
         return redirect('dashboard')
     
@@ -530,32 +618,9 @@ def payment_view(request, id):
             auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
         )
         
-        # Check if payment record already exists
-        try:
-            payment = Payment.objects.get(property=property_obj)
-            # If payment exists but is not successful, create a new order
-            if payment.status != Payment.PaymentStatus.SUCCESS:
-                # Amount in paise (1 INR = 100 paise)
-                amount = int(amount_inr * 100)
-                
-                # Create new Razorpay order
-                order_data = {
-                    'amount': amount,
-                    'currency': 'INR',
-                    'payment_capture': '1'
-                }
-                
-                razorpay_order = client.order.create(data=order_data)
-                
-                # Update existing payment record with new order
-                payment.razorpay_order_id = razorpay_order['id']
-                payment.razorpay_payment_id = None
-                payment.razorpay_signature = None
-                payment.status = Payment.PaymentStatus.PENDING
-                payment.amount = amount_inr
-                payment.save()
-        except Payment.DoesNotExist:
-            # No payment exists, create new one
+        # For re-listing, always create a new payment record
+        if is_relisting:
+            # Amount in paise (1 INR = 100 paise)
             amount = int(amount_inr * 100)
             
             # Create Razorpay order
@@ -567,7 +632,7 @@ def payment_view(request, id):
             
             razorpay_order = client.order.create(data=order_data)
             
-            # Save payment record
+            # Create new payment record for re-listing
             payment = Payment.objects.create(
                 property=property_obj,
                 owner=request.user,
@@ -575,6 +640,52 @@ def payment_view(request, id):
                 amount=amount_inr,
                 status=Payment.PaymentStatus.PENDING
             )
+        else:
+            # Check if payment record already exists (for new listings)
+            try:
+                payment = Payment.objects.filter(property=property_obj).latest('created_at')
+                # If payment exists but is not successful, create a new order
+                if payment.status != Payment.PaymentStatus.SUCCESS:
+                    # Amount in paise (1 INR = 100 paise)
+                    amount = int(amount_inr * 100)
+                    
+                    # Create new Razorpay order
+                    order_data = {
+                        'amount': amount,
+                        'currency': 'INR',
+                        'payment_capture': '1'
+                    }
+                    
+                    razorpay_order = client.order.create(data=order_data)
+                    
+                    # Update existing payment record with new order
+                    payment.razorpay_order_id = razorpay_order['id']
+                    payment.razorpay_payment_id = None
+                    payment.razorpay_signature = None
+                    payment.status = Payment.PaymentStatus.PENDING
+                    payment.amount = amount_inr
+                    payment.save()
+            except Payment.DoesNotExist:
+                # No payment exists, create new one
+                amount = int(amount_inr * 100)
+                
+                # Create Razorpay order
+                order_data = {
+                    'amount': amount,
+                    'currency': 'INR',
+                    'payment_capture': '1'
+                }
+                
+                razorpay_order = client.order.create(data=order_data)
+                
+                # Save payment record
+                payment = Payment.objects.create(
+                    property=property_obj,
+                    owner=request.user,
+                    razorpay_order_id=razorpay_order['id'],
+                    amount=amount_inr,
+                    status=Payment.PaymentStatus.PENDING
+                )
         
         context = {
             'property': property_obj,
@@ -653,6 +764,10 @@ def verify_payment_view(request):
                 # Default to basic
                 property_obj.plan_type = 'basic'
                 property_obj.plan_expiry_date = timezone.now() + timedelta(days=90)
+            
+            # If property was rented and being re-listed, set to pending approval
+            if property_obj.status == Property.Status.RENTED:
+                property_obj.status = Property.Status.PENDING_APPROVAL
             
             property_obj.save()
             
@@ -920,6 +1035,23 @@ def mark_property_rented_view(request, id):
     
     messages.success(request, f"Property '{property_obj.title}' has been marked as RENTED. It will only be visible to you and the tenant.")
     return redirect('manage_property', id=id)
+
+@login_required
+def relist_property_view(request, id):
+    """Re-list a rented property - Owner only"""
+    property_obj = get_object_or_404(Property, id=id, owner=request.user)
+    
+    # Check if property is actually rented
+    if property_obj.status != Property.Status.RENTED:
+        messages.error(request, "Only rented properties can be re-listed.")
+        return redirect('dashboard')
+    
+    # Store property ID in session for payment flow
+    request.session['relist_property_id'] = property_obj.id
+    
+    # Redirect to edit page first to allow updating details
+    messages.info(request, "Review and update your property details before re-listing.")
+    return redirect('edit_property', id=property_obj.id)
 
 @login_required
 def delete_property_image_view(request, id):

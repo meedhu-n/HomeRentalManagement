@@ -1198,6 +1198,183 @@
                 </div>
             </div>
 
+            <!-- Revenue/Payments Section -->
+            <h4 class="mb-4 text-gray section-title">REVENUE & <span>PAYMENTS</span></h4>
+            
+            <!-- Revenue Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card-dash stats-card" style="background: linear-gradient(135deg, #34c759 0%, #28a745 100%); color: white;">
+                        <div class="stat-number" style="color: white;">₹{{ total_revenue|floatformat:0 }}</div>
+                        <div class="stat-label" style="color: rgba(255, 255, 255, 0.9);">TOTAL REVENUE</div>
+                        <div style="font-size: 0.75rem; margin-top: 5px; opacity: 0.9;">
+                            <i class="fas fa-check-circle me-1"></i>{{ successful_payments_count }} successful
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card-dash stats-card" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: white;">
+                        <div class="stat-number" style="color: white;">₹{{ pending_revenue|floatformat:0 }}</div>
+                        <div class="stat-label" style="color: rgba(255, 255, 255, 0.9);">PENDING REVENUE</div>
+                        <div style="font-size: 0.75rem; margin-top: 5px; opacity: 0.9;">
+                            <i class="fas fa-clock me-1"></i>Awaiting payment
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card-dash stats-card" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">
+                        <div class="stat-number" style="color: white;">{{ failed_payments_count }}</div>
+                        <div class="stat-label" style="color: rgba(255, 255, 255, 0.9);">FAILED PAYMENTS</div>
+                        <div style="font-size: 0.75rem; margin-top: 5px; opacity: 0.9;">
+                            <i class="fas fa-times-circle me-1"></i>Unsuccessful
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card-dash stats-card" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white;">
+                        <div class="stat-number" style="color: white;">{{ total_payments }}</div>
+                        <div class="stat-label" style="color: rgba(255, 255, 255, 0.9);">TOTAL TRANSACTIONS</div>
+                        <div style="font-size: 0.75rem; margin-top: 5px; opacity: 0.9;">
+                            <i class="fas fa-receipt me-1"></i>All time
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue by Plan Type -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card-dash p-4" style="border-left: 4px solid #6c757d;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0" style="color: var(--text-dark); font-weight: 700;">BASIC PLAN</h6>
+                            <span class="badge bg-secondary">₹99</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div style="font-size: 1.5rem; font-weight: 800; color: var(--text-dark);">
+                                    ₹{{ revenue_by_plan.basic.total|default:0|floatformat:0 }}
+                                </div>
+                                <div style="font-size: 0.85rem; color: var(--text-light);">
+                                    {{ revenue_by_plan.basic.count|default:0 }} sales
+                                </div>
+                            </div>
+                            <i class="fas fa-home" style="font-size: 2rem; color: rgba(108, 117, 125, 0.3);"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-dash p-4" style="border-left: 4px solid #007bff;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0" style="color: var(--text-dark); font-weight: 700;">STANDARD PLAN</h6>
+                            <span class="badge bg-primary">₹199</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div style="font-size: 1.5rem; font-weight: 800; color: var(--text-dark);">
+                                    ₹{{ revenue_by_plan.standard.total|default:0|floatformat:0 }}
+                                </div>
+                                <div style="font-size: 0.85rem; color: var(--text-light);">
+                                    {{ revenue_by_plan.standard.count|default:0 }} sales
+                                </div>
+                            </div>
+                            <i class="fas fa-star" style="font-size: 2rem; color: rgba(0, 123, 255, 0.3);"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-dash p-4" style="border-left: 4px solid #ffc107;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0" style="color: var(--text-dark); font-weight: 700;">PREMIUM PLAN</h6>
+                            <span class="badge bg-warning text-dark">₹399</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div style="font-size: 1.5rem; font-weight: 800; color: var(--text-dark);">
+                                    ₹{{ revenue_by_plan.premium.total|default:0|floatformat:0 }}
+                                </div>
+                                <div style="font-size: 0.85rem; color: var(--text-light);">
+                                    {{ revenue_by_plan.premium.count|default:0 }} sales
+                                </div>
+                            </div>
+                            <i class="fas fa-crown" style="font-size: 2rem; color: rgba(255, 193, 7, 0.3);"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Payments Table -->
+            <div class="mb-5">
+                <h5 class="mb-3 user-section-title">
+                    <i class="fas fa-receipt me-2 user-section-icon"></i>ALL TRANSACTIONS ({{ total_payments }})
+                </h5>
+                {% if all_payments %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>ORDER ID</th>
+                                    <th>PROPERTY</th>
+                                    <th>OWNER</th>
+                                    <th>AMOUNT</th>
+                                    <th>PLAN</th>
+                                    <th>STATUS</th>
+                                    <th>DATE</th>
+                                    <th>PAYMENT ID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in all_payments %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td style="font-family: monospace; font-size: 0.85rem;">
+                                            {{ payment.razorpay_order_id|truncatechars:20 }}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'property_details' payment.property.id %}" style="color: #f5f0e1; text-decoration: none;">
+                                                {{ payment.property.title|truncatewords:4 }}
+                                            </a>
+                                        </td>
+                                        <td>{{ payment.owner.username }}</td>
+                                        <td style="font-weight: 700; color: #34c759;">₹{{ payment.amount }}</td>
+                                        <td>
+                                            {% if payment.amount == 99 %}
+                                                <span class="badge bg-secondary">BASIC</span>
+                                            {% elif payment.amount == 199 %}
+                                                <span class="badge bg-primary">STANDARD</span>
+                                            {% elif payment.amount == 399 %}
+                                                <span class="badge bg-warning text-dark"><i class="fas fa-crown me-1"></i>PREMIUM</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">₹{{ payment.amount }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if payment.status == 'SUCCESS' %}
+                                                <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>SUCCESS</span>
+                                            {% elif payment.status == 'PENDING' %}
+                                                <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i>PENDING</span>
+                                            {% else %}
+                                                <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>FAILED</span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="font-size: 0.9rem;">{{ payment.created_at|date:"d M Y, H:i" }}</td>
+                                        <td style="font-family: monospace; font-size: 0.75rem; color: rgba(245, 240, 225, 0.6);">
+                                            {{ payment.razorpay_payment_id|default:"N/A"|truncatechars:15 }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <p class="mb-0"><i class="fas fa-info-circle me-2"></i>No payment transactions yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <hr class="my-5">
+
             <!-- Pending Approvals -->
             <h4 class="mb-4 text-gray section-title">PENDING <span>APPROVALS</span></h4>
             {% if pending_properties %}

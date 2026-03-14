@@ -1678,6 +1678,75 @@
             {% endif %}
         </div>
 
+        <!-- Rented Properties Section -->
+        {% if rented_properties %}
+        <div class="properties-section" style="margin-top: 50px;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-handshake" style="margin-right: 10px; color: #4a90e2;"></i>
+                    Rented Properties ({{ rented_count }})
+                </h2>
+                <p style="font-size: 14px; color: var(--text-light); margin-top: 8px;">
+                    Properties currently rented out. You can re-list them when they become available again.
+                </p>
+            </div>
+
+            <div class="properties-grid">
+                {% for property in rented_properties %}
+                    <div class="property-card" style="opacity: 0.9; border: 2px solid rgba(74, 144, 226, 0.3);">
+                        <div class="property-image">
+                            {% if property.images.all %}
+                                <img src="{{ property.images.first.image.url }}" alt="{{ property.title }}" style="filter: grayscale(20%);">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1600596542815-2788866dd523?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Property" style="filter: grayscale(20%);">
+                            {% endif %}
+                            <span class="status-badge" style="background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);">
+                                <i class="fas fa-handshake"></i> RENTED
+                            </span>
+                        </div>
+                        <div class="property-content">
+                            <div class="property-header">
+                                <h3 class="property-title">{{ property.title }}</h3>
+                                <div class="property-location">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    {{ property.location }}
+                                </div>
+                                <div class="property-stats">
+                                    <div class="property-stat">
+                                        <i class="fas fa-bed"></i>
+                                        {{ property.bedrooms }}
+                                    </div>
+                                    <div class="property-stat">
+                                        <i class="fas fa-bath"></i>
+                                        {{ property.bathrooms }}
+                                    </div>
+                                    <div class="property-stat">
+                                        <i class="fas fa-ruler-combined"></i>
+                                        {{ property.area }} sqft
+                                    </div>
+                                    <div class="property-stat" style="color: #4a90e2;">
+                                        <i class="fas fa-eye"></i>
+                                        {{ property.views_count }} views
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="property-footer">
+                                <div class="property-price">
+                                    ₹{{ property.price }}
+                                    <span>/mo</span>
+                                </div>
+                                <a href="{% url 'relist_property' property.id %}" class="btn-manage" style="background: linear-gradient(135deg, #34c759 0%, #28a745 100%); border: none;">
+                                    <i class="fas fa-redo"></i>
+                                    Re-List Property
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Pricing Plans Section -->
         <div class="pricing-plans-section" style="margin: 40px 0; background: #000; border-radius: 20px; padding: 50px 40px;">
             <div style="text-align: center; margin-bottom: 40px;">

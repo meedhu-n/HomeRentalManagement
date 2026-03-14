@@ -118,8 +118,8 @@ class Payment(models.Model):
         SUCCESS = "SUCCESS", "Success"
         FAILED = "FAILED", "Failed"
     
-    property = models.OneToOneField(Property, on_delete=models.CASCADE, related_name='payment')
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments')
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='payments')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payments_made')
     razorpay_order_id = models.CharField(max_length=255, unique=True)
     razorpay_payment_id = models.CharField(max_length=255, blank=True, null=True)
     razorpay_signature = models.CharField(max_length=255, blank=True, null=True)

@@ -22,6 +22,7 @@ urlpatterns = [
     path('delete-property/<int:id>/', views.delete_property_view, name='delete_property'),
     path('delete-property-image/<int:id>/', views.delete_property_image_view, name='delete_property_image'),
     path('mark-rented/<int:id>/', views.mark_property_rented_view, name='mark_rented'),
+    path('relist-property/<int:id>/', views.relist_property_view, name='relist_property'),
     path('property-details/<int:id>/', views.property_details_view, name='property_details'),
     
     # Payment
