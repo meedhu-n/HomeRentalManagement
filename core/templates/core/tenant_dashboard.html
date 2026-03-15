@@ -552,7 +552,7 @@
             <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.8rem; font-weight: 700; color: #0d3b3b; margin-bottom: 10px; letter-spacing: 0.5px;">SEND INQUIRY</h2>
             <p id="modalPropertyTitle" style="color: rgba(13, 59, 59, 0.6); font-size: 0.95rem; margin-bottom: 30px; font-weight: 500;"></p>
             
-            <form id="inquiryForm" method="POST" action="">
+            <form id="inquiryForm" method="POST" action="{% url 'send_inquiry' %}">
                 {% csrf_token %}
                 <input type="hidden" id="propertyId" name="property_id">
                 

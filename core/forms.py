@@ -4,7 +4,7 @@ from .models import Property
 class PropertyForm(forms.ModelForm):
     class Meta:
         model = Property
-        fields = ['title', 'ad_title', 'description', 'price', 'location', 'property_type', 'bhk', 
+        fields = ['title', 'ad_title', 'description', 'price', 'location', 'latitude', 'longitude', 'property_type', 'bhk', 
                   'bathrooms', 'furnishing', 'super_built_area', 'bachelors_allowed', 'total_floors', 
                   'facing', 'built_year', 'amenities']
         widgets = {
@@ -12,7 +12,9 @@ class PropertyForm(forms.ModelForm):
             'ad_title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Short ad title for listing'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Describe the property...', 'rows': 4}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Monthly Rent'}),
-            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address / City'}),
+            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address / City', 'id': 'location-input'}),
+            'latitude': forms.HiddenInput(attrs={'id': 'latitude-input'}),
+            'longitude': forms.HiddenInput(attrs={'id': 'longitude-input'}),
             'property_type': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Apartment, Villa'}),
             'bhk': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '10'}),
             'bathrooms': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '10'}),

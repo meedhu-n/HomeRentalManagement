@@ -951,20 +951,29 @@
 
         .property-card-small .property-image {
             width: 100%;
-            height: 140px;
+            height: auto;
+            min-height: 200px;
+            max-height: 300px;
             overflow: hidden;
             position: relative;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .property-card-small .property-image img {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
+            max-height: 300px;
+            object-fit: contain;
+            object-position: center;
             transition: transform 0.4s ease;
+            display: block;
         }
 
         .property-card-small:hover .property-image img {
-            transform: scale(1.1);
+            transform: scale(1.02);
         }
 
         .property-card-small .property-content {
@@ -1383,11 +1392,18 @@
                     <div class="col-12">
                         <div class="card-dash property-card p-4 d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-center flex-grow-1">
-                                <div class="me-4" style="width: 100px; height: 80px; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
+                                <div class="me-4" style="width: auto; max-width: 200px; height: auto; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); cursor: pointer; position: relative; background: #f0f0f0; display: flex; align-items: center; justify-content: center; min-height: 120px;" 
+                                     onclick="openImageModal{{ property.id }}()" 
+                                     title="Click to view full image">
                                     {% if property.images.first %}
-                                        <img src="{{ property.images.first.image.url }}" alt="Prop" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <img src="{{ property.images.first.image.url }}" alt="Prop" style="width: 100%; height: auto; max-height: 150px; object-fit: contain; display: block;">
+                                        <div style="position: absolute; bottom: 5px; right: 5px; background: rgba(0,0,0,0.7); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">
+                                            <i class="fas fa-search-plus"></i>
+                                        </div>
                                     {% else %}
-                                        <div class="bg-secondary w-100 h-100 d-flex align-items-center justify-content-center text-white"><i class="fas fa-home"></i></div>
+                                        <div class="bg-secondary" style="width: 150px; height: 120px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-home text-white"></i>
+                                        </div>
                                     {% endif %}
                                 </div>
                                 <div>
@@ -1396,12 +1412,96 @@
                                     <p class="mb-0 small mt-1 fw-bold {% if property.is_paid %}text-success{% else %}text-warning{% endif %}">
                                         {% if property.is_paid %}<i class="fas fa-check-circle me-1"></i>PAYMENT COMPLETED{% else %}<i class="fas fa-clock me-1"></i>PAYMENT PENDING{% endif %}
                                     </p>
+                                    {% if property.images.count > 1 %}
+                                    <p class="mb-0 small mt-1" style="color: #666;">
+                                        <i class="fas fa-images me-1"></i>{{ property.images.count }} photos
+                                    </p>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="d-flex gap-3">
                                 <a href="{% url 'property_details' property.id %}" class="btn btn-outline-light btn-sm px-3">VIEW DETAILS</a>
                                 <a href="{% url 'approve_property' property.id %}" class="btn btn-success btn-sm px-4">APPROVE</a>
-                                <a href="{% url 'reject_property' property.id %}" class="btn btn-danger btn-sm px-4">REJECT</a>
+                                <button type="button" class="btn btn-danger btn-sm px-4" data-bs-toggle="modal" data-bs-target="#rejectModal{{ property.id }}">REJECT</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Rejection Modal -->
+                        <div class="modal fade" id="rejectModal{{ property.id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ property.id }}" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content" style="background: #1a1a1a; border: 2px solid rgba(255, 255, 255, 0.1); z-index: 1060;">
+                                    <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                                        <h5 class="modal-title" id="rejectModalLabel{{ property.id }}" style="color: #f5f0e1; font-weight: 700;">
+                                            <i class="fas fa-times-circle me-2" style="color: #dc3545;"></i>Reject Property
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form method="POST" action="{% url 'reject_property' property.id %}">
+                                        {% csrf_token %}
+                                        <div class="modal-body" style="position: relative; z-index: 1061;">
+                                            <p style="color: #f5f0e1; margin-bottom: 20px;">
+                                                You are about to reject: <strong style="color: #dc3545;">{{ property.title }}</strong>
+                                            </p>
+                                            <div class="mb-3">
+                                                <label for="rejection_reason{{ property.id }}" class="form-label" style="color: #f5f0e1; font-weight: 600; display: block; margin-bottom: 8px;">
+                                                    Reason for Rejection <span style="color: #dc3545;">*</span>
+                                                </label>
+                                                <textarea 
+                                                    class="form-control" 
+                                                    id="rejection_reason{{ property.id }}" 
+                                                    name="rejection_reason" 
+                                                    rows="5" 
+                                                    required
+                                                    placeholder="Type your rejection reason here..."
+                                                    style="background: #2a2a2a !important; 
+                                                           border: 2px solid #555 !important; 
+                                                           color: #ffffff !important; 
+                                                           resize: vertical; 
+                                                           font-size: 15px; 
+                                                           padding: 12px;
+                                                           width: 100%;
+                                                           position: relative;
+                                                           z-index: 1062;"
+                                                ></textarea>
+                                                <small style="color: rgba(245, 240, 225, 0.7); display: block; margin-top: 8px;">
+                                                    The owner will receive this reason via email notification.
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer" style="border-top: 1px solid rgba(255, 255, 255, 0.1); position: relative; z-index: 1061;">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="z-index: 1062; position: relative;">Cancel</button>
+                                            <button type="submit" class="btn btn-danger" style="z-index: 1062; position: relative;">
+                                                <i class="fas fa-times-circle me-2"></i>Reject Property
+                                            </button>
+                                        </div>
+                                    </form>
+                                    <style>
+                                        /* Fix textarea and modal interactivity */
+                                        #rejectModal{{ property.id }} .modal-content {
+                                            pointer-events: auto !important;
+                                        }
+                                        #rejection_reason{{ property.id }} {
+                                            pointer-events: auto !important;
+                                            cursor: text !important;
+                                        }
+                                        #rejection_reason{{ property.id }}::placeholder {
+                                            color: rgba(255, 255, 255, 0.4) !important;
+                                        }
+                                        #rejection_reason{{ property.id }}:focus {
+                                            background: #333 !important;
+                                            border-color: #CCFF00 !important;
+                                            outline: none !important;
+                                            box-shadow: 0 0 0 0.2rem rgba(204, 255, 0, 0.25) !important;
+                                        }
+                                        /* Ensure modal backdrop doesn't block interaction */
+                                        .modal-backdrop {
+                                            z-index: 1055 !important;
+                                        }
+                                        #rejectModal{{ property.id }} {
+                                            z-index: 1056 !important;
+                                        }
+                                    </style>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1553,9 +1653,15 @@
                 {% for property in all_properties %}
                     <div class="col-lg-3 col-md-4 col-sm-6">
                         <div class="property-card-small">
-                            <div class="property-image">
+                            <div class="property-image" onclick="openImageModalAll{{ property.id }}()" style="cursor: pointer; position: relative;" title="Click to view all photos">
                                 {% if property.images.first %}
                                     <img src="{{ property.images.first.image.url }}" alt="{{ property.title }}">
+                                    <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">
+                                        <i class="fas fa-images"></i> {{ property.images.count }}
+                                    </div>
+                                    <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">
+                                        <i class="fas fa-search-plus"></i>
+                                    </div>
                                 {% else %}
                                     <div class="bg-secondary w-100 h-100 d-flex align-items-center justify-content-center text-white">
                                         <i class="fas fa-home" style="font-size: 32px;"></i>
@@ -1737,6 +1843,105 @@
             // Only auto-switch if user hasn't manually set a preference
             if (!localStorage.getItem('theme')) {
                 applyTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+    </script>
+
+    <!-- Image Modal for Full Quality View -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content" style="background: rgba(0, 0, 0, 0.95); border: none;">
+                <div class="modal-header" style="border: none; padding: 10px 20px;">
+                    <h5 class="modal-title" style="color: #f5f0e1;" id="imageModalTitle">Property Images</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 20px;">
+                    <div id="imageCarousel" class="carousel slide" data-bs-ride="false">
+                        <div class="carousel-inner" id="carouselImages">
+                            <!-- Images will be loaded here dynamically -->
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                    <div class="text-center mt-3">
+                        <small style="color: #999;">Use arrow keys or click arrows to navigate</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal Scripts -->
+    <script>
+        {% for property in pending_properties %}
+        function openImageModal{{ property.id }}() {
+            const images = [
+                {% for image in property.images.all %}
+                {
+                    url: "{{ image.image.url }}",
+                    alt: "{{ property.title }} - Image {{ forloop.counter }}"
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ];
+            
+            showImageModal("{{ property.title }}", images);
+        }
+        {% endfor %}
+
+        {% for property in all_properties %}
+        function openImageModalAll{{ property.id }}() {
+            const images = [
+                {% for image in property.images.all %}
+                {
+                    url: "{{ image.image.url }}",
+                    alt: "{{ property.title }} - Image {{ forloop.counter }}"
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ];
+            
+            showImageModal("{{ property.title }}", images);
+        }
+        {% endfor %}
+
+        function showImageModal(title, images) {
+            document.getElementById('imageModalTitle').textContent = title + ' - ' + images.length + ' Photo(s)';
+            
+            const carouselInner = document.getElementById('carouselImages');
+            carouselInner.innerHTML = '';
+            
+            images.forEach((img, index) => {
+                const item = document.createElement('div');
+                item.className = 'carousel-item' + (index === 0 ? ' active' : '');
+                item.innerHTML = `
+                    <img src="${img.url}" 
+                         class="d-block w-100" 
+                         alt="${img.alt}"
+                         style="max-height: 70vh; object-fit: contain; border-radius: 8px;">
+                `;
+                carouselInner.appendChild(item);
+            });
+            
+            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+            modal.show();
+        }
+
+        // Keyboard navigation for modal
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('imageModal');
+            if (modal.classList.contains('show')) {
+                if (e.key === 'ArrowLeft') {
+                    document.querySelector('.carousel-control-prev').click();
+                } else if (e.key === 'ArrowRight') {
+                    document.querySelector('.carousel-control-next').click();
+                } else if (e.key === 'Escape') {
+                    bootstrap.Modal.getInstance(modal).hide();
+                }
             }
         });
     </script>

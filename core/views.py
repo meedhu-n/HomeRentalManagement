@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
@@ -123,13 +124,19 @@ def dashboard_view(request):
         from django.db.models import Sum, Count, Q
         
         # Admin Dashboard Logic
-        # Show all properties with PENDING status (whether paid or not)
-        pending_properties = Property.objects.filter(status=Property.Status.PENDING_APPROVAL).order_by('-created_at')
+        # Show only PAID properties with PENDING status for approval
+        pending_properties = Property.objects.filter(
+            status=Property.Status.PENDING_APPROVAL,
+            is_paid=True
+        ).order_by('-created_at')
+        
         # Exclude admin/superuser from owners and tenants lists
         owners = User.objects.filter(role='OWNER', is_superuser=False).order_by('-date_joined')
         tenants = User.objects.filter(role='TENANT', is_superuser=False).order_by('-date_joined')
         all_users = User.objects.exclude(is_superuser=True).order_by('-date_joined')
-        all_properties = Property.objects.all().order_by('-created_at')
+        
+        # Show only paid properties in all properties section
+        all_properties = Property.objects.filter(is_paid=True).order_by('-created_at')
         
         # Add plan status to each property
         for prop in all_properties:
@@ -197,11 +204,13 @@ def dashboard_view(request):
     elif request.user.role == 'OWNER':
         from django.utils import timezone
         
-        properties = Property.objects.filter(owner=request.user)
+        # Only show properties that have completed payment (is_paid=True)
+        properties = Property.objects.filter(owner=request.user, is_paid=True)
         
         # Separate properties by status
         rented_properties = properties.filter(status=Property.Status.RENTED).order_by('-updated_at')
-        active_properties = properties.exclude(status=Property.Status.RENTED)
+        rejected_properties = properties.filter(status=Property.Status.REJECTED).order_by('-updated_at')
+        active_properties = properties.exclude(status__in=[Property.Status.RENTED, Property.Status.REJECTED])
         
         # Add plan status to each property
         for prop in properties:
@@ -237,6 +246,8 @@ def dashboard_view(request):
         context['properties'] = active_properties
         context['rented_properties'] = rented_properties
         context['rented_count'] = rented_properties.count()
+        context['rejected_properties'] = rejected_properties
+        context['rejected_count'] = rejected_properties.count()
         context['active_listings_count'] = active_properties_count
         context['recent_conversations'] = conversations_with_unread
         context['unread_messages_count'] = unread_messages_count
@@ -500,13 +511,13 @@ def add_photos_view(request, id):
         if images:
             for image in images:
                 PropertyImage.objects.create(property=property_obj, image=image)
-            messages.success(request, "Photos uploaded! Now choose your listing plan.")
-            return redirect('select_plan', id=property_obj.id)
+            messages.success(request, "Photos uploaded! Now set your property location.")
+            return redirect('set_location', id=property_obj.id)
         else:
             # If no new images uploaded but it's a re-listing, allow to continue
             if is_relisting and property_obj.images.exists():
-                messages.info(request, "Using existing photos. Now choose your listing plan.")
-                return redirect('select_plan', id=property_obj.id)
+                messages.info(request, "Using existing photos. Now set your property location.")
+                return redirect('set_location', id=property_obj.id)
             else:
                 messages.error(request, "Please select at least one image.")
     
@@ -519,7 +530,40 @@ def add_photos_view(request, id):
     return render(request, 'core/add_property_photos.html', context)
 
 @login_required
+def set_location_view(request, id):
+    """Set property location on map"""
+    property_obj = get_object_or_404(Property, id=id, owner=request.user)
+    
+    if request.method == 'POST':
+        # Check if user clicked skip
+        if request.POST.get('skip'):
+            messages.info(request, "Location skipped. Now choose your listing plan.")
+            return redirect('select_plan', id=property_obj.id)
+        
+        # Save coordinates if provided
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+        
+        if latitude and longitude:
+            property_obj.latitude = latitude
+            property_obj.longitude = longitude
+            property_obj.save()
+            messages.success(request, "Location saved! Now choose your listing plan.")
+        else:
+            messages.info(request, "No location set. Now choose your listing plan.")
+        
+        return redirect('select_plan', id=property_obj.id)
+    
+    context = {
+        'property': property_obj
+    }
+    return render(request, 'core/set_location.html', context)
+
+@login_required
 def select_plan_view(request, id):
+    from django.utils import timezone
+    from datetime import timedelta
+    
     property_obj = get_object_or_404(Property, id=id, owner=request.user)
     
     # Check if this is a re-listing (rented property) or if payment is already completed
@@ -527,6 +571,55 @@ def select_plan_view(request, id):
     
     if property_obj.is_paid and not is_relisting:
         messages.info(request, "Payment already completed for this property.")
+        return redirect('dashboard')
+    
+    # Check if owner has an active plan with available slots
+    active_properties = Property.objects.filter(
+        owner=request.user,
+        is_paid=True,
+        plan_expiry_date__gt=timezone.now()
+    ).exclude(id=property_obj.id)  # Exclude current property
+    
+    # Count properties by plan type
+    premium_properties = active_properties.filter(plan_type='premium')
+    standard_properties = active_properties.filter(plan_type='standard')
+    basic_properties = active_properties.filter(plan_type='basic')
+    
+    premium_count = premium_properties.count()
+    standard_count = standard_properties.count()
+    basic_count = basic_properties.count()
+    total_active = active_properties.count()
+    
+    # Check if user can use existing plan
+    can_use_existing_plan = False
+    existing_plan_type = None
+    existing_plan_expiry = None
+    
+    # Check Premium plan (allows up to 10 properties)
+    if premium_count > 0 and total_active < 10:
+        can_use_existing_plan = True
+        existing_plan_type = 'premium'
+        # Use the earliest expiry date from premium properties
+        existing_plan_expiry = premium_properties.order_by('plan_expiry_date').first().plan_expiry_date
+    
+    # Check Standard plan (allows up to 3 properties)
+    elif standard_count > 0 and total_active < 3:
+        can_use_existing_plan = True
+        existing_plan_type = 'standard'
+        # Use the earliest expiry date from standard properties
+        existing_plan_expiry = standard_properties.order_by('plan_expiry_date').first().plan_expiry_date
+    
+    # If user can use existing plan and it's not a re-listing, auto-assign and skip payment
+    if can_use_existing_plan and not is_relisting:
+        # Automatically assign property to existing plan
+        property_obj.is_paid = True
+        property_obj.plan_type = existing_plan_type
+        property_obj.plan_expiry_date = existing_plan_expiry
+        property_obj.status = Property.Status.PENDING_APPROVAL
+        property_obj.save()
+        
+        plan_name = existing_plan_type.title()
+        messages.success(request, f"✅ Property added to your existing {plan_name} Plan! No payment required. Your property is now pending admin approval.")
         return redirect('dashboard')
     
     if request.method == 'POST':
@@ -575,7 +668,15 @@ def select_plan_view(request, id):
         }
     }
     
-    return render(request, 'core/select_plan.html', {'property': property_obj, 'plans': plans})
+    context = {
+        'property': property_obj,
+        'plans': plans,
+        'can_use_existing_plan': can_use_existing_plan,
+        'existing_plan_type': existing_plan_type,
+        'total_active': total_active
+    }
+    
+    return render(request, 'core/select_plan.html', context)
 
 @login_required
 def payment_view(request, id):
@@ -995,16 +1096,44 @@ def reject_property_view(request, id):
     if not request.user.is_superuser and request.user.role != 'ADMIN':
         messages.error(request, "Access denied.")
         return redirect('dashboard')
-        
+    
     property_obj = get_object_or_404(Property, id=id)
-    property_obj.status = Property.Status.REJECTED # Ensure REJECTED status exists in model or use another
-    # If REJECTED isn't in choices, delete or set to Maintenance. Assuming REJECTED exists or just delete.
-    # For now, let's delete to "reject" or set to maintenance. 
-    # Better: Update model Status choices if REJECTED isn't there. 
-    # Based on prev code: PENDING_APPROVAL, AVAILABLE, RENTED, MAINTENANCE.
-    # Let's set to MAINTENANCE or delete. I'll delete for now or you can add REJECTED status.
-    property_obj.delete() 
-    messages.success(request, f"Property '{property_obj.title}' rejected and removed.")
+    
+    if request.method == 'POST':
+        rejection_reason = request.POST.get('rejection_reason', '').strip()
+        
+        if not rejection_reason:
+            messages.error(request, "Please provide a reason for rejection.")
+            return redirect('dashboard')
+        
+        # Store property details before changing status
+        property_title = property_obj.title
+        property_owner = property_obj.owner
+        
+        # Update property status and save rejection reason
+        property_obj.status = Property.Status.REJECTED
+        property_obj.rejection_reason = rejection_reason
+        property_obj.save()
+        
+        # Send email notification to owner
+        from .email_utils import send_property_rejection_notification
+        dashboard_url = request.build_absolute_uri('/dashboard/')
+        
+        try:
+            send_property_rejection_notification(
+                property_owner=property_owner,
+                property_title=property_title,
+                rejection_reason=rejection_reason,
+                dashboard_url=dashboard_url
+            )
+        except Exception as e:
+            print(f"Failed to send rejection email: {e}")
+        
+        messages.success(request, f"Property '{property_title}' has been rejected. Owner has been notified via email.")
+        return redirect('dashboard')
+    
+    # If GET request, this shouldn't happen with the modal, but redirect to dashboard
+    messages.error(request, "Invalid request method.")
     return redirect('dashboard')
 
 @login_required
@@ -1140,8 +1269,8 @@ def owner_profile_view(request, id):
     
     owner = get_object_or_404(User, id=id, role='OWNER')
     
-    # Get all properties by this owner
-    properties = Property.objects.filter(owner=owner).order_by('-created_at')
+    # Get only paid properties by this owner
+    properties = Property.objects.filter(owner=owner, is_paid=True).order_by('-created_at')
     
     # Add plan status to each property
     for prop in properties:
@@ -1152,14 +1281,14 @@ def owner_profile_view(request, id):
             prop.is_plan_active = False
             prop.days_left = 0
     
-    # Calculate statistics
+    # Calculate statistics (only for paid properties)
     total_properties = properties.count()
     active_properties = properties.filter(
         status=Property.Status.AVAILABLE,
         is_paid=True,
         plan_expiry_date__gt=timezone.now()
     ).count()
-    pending_properties = properties.filter(status=Property.Status.PENDING_APPROVAL).count()
+    pending_properties = properties.filter(status=Property.Status.PENDING_APPROVAL, is_paid=True).count()
     rented_properties = properties.filter(status=Property.Status.RENTED).count()
     
     # Count by plan type

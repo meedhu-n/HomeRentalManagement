@@ -1747,6 +1747,80 @@
         </div>
         {% endif %}
 
+        <!-- Rejected Properties Section -->
+        {% if rejected_properties %}
+        <div class="properties-section" style="margin-top: 50px;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-times-circle" style="margin-right: 10px; color: #dc3545;"></i>
+                    Rejected Properties ({{ rejected_count }})
+                </h2>
+                <p style="font-size: 14px; color: var(--text-light); margin-top: 8px;">
+                    Properties that were rejected by admin. Review the rejection reason and submit a new listing with corrections.
+                </p>
+            </div>
+
+            <div class="properties-grid">
+                {% for property in rejected_properties %}
+                    <div class="property-card" style="opacity: 0.9; border: 2px solid rgba(220, 53, 69, 0.3);">
+                        <div class="property-image">
+                            {% if property.images.first %}
+                                <img src="{{ property.images.first.image.url }}" alt="{{ property.title }}">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1600596542815-2788866dd523?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Property">
+                            {% endif %}
+                            <span class="status-badge" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+                                <i class="fas fa-times-circle"></i> REJECTED
+                            </span>
+                        </div>
+                        <div class="property-content">
+                            <h3 class="property-title">{{ property.title }}</h3>
+                            <p class="property-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                {{ property.location }}
+                            </p>
+                            
+                            <!-- Rejection Reason Box -->
+                            <div style="background: rgba(220, 53, 69, 0.1); border-left: 4px solid #dc3545; padding: 15px; margin: 15px 0; border-radius: 8px;">
+                                <div style="font-weight: 700; color: #dc3545; margin-bottom: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    <i class="fas fa-exclamation-triangle"></i> Rejection Reason:
+                                </div>
+                                <div style="color: var(--text-primary); font-size: 14px; line-height: 1.6;">
+                                    {{ property.rejection_reason }}
+                                </div>
+                            </div>
+                            
+                            <div class="property-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-bed"></i>
+                                    <span>{{ property.bhk }} BHK</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-bath"></i>
+                                    <span>{{ property.bathrooms }} Bath</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-ruler-combined"></i>
+                                    <span>{{ property.super_built_area }} sqft</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="property-footer">
+                            <div class="property-price">
+                                ₹{{ property.price }}
+                                <span>/mo</span>
+                            </div>
+                            <a href="{% url 'delete_property' property.id %}" class="btn-manage" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); border: none;" onclick="return confirm('Are you sure you want to delete this rejected property?');">
+                                <i class="fas fa-trash"></i>
+                                Delete Property
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Pricing Plans Section -->
         <div class="pricing-plans-section" style="margin: 40px 0; background: #000; border-radius: 20px; padding: 50px 40px;">
             <div style="text-align: center; margin-bottom: 40px;">

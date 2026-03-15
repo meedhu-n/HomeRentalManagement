@@ -36,6 +36,7 @@ class Property(models.Model):
         AVAILABLE = "AVAILABLE", "Available"
         RENTED = "RENTED", "Rented"
         MAINTENANCE = "MAINTENANCE", "Maintenance"
+        REJECTED = "REJECTED", "Rejected"
 
     class Furnishing(models.TextChoices):
         UNFURNISHED = "UNFURNISHED", "Unfurnished"
@@ -58,6 +59,8 @@ class Property(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     location = models.CharField(max_length=255)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True, help_text="Latitude coordinate (optional)")
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True, help_text="Longitude coordinate (optional)")
     property_type = models.CharField(max_length=100)
     bhk = models.IntegerField(default=1, help_text="Number of BHKs (Bedrooms)")
     bathrooms = models.IntegerField(default=1, help_text="Number of bathrooms")
@@ -69,6 +72,7 @@ class Property(models.Model):
     built_year = models.IntegerField(blank=True, null=True, help_text="Year the property was built")
     amenities = models.TextField(help_text="Comma-separated list of amenities", blank=True)
     status = models.CharField(max_length=50, choices=Status.choices, default=Status.PENDING_APPROVAL)
+    rejection_reason = models.TextField(blank=True, null=True, help_text="Reason for rejection by admin")
     # Added is_paid field
     is_paid = models.BooleanField(default=False)
     # Plan-related fields
