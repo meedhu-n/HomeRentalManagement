@@ -38,6 +38,16 @@ class Property(models.Model):
         MAINTENANCE = "MAINTENANCE", "Maintenance"
         REJECTED = "REJECTED", "Rejected"
 
+    class PropertyType(models.TextChoices):
+        APARTMENT = "Apartment", "Apartment"
+        VILLA = "Villa", "Villa"
+        INDEPENDENT_HOUSE = "Independent House", "Independent House"
+        FLAT = "Flat", "Flat"
+        DUPLEX = "Duplex", "Duplex"
+        PENTHOUSE = "Penthouse", "Penthouse"
+        STUDIO = "Studio", "Studio"
+        OTHER = "Other", "Other"
+
     class Furnishing(models.TextChoices):
         UNFURNISHED = "UNFURNISHED", "Unfurnished"
         SEMI_FURNISHED = "SEMI_FURNISHED", "Semi-Furnished"
@@ -61,7 +71,7 @@ class Property(models.Model):
     location = models.CharField(max_length=255)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True, help_text="Latitude coordinate (optional)")
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True, help_text="Longitude coordinate (optional)")
-    property_type = models.CharField(max_length=100)
+    property_type = models.CharField(max_length=100, choices=PropertyType.choices, default=PropertyType.APARTMENT)
     bhk = models.IntegerField(default=1, help_text="Number of BHKs (Bedrooms)")
     bathrooms = models.IntegerField(default=1, help_text="Number of bathrooms")
     furnishing = models.CharField(max_length=50, choices=Furnishing.choices, default=Furnishing.SEMI_FURNISHED)

@@ -241,12 +241,28 @@ def dashboard_view(request):
             plan_expiry_date__gt=timezone.now()
         ).count()
         
+        # Get user's current subscription plan (from most recent active property)
+        current_plan = "No Plan"
+        if properties.exists():
+            # Get the most recent property with an active plan
+            recent_property = properties.filter(
+                plan_expiry_date__gt=timezone.now()
+            ).order_by('-plan_expiry_date').first()
+            
+            if recent_property and recent_property.plan_type:
+                current_plan = recent_property.plan_type.title()
+        
+        # Total listings count (all properties including inactive)
+        total_listings_count = Property.objects.filter(owner=request.user).count()
+        
         context['properties'] = active_properties
         context['rented_properties'] = rented_properties
         context['rented_count'] = rented_properties.count()
         context['rejected_properties'] = rejected_properties
         context['rejected_count'] = rejected_properties.count()
         context['active_listings_count'] = active_properties_count
+        context['current_plan'] = current_plan
+        context['total_listings_count'] = total_listings_count
         context['recent_conversations'] = conversations_with_unread
         context['unread_messages_count'] = unread_messages_count
         return render(request, 'core/owner_dashboard.html', context)

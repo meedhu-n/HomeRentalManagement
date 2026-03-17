@@ -376,6 +376,49 @@
             transform: translateY(-8px);
             box-shadow: 0 12px 40px var(--shadow-color);
         }
+
+        /* Plan-specific styling */
+        .stat-card.premium-plan {
+            border: 2px solid #f5a623;
+            background: linear-gradient(135deg, rgba(245, 166, 35, 0.1) 0%, rgba(245, 166, 35, 0.05) 100%);
+        }
+
+        .stat-card.premium-plan .stat-icon i {
+            color: #f5a623;
+        }
+
+        .stat-card.premium-plan .stat-value {
+            color: #f5a623;
+            font-size: 24px; /* Smaller font for text */
+        }
+
+        .stat-card.standard-plan {
+            border: 2px solid #4a90e2;
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.1) 0%, rgba(74, 144, 226, 0.05) 100%);
+        }
+
+        .stat-card.standard-plan .stat-icon i {
+            color: #4a90e2;
+        }
+
+        .stat-card.standard-plan .stat-value {
+            color: #4a90e2;
+            font-size: 24px; /* Smaller font for text */
+        }
+
+        .stat-card.basic-plan {
+            border: 2px solid #28a745;
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);
+        }
+
+        .stat-card.basic-plan .stat-icon i {
+            color: #28a745;
+        }
+
+        .stat-card.basic-plan .stat-value {
+            color: #28a745;
+            font-size: 24px; /* Smaller font for text */
+        }
             border-color: #000000;
             background: #ffffff;
         }
@@ -1512,19 +1555,27 @@
                 <div class="stat-value">0</div>
                 <div class="stat-label">Pending Applications</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card {% if current_plan == 'Premium' %}premium-plan{% elif current_plan == 'Standard' %}standard-plan{% elif current_plan == 'Basic' %}basic-plan{% endif %}">
                 <div class="stat-icon">
-                    <i class="fas fa-users"></i>
+                    {% if current_plan == 'Premium' %}
+                        <i class="fas fa-crown"></i>
+                    {% elif current_plan == 'Standard' %}
+                        <i class="fas fa-star"></i>
+                    {% elif current_plan == 'Basic' %}
+                        <i class="fas fa-home"></i>
+                    {% else %}
+                        <i class="fas fa-question-circle"></i>
+                    {% endif %}
                 </div>
-                <div class="stat-value">0</div>
-                <div class="stat-label">Total Tenants</div>
+                <div class="stat-value">{{ current_plan }}</div>
+                <div class="stat-label">Subscription Plan</div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon">
-                    <i class="fas fa-chart-line"></i>
+                    <i class="fas fa-list"></i>
                 </div>
-                <div class="stat-value">$0</div>
-                <div class="stat-label">Monthly Revenue</div>
+                <div class="stat-value">{{ total_listings_count|default:"0" }}</div>
+                <div class="stat-label">Total Listings</div>
             </div>
         </div>
 
