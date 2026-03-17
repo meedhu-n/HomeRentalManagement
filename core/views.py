@@ -148,34 +148,33 @@ def dashboard_view(request):
                 prop.days_left = 0
         
         # Revenue/Payment Analytics
-        all_payments = Payment.objects.all().select_related('property', 'owner').order_by('-created_at')
+        # Show only successful (completed) payments in transaction list
+        all_payments = Payment.objects.filter(status=Payment.PaymentStatus.SUCCESS).select_related('property', 'owner').order_by('-created_at')
         
-        # Calculate revenue statistics
-        total_revenue = all_payments.filter(status=Payment.PaymentStatus.SUCCESS).aggregate(
+        # Calculate revenue statistics (using all payment statuses for stats)
+        all_payments_for_stats = Payment.objects.all()
+        
+        total_revenue = all_payments_for_stats.filter(status=Payment.PaymentStatus.SUCCESS).aggregate(
             total=Sum('amount')
         )['total'] or 0
         
-        pending_revenue = all_payments.filter(status=Payment.PaymentStatus.PENDING).aggregate(
-            total=Sum('amount')
-        )['total'] or 0
-        
-        failed_payments_count = all_payments.filter(status=Payment.PaymentStatus.FAILED).count()
-        successful_payments_count = all_payments.filter(status=Payment.PaymentStatus.SUCCESS).count()
+        failed_payments_count = all_payments_for_stats.filter(status=Payment.PaymentStatus.FAILED).count()
+        successful_payments_count = all_payments_for_stats.filter(status=Payment.PaymentStatus.SUCCESS).count()
         
         # Revenue by plan type
         revenue_by_plan = {
-            'basic': all_payments.filter(status=Payment.PaymentStatus.SUCCESS, amount=99).aggregate(
+            'basic': all_payments_for_stats.filter(status=Payment.PaymentStatus.SUCCESS, amount=99).aggregate(
                 total=Sum('amount'), count=Count('id')
             ),
-            'standard': all_payments.filter(status=Payment.PaymentStatus.SUCCESS, amount=199).aggregate(
+            'standard': all_payments_for_stats.filter(status=Payment.PaymentStatus.SUCCESS, amount=199).aggregate(
                 total=Sum('amount'), count=Count('id')
             ),
-            'premium': all_payments.filter(status=Payment.PaymentStatus.SUCCESS, amount=399).aggregate(
+            'premium': all_payments_for_stats.filter(status=Payment.PaymentStatus.SUCCESS, amount=399).aggregate(
                 total=Sum('amount'), count=Count('id')
             ),
         }
         
-        # Recent payments (last 10)
+        # Recent payments (last 10 successful payments)
         recent_payments = all_payments[:10]
         
         context['pending_properties'] = pending_properties
@@ -193,7 +192,6 @@ def dashboard_view(request):
         context['all_payments'] = all_payments
         context['total_payments'] = all_payments.count()
         context['total_revenue'] = total_revenue
-        context['pending_revenue'] = pending_revenue
         context['failed_payments_count'] = failed_payments_count
         context['successful_payments_count'] = successful_payments_count
         context['revenue_by_plan'] = revenue_by_plan
@@ -276,7 +274,7 @@ def dashboard_view(request):
             status=Property.Status.AVAILABLE,
             is_paid=True,
             plan_expiry_date__gt=timezone.now()
-        )
+        ).prefetch_related('images').select_related('owner')
         
         # Apply filters
         if location:
@@ -500,31 +498,71 @@ def edit_property_view(request, id):
     return render(request, 'core/add_property.html', context)
 
 @login_required
+def edit_rejected_property_view(request, id):
+    """Edit a rejected property and resubmit for approval"""
+    property_obj = get_object_or_404(Property, id=id, owner=request.user)
+    
+    # Ensure property is actually rejected
+    if property_obj.status != Property.Status.REJECTED:
+        messages.error(request, "This property is not in rejected status.")
+        return redirect('dashboard')
+    
+    # Store rejection info in session for display
+    request.session['editing_rejected_property'] = True
+    request.session['rejection_reason'] = property_obj.rejection_reason
+    request.session['rejected_property_id'] = property_obj.id
+    
+    if request.method == 'POST':
+        form = PropertyForm(request.POST, request.FILES, instance=property_obj)
+        if form.is_valid():
+            # Save the form but don't change status yet
+            form.save()
+            messages.success(request, "Property details updated. Continue to photos.")
+            return redirect('add_photos', id=property_obj.id)
+    else:
+        form = PropertyForm(instance=property_obj)
+        messages.info(request, f"Rejection Reason: {property_obj.rejection_reason}")
+    
+    context = {
+        'form': form,
+        'property': property_obj,
+        'is_rejected_edit': True,
+        'rejection_reason': property_obj.rejection_reason
+    }
+    return render(request, 'core/add_property.html', context)
+
+@login_required
 def add_photos_view(request, id):
     property_obj = get_object_or_404(Property, id=id, owner=request.user)
     
-    # Check if this is a re-listing
+    # Check if this is a re-listing or rejected property edit
     is_relisting = request.session.get('relist_property_id') == property_obj.id
+    is_rejected_edit = request.session.get('rejected_property_id') == property_obj.id
     
     if request.method == 'POST':
         images = request.FILES.getlist('images')
         if images:
             for image in images:
                 PropertyImage.objects.create(property=property_obj, image=image)
+            
+            # Update property timestamp to ensure fresh data for tenants
+            property_obj.save(update_fields=['updated_at'])
+            
             messages.success(request, "Photos uploaded! Now set your property location.")
             return redirect('set_location', id=property_obj.id)
         else:
-            # If no new images uploaded but it's a re-listing, allow to continue
-            if is_relisting and property_obj.images.exists():
+            # If no new images uploaded but it's a re-listing or rejected edit, allow to continue
+            if (is_relisting or is_rejected_edit) and property_obj.images.exists():
                 messages.info(request, "Using existing photos. Now set your property location.")
                 return redirect('set_location', id=property_obj.id)
             else:
                 messages.error(request, "Please select at least one image.")
     
-    # Pass context to show existing images and re-listing status
+    # Pass context to show existing images and status
     context = {
         'property': property_obj,
         'is_relisting': is_relisting,
+        'is_rejected_edit': is_rejected_edit,
         'existing_images': property_obj.images.all()
     }
     return render(request, 'core/add_property_photos.html', context)
@@ -566,10 +604,26 @@ def select_plan_view(request, id):
     
     property_obj = get_object_or_404(Property, id=id, owner=request.user)
     
-    # Check if this is a re-listing (rented property) or if payment is already completed
+    # Check if this is a re-listing (rented property), rejected property edit, or if payment is already completed
     is_relisting = property_obj.status == Property.Status.RENTED
+    is_rejected_edit = request.session.get('rejected_property_id') == property_obj.id
     
-    if property_obj.is_paid and not is_relisting:
+    # For rejected properties that already have payment, just resubmit
+    if is_rejected_edit and property_obj.is_paid:
+        # Clear rejection reason and change status back to pending
+        property_obj.status = Property.Status.PENDING_APPROVAL
+        property_obj.rejection_reason = None
+        property_obj.save()
+        
+        # Clear session
+        request.session.pop('rejected_property_id', None)
+        request.session.pop('editing_rejected_property', None)
+        request.session.pop('rejection_reason', None)
+        
+        messages.success(request, "✅ Property resubmitted for admin approval! You will be notified once it's reviewed.")
+        return redirect('dashboard')
+    
+    if property_obj.is_paid and not is_relisting and not is_rejected_edit:
         messages.info(request, "Payment already completed for this property.")
         return redirect('dashboard')
     
@@ -616,7 +670,15 @@ def select_plan_view(request, id):
         property_obj.plan_type = existing_plan_type
         property_obj.plan_expiry_date = existing_plan_expiry
         property_obj.status = Property.Status.PENDING_APPROVAL
+        property_obj.rejection_reason = None  # Clear rejection reason if any
         property_obj.save()
+        
+        # Clear session if it was a rejected property edit
+        if is_rejected_edit:
+            request.session.pop('rejected_property_id', None)
+            request.session.pop('editing_rejected_property', None)
+            request.session.pop('rejection_reason', None)
+            request.session.pop('rejection_reason', None)
         
         plan_name = existing_plan_type.title()
         messages.success(request, f"✅ Property added to your existing {plan_name} Plan! No payment required. Your property is now pending admin approval.")
@@ -1200,6 +1262,9 @@ def delete_property_image_view(request, id):
     # Delete the image record
     image.delete()
     
+    # Update property timestamp to ensure fresh data for tenants
+    property_obj.save(update_fields=['updated_at'])
+    
     messages.success(request, "Image deleted successfully.")
     return redirect('manage_property', id=property_obj.id)
 
@@ -1207,6 +1272,8 @@ def delete_property_image_view(request, id):
 @login_required
 def property_details_view(request, id):
     """View property details with all images"""
+    from django.http import HttpResponse
+    
     property_obj = get_object_or_404(Property, id=id)
     
     # Check if user has permission to view
@@ -1229,11 +1296,25 @@ def property_details_view(request, id):
         property_obj.views_count += 1
         property_obj.save(update_fields=['views_count'])
     
+    # Process amenities - split comma-separated string into list
+    amenities_list = []
+    if property_obj.amenities:
+        amenities_list = [amenity.strip() for amenity in property_obj.amenities.split(',') if amenity.strip()]
+    
     context = {
         'property': property_obj,
-        'images': property_obj.images.all()
+        'images': property_obj.images.all().order_by('id'),  # Ensure consistent ordering and fresh data
+        'amenities_list': amenities_list
     }
-    return render(request, 'core/property_details.html', context)
+    
+    response = render(request, 'core/property_details.html', context)
+    
+    # Add cache-control headers to ensure fresh data
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    
+    return response
 
 @login_required
 def delete_user_view(request, id):

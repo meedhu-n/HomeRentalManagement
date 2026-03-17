@@ -463,7 +463,7 @@
                                 {% if property.images.all %}
                                     <div class="image-slider" data-property-id="{{ property.id }}">
                                         {% for image in property.images.all %}
-                                            <img src="{{ image.image.url }}" alt="{{ property.title }}" class="listing-image {% if forloop.first %}active{% endif %}">
+                                            <img src="{{ image.image.url }}?v={{ image.id }}" alt="{{ property.title }}" class="listing-image {% if forloop.first %}active{% endif %}">
                                         {% endfor %}
                                         {% if property.images.all|length > 1 %}
                                             <div class="slider-dots">
@@ -518,7 +518,7 @@
                                 </div>
                                 <div class="listing-user">
                                     <span><i class="fas fa-user"></i> {{ property.owner.username }}</span>
-                                    <span>Just Now</span>
+                                    <span><i class="fas fa-calendar-alt"></i> {{ property.created_at|date:"M d, Y" }}</span>
                                 </div>
                                 <div class="listing-actions">
                                     <a href="{% url 'property_details' property.id %}" class="btn-action btn-view">

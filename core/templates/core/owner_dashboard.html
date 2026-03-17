@@ -975,7 +975,8 @@
         .property-image img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: cover; /* Fill container, crop if necessary for consistent size */
+            object-position: center;
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -1617,10 +1618,10 @@
                                         {{ property.location }}
                                     </div>
                                     {% if property.is_paid and property.plan_expiry_date %}
-                                    <div class="plan-expiry" style="margin-top: 10px; padding: 8px 12px; background: {% if property.days_left <= 7 %}rgba(255, 59, 48, 0.1); border: 1px solid rgba(255, 59, 48, 0.3);{% elif property.days_left <= 30 %}rgba(255, 149, 0, 0.1); border: 1px solid rgba(255, 149, 0, 0.3);{% else %}rgba(52, 199, 89, 0.1); border: 1px solid rgba(52, 199, 89, 0.3);{% endif %} border-radius: 8px; font-size: 12px; font-weight: 600; {% if property.days_left <= 7 %}color: #ff3b30;{% elif property.days_left <= 30 %}color: #ff9500;{% else %}color: #34c759;{% endif %}">
+                                    <div class="plan-expiry" style="margin-top: 10px; padding: 8px 12px; background: {% if property.days_remaining <= 7 %}rgba(255, 59, 48, 0.1); border: 1px solid rgba(255, 59, 48, 0.3);{% elif property.days_remaining <= 30 %}rgba(255, 149, 0, 0.1); border: 1px solid rgba(255, 149, 0, 0.3);{% else %}rgba(52, 199, 89, 0.1); border: 1px solid rgba(52, 199, 89, 0.3);{% endif %} border-radius: 8px; font-size: 12px; font-weight: 600; {% if property.days_remaining <= 7 %}color: #ff3b30;{% elif property.days_remaining <= 30 %}color: #ff9500;{% else %}color: #34c759;{% endif %}">
                                         <i class="fas fa-clock"></i>
                                         {% if property.is_plan_active %}
-                                            {{ property.days_left }} days remaining
+                                            {{ property.days_remaining }} days remaining
                                         {% else %}
                                             <span style="color: #ff3b30;">Plan Expired</span>
                                         {% endif %}
@@ -1755,70 +1756,132 @@
                     <i class="fas fa-times-circle" style="margin-right: 10px; color: #dc3545;"></i>
                     Rejected Properties ({{ rejected_count }})
                 </h2>
-                <p style="font-size: 14px; color: var(--text-light); margin-top: 8px;">
-                    Properties that were rejected by admin. Review the rejection reason and submit a new listing with corrections.
+                <p style="font-size: 13px; color: var(--text-light); margin-top: 8px;">
+                    Review rejection reasons and resubmit with corrections
                 </p>
             </div>
 
-            <div class="properties-grid">
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;">
                 {% for property in rejected_properties %}
-                    <div class="property-card" style="opacity: 0.9; border: 2px solid rgba(220, 53, 69, 0.3);">
-                        <div class="property-image">
+                    <div class="rejected-property-card" style="
+                        background: var(--card-bg);
+                        border: 2px solid rgba(220, 53, 69, 0.3);
+                        border-radius: 16px;
+                        overflow: hidden;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.1);
+                        position: relative;
+                    ">
+                        <!-- Compact Image -->
+                        <div style="position: relative; height: 160px; overflow: hidden; background: #f0f0f0;">
                             {% if property.images.first %}
-                                <img src="{{ property.images.first.image.url }}" alt="{{ property.title }}">
+                                <img src="{{ property.images.first.image.url }}" alt="{{ property.title }}" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
                             {% else %}
-                                <img src="https://images.unsplash.com/photo-1600596542815-2788866dd523?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Property">
+                                <img src="https://images.unsplash.com/photo-1600596542815-2788866dd523?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Property" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
                             {% endif %}
-                            <span class="status-badge" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
-                                <i class="fas fa-times-circle"></i> REJECTED
-                            </span>
+                            
+                            <!-- Rejected Badge -->
+                            <div style="position: absolute; top: 10px; right: 10px; background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);">
+                                <i class="fas fa-times-circle" style="font-size: 10px;"></i> REJECTED
+                            </div>
+                            
+                            <!-- Price Badge -->
+                            <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); color: #f5f0e1; padding: 8px 14px; border-radius: 10px; font-weight: 700; font-size: 16px;">
+                                ₹{{ property.price }}<span style="font-size: 11px; font-weight: 500; opacity: 0.8;">/mo</span>
+                            </div>
                         </div>
-                        <div class="property-content">
-                            <h3 class="property-title">{{ property.title }}</h3>
-                            <p class="property-location">
-                                <i class="fas fa-map-marker-alt"></i>
+                        
+                        <!-- Compact Content -->
+                        <div style="padding: 16px;">
+                            <!-- Title & Location -->
+                            <h3 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin: 0 0 8px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                {{ property.title }}
+                            </h3>
+                            <p style="font-size: 12px; color: var(--text-light); margin: 0 0 12px 0; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-map-marker-alt" style="font-size: 11px; color: #dc3545;"></i>
                                 {{ property.location }}
                             </p>
                             
-                            <!-- Rejection Reason Box -->
-                            <div style="background: rgba(220, 53, 69, 0.1); border-left: 4px solid #dc3545; padding: 15px; margin: 15px 0; border-radius: 8px;">
-                                <div style="font-weight: 700; color: #dc3545; margin-bottom: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    <i class="fas fa-exclamation-triangle"></i> Rejection Reason:
+                            <!-- Compact Details -->
+                            <div style="display: flex; gap: 12px; margin-bottom: 12px; padding: 10px; background: rgba(0, 0, 0, 0.02); border-radius: 8px;">
+                                <div style="display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-light);">
+                                    <i class="fas fa-bed" style="color: var(--text-primary);"></i>
+                                    <span style="font-weight: 600;">{{ property.bhk }}</span>
                                 </div>
-                                <div style="color: var(--text-primary); font-size: 14px; line-height: 1.6;">
+                                <div style="display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-light);">
+                                    <i class="fas fa-bath" style="color: var(--text-primary);"></i>
+                                    <span style="font-weight: 600;">{{ property.bathrooms }}</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-light);">
+                                    <i class="fas fa-ruler-combined" style="color: var(--text-primary);"></i>
+                                    <span style="font-weight: 600;">{{ property.super_built_area }} sqft</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Compact Rejection Reason -->
+                            <div style="background: linear-gradient(135deg, rgba(220, 53, 69, 0.08) 0%, rgba(220, 53, 69, 0.05) 100%); border-left: 3px solid #dc3545; padding: 10px; margin-bottom: 12px; border-radius: 6px;">
+                                <div style="font-weight: 700; color: #dc3545; margin-bottom: 5px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px;">
+                                    <i class="fas fa-exclamation-triangle" style="font-size: 9px;"></i> 
+                                    <span>Reason</span>
+                                </div>
+                                <div style="color: var(--text-primary); font-size: 12px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                                     {{ property.rejection_reason }}
                                 </div>
                             </div>
                             
-                            <div class="property-details">
-                                <div class="detail-item">
-                                    <i class="fas fa-bed"></i>
-                                    <span>{{ property.bhk }} BHK</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-bath"></i>
-                                    <span>{{ property.bathrooms }} Bath</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-ruler-combined"></i>
-                                    <span>{{ property.super_built_area }} sqft</span>
-                                </div>
+                            <!-- Compact Action Buttons -->
+                            <div style="display: flex; gap: 8px;">
+                                <a href="{% url 'edit_rejected_property' property.id %}" style="
+                                    flex: 1;
+                                    background: linear-gradient(135deg, #0d3b3b 0%, #0a2828 100%);
+                                    color: #f5f0e1;
+                                    padding: 10px 12px;
+                                    border-radius: 8px;
+                                    text-decoration: none;
+                                    font-size: 11px;
+                                    font-weight: 700;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.5px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    gap: 6px;
+                                    transition: all 0.3s ease;
+                                    box-shadow: 0 2px 8px rgba(13, 59, 59, 0.3);
+                                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(13, 59, 59, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(13, 59, 59, 0.3)';">
+                                    <i class="fas fa-edit" style="font-size: 10px;"></i>
+                                    <span>Edit & Resubmit</span>
+                                </a>
+                                <a href="{% url 'delete_property' property.id %}" onclick="return confirm('Delete this rejected property?');" style="
+                                    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+                                    color: white;
+                                    padding: 10px 12px;
+                                    border-radius: 8px;
+                                    text-decoration: none;
+                                    font-size: 11px;
+                                    font-weight: 700;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    transition: all 0.3s ease;
+                                    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+                                " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(108, 117, 125, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(108, 117, 125, 0.3)';">
+                                    <i class="fas fa-trash" style="font-size: 10px;"></i>
+                                </a>
                             </div>
-                        </div>
-                        <div class="property-footer">
-                            <div class="property-price">
-                                ₹{{ property.price }}
-                                <span>/mo</span>
-                            </div>
-                            <a href="{% url 'delete_property' property.id %}" class="btn-manage" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); border: none;" onclick="return confirm('Are you sure you want to delete this rejected property?');">
-                                <i class="fas fa-trash"></i>
-                                Delete Property
-                            </a>
                         </div>
                     </div>
                 {% endfor %}
             </div>
         </div>
+        
+        <style>
+            .rejected-property-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 25px rgba(220, 53, 69, 0.2) !important;
+                border-color: rgba(220, 53, 69, 0.5);
+            }
+        </style>
         {% endif %}
 
         <!-- Pricing Plans Section -->

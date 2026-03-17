@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS for Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * {
             margin: 0;
@@ -377,7 +379,7 @@
             height: 100%;
             border-radius: 25px;
             overflow: hidden;
-            background: #000;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 30%, #2a2a2a 70%, #1a1a1a 100%);
             box-shadow: 
                 0 30px 80px rgba(0, 0, 0, 0.6),
                 0 0 0 1px rgba(245, 240, 225, 0.2),
@@ -396,6 +398,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            background: 
+                linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%),
+                radial-gradient(circle at 25% 25%, rgba(245, 240, 225, 0.02) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(245, 240, 225, 0.02) 0%, transparent 50%);
         }
 
         .viewer-slide.active {
@@ -404,9 +410,22 @@
         }
 
         .viewer-slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 
+                0 8px 30px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(245, 240, 225, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .viewer-slide:hover img {
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.8),
+                0 0 0 1px rgba(245, 240, 225, 0.2);
         }
 
         .viewer-nav {
@@ -492,22 +511,38 @@
             border: 3px solid transparent;
             transition: all 0.3s ease;
             position: relative;
+            background: 
+                linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%),
+                radial-gradient(circle at center, rgba(245, 240, 225, 0.02) 0%, transparent 70%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .thumbnail:hover {
             border-color: rgba(245, 240, 225, 0.5);
             transform: translateY(-3px);
+            background: 
+                linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%),
+                radial-gradient(circle at center, rgba(245, 240, 225, 0.05) 0%, transparent 70%);
         }
 
         .thumbnail.active {
             border-color: #f5f0e1;
             box-shadow: 0 4px 15px rgba(245, 240, 225, 0.4);
+            background: 
+                linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%),
+                radial-gradient(circle at center, rgba(245, 240, 225, 0.08) 0%, transparent 70%);
         }
 
         .thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .thumbnail::after {
@@ -525,6 +560,168 @@
 
         .thumbnail.active::after {
             opacity: 0;
+        }
+
+        /* Full Screen Photo Modal */
+        .fullscreen-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .fullscreen-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .fullscreen-content {
+            position: relative;
+            width: 90%;
+            height: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-image {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .fullscreen-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(245, 240, 225, 0.3);
+            color: #f5f0e1;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+            font-size: 20px;
+        }
+
+        .fullscreen-nav:hover {
+            background: rgba(245, 240, 225, 0.2);
+            border-color: #f5f0e1;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .fullscreen-prev {
+            left: 30px;
+        }
+
+        .fullscreen-next {
+            right: 30px;
+        }
+
+        .fullscreen-close {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(220, 53, 69, 0.8);
+            border: 2px solid rgba(220, 53, 69, 0.5);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .fullscreen-close:hover {
+            background: #dc3545;
+            border-color: #dc3545;
+            transform: scale(1.1);
+        }
+
+        .fullscreen-info {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 25px;
+            color: #f5f0e1;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid rgba(245, 240, 225, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .fullscreen-counter {
+            color: rgba(245, 240, 225, 0.8);
+        }
+
+        .fullscreen-title {
+            color: #f5f0e1;
+        }
+
+        /* Fullscreen controls for mobile */
+        @media (max-width: 768px) {
+            .fullscreen-nav {
+                width: 50px;
+                height: 50px;
+                font-size: 16px;
+            }
+
+            .fullscreen-prev {
+                left: 15px;
+            }
+
+            .fullscreen-next {
+                right: 15px;
+            }
+
+            .fullscreen-close {
+                top: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .fullscreen-info {
+                bottom: 15px;
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+
+            .fullscreen-content {
+                width: 95%;
+                height: 95%;
+            }
         }
 
         /* Content Section */
@@ -1048,6 +1245,55 @@
             color: #f5f0e1;
         }
 
+        /* Property Location Map */
+        .location-map-section {
+            background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(20, 20, 20, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            padding: 50px;
+            border-radius: 25px;
+            border: 1px solid rgba(245, 240, 225, 0.15);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(245, 240, 225, 0.1);
+            animation: slideInLeft 0.8s ease 0.5s backwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .location-map-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, #f5f0e1 50%, transparent 100%);
+        }
+
+        #property-location-map {
+            height: 400px;
+            border-radius: 15px;
+            border: 2px solid rgba(245, 240, 225, 0.2);
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            margin-top: 30px;
+        }
+
+        .map-info {
+            background: rgba(245, 240, 225, 0.1);
+            border-left: 4px solid #f5f0e1;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            color: rgba(245, 240, 225, 0.9);
+            font-size: 14px;
+        }
+
+        .map-info i {
+            color: #f5f0e1;
+            margin-right: 8px;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .content-wrapper {
@@ -1098,6 +1344,9 @@
             .owner-name {
                 font-size: 24px;
             }
+        }
+
+        @media (max-width: 480px) {
         }
     </style>
 </head>
@@ -1150,7 +1399,7 @@
             {% if property.images.all %}
                 {% for image in property.images.all %}
                 <div class="viewer-slide {% if forloop.first %}active{% endif %}">
-                    <img src="{{ image.image.url }}" alt="{{ property.title }}">
+                    <img src="{{ image.image.url }}?v={{ image.id }}" alt="{{ property.title }}">
                 </div>
                 {% endfor %}
             {% else %}
@@ -1167,6 +1416,11 @@
                 <i class="fas fa-chevron-right"></i>
             </button>
             
+            <!-- Fullscreen Button -->
+            <button class="viewer-nav" style="top: 30px; right: 80px; left: auto; transform: none;" onclick="openFullscreen(currentSlideIndex)">
+                <i class="fas fa-expand"></i>
+            </button>
+            
             <!-- Image Counter -->
             <div class="image-counter">
                 <span id="currentSlide">1</span> / <span id="totalSlides">{{ property.images.all|length|default:"1" }}</span>
@@ -1177,8 +1431,8 @@
         <div class="thumbnail-gallery">
             {% if property.images.all %}
                 {% for image in property.images.all %}
-                <div class="thumbnail {% if forloop.first %}active{% endif %}" onclick="goToSlide({{ forloop.counter0 }})">
-                    <img src="{{ image.image.url }}" alt="{{ property.title }}">
+                <div class="thumbnail {% if forloop.first %}active{% endif %}" onclick="goToSlide({{ forloop.counter0 }})" ondblclick="openFullscreen({{ forloop.counter0 }})">
+                    <img src="{{ image.image.url }}?v={{ image.id }}" alt="{{ property.title }}">
                 </div>
                 {% endfor %}
             {% endif %}
@@ -1247,18 +1501,74 @@
             </div>
 
             <!-- Additional Features -->
-            {% if property.amenities %}
+            {% if amenities_list %}
             <div class="features-section">
                 <h2 class="section-heading">Amenities & Features</h2>
                 <div class="features-grid">
-                    {% for amenity in property.amenities.split|add:"," %}
-                        {% if amenity.strip %}
-                        <div class="feature-badge">
+                    {% for amenity in amenities_list %}
+                    <div class="feature-badge">
+                        {% if 'parking' in amenity|lower or 'garage' in amenity|lower %}
+                            <i class="fas fa-car"></i>
+                        {% elif 'gym' in amenity|lower or 'fitness' in amenity|lower %}
+                            <i class="fas fa-dumbbell"></i>
+                        {% elif 'pool' in amenity|lower or 'swimming' in amenity|lower %}
+                            <i class="fas fa-swimmer"></i>
+                        {% elif 'wifi' in amenity|lower or 'internet' in amenity|lower %}
+                            <i class="fas fa-wifi"></i>
+                        {% elif 'ac' in amenity|lower or 'air conditioning' in amenity|lower or 'air-conditioning' in amenity|lower %}
+                            <i class="fas fa-snowflake"></i>
+                        {% elif 'security' in amenity|lower or 'guard' in amenity|lower %}
+                            <i class="fas fa-shield-alt"></i>
+                        {% elif 'elevator' in amenity|lower or 'lift' in amenity|lower %}
+                            <i class="fas fa-arrows-alt-v"></i>
+                        {% elif 'garden' in amenity|lower or 'park' in amenity|lower %}
+                            <i class="fas fa-tree"></i>
+                        {% elif 'balcony' in amenity|lower or 'terrace' in amenity|lower %}
+                            <i class="fas fa-building"></i>
+                        {% elif 'kitchen' in amenity|lower or 'modular' in amenity|lower %}
+                            <i class="fas fa-utensils"></i>
+                        {% elif 'water' in amenity|lower or 'supply' in amenity|lower %}
+                            <i class="fas fa-tint"></i>
+                        {% elif 'power' in amenity|lower or 'backup' in amenity|lower or 'generator' in amenity|lower %}
+                            <i class="fas fa-bolt"></i>
+                        {% elif 'cctv' in amenity|lower or 'camera' in amenity|lower %}
+                            <i class="fas fa-video"></i>
+                        {% elif 'club' in amenity|lower or 'community' in amenity|lower %}
+                            <i class="fas fa-users"></i>
+                        {% else %}
                             <i class="fas fa-check-circle"></i>
-                            <span>{{ amenity.strip }}</span>
-                        </div>
                         {% endif %}
+                        <span>{{ amenity }}</span>
+                    </div>
                     {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Property Location Map -->
+            {% if property.latitude and property.longitude %}
+            <div class="location-map-section">
+                <h2 class="section-heading">Property Location</h2>
+                <div id="property-location-map"></div>
+                <div class="map-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <strong>{{ property.location }}</strong>
+                    <br>
+                    <i class="fas fa-info-circle"></i>
+                    Coordinates: {{ property.latitude|floatformat:4 }}, {{ property.longitude|floatformat:4 }}
+                </div>
+            </div>
+            {% else %}
+            <div class="location-map-section">
+                <h2 class="section-heading">Property Location</h2>
+                <div style="text-align: center; padding: 60px 20px; color: rgba(245, 240, 225, 0.7);">
+                    <i class="fas fa-map-marker-alt" style="font-size: 48px; margin-bottom: 20px; color: rgba(245, 240, 225, 0.4);"></i>
+                    <h4 style="color: rgba(245, 240, 225, 0.8); margin-bottom: 10px;">Location Information</h4>
+                    <p style="margin: 0; font-size: 16px;"><strong>{{ property.location }}</strong></p>
+                    <p style="margin: 10px 0 0 0; font-size: 14px; color: rgba(245, 240, 225, 0.6);">
+                        <i class="fas fa-info-circle"></i>
+                        Detailed map coordinates not available for this property
+                    </p>
                 </div>
             </div>
             {% endif %}
@@ -1300,7 +1610,35 @@
         </div>
     </div>
 
+    <!-- Fullscreen Photo Modal -->
+    <div class="fullscreen-modal" id="fullscreenModal">
+        <div class="fullscreen-content">
+            <img class="fullscreen-image" id="fullscreenImage" src="" alt="">
+            
+            <!-- Navigation Controls -->
+            <button class="fullscreen-nav fullscreen-prev" onclick="fullscreenChangeSlide(-1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="fullscreen-nav fullscreen-next" onclick="fullscreenChangeSlide(1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            
+            <!-- Close Button -->
+            <button class="fullscreen-close" onclick="closeFullscreen()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <!-- Photo Info -->
+            <div class="fullscreen-info">
+                <span class="fullscreen-counter" id="fullscreenCounter">1 / {{ property.images.all|length }}</span>
+                <span class="fullscreen-title">{{ property.title }}</span>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Leaflet JS for Maps -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // Navigation bar scroll effect
         const topNav = document.querySelector('.top-nav');
@@ -1384,6 +1722,13 @@
             resetAutoScroll();
         }
         
+        function scrollToViewer() {
+            document.querySelector('.hero-image-viewer').scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+        
         function autoScroll() {
             showSlide(currentSlideIndex + 1);
         }
@@ -1413,6 +1758,140 @@
             if (totalSlides > 1) {
                 startAutoScroll();
             }
+        });
+
+        // Property Location Map
+        {% if property.latitude and property.longitude %}
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize map with property location
+            const propertyLat = {{ property.latitude }};
+            const propertyLng = {{ property.longitude }};
+            
+            const locationMap = L.map('property-location-map').setView([propertyLat, propertyLng], 15);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(locationMap);
+            
+            // Add marker for property location
+            const propertyMarker = L.marker([propertyLat, propertyLng], {
+                icon: L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                })
+            }).addTo(locationMap);
+            
+            // Add popup with property information
+            propertyMarker.bindPopup(`
+                <div style="text-align: center; font-family: 'Poppins', sans-serif;">
+                    <h6 style="margin: 0 0 8px 0; color: #333; font-weight: 600;">{{ property.title }}</h6>
+                    <p style="margin: 0; color: #666; font-size: 12px;">{{ property.location }}</p>
+                    <p style="margin: 5px 0 0 0; color: #f5a623; font-weight: 700; font-size: 14px;">₹{{ property.price }}/month</p>
+                </div>
+            `).openPopup();
+            
+            // Disable scroll wheel zoom initially
+            locationMap.scrollWheelZoom.disable();
+            
+            // Enable scroll wheel zoom on click
+            locationMap.on('click', function() {
+                locationMap.scrollWheelZoom.enable();
+            });
+            
+            // Disable scroll wheel zoom when mouse leaves map
+            locationMap.on('mouseout', function() {
+                locationMap.scrollWheelZoom.disable();
+            });
+        });
+        {% endif %}
+
+        // Fullscreen Photo Modal Functions
+        let fullscreenCurrentIndex = 0;
+        const propertyImages = [
+            {% for image in property.images.all %}
+            {
+                url: "{{ image.image.url }}?v={{ image.id }}",
+                alt: "{{ property.title }} - Photo {{ forloop.counter }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        function openFullscreen(index) {
+            fullscreenCurrentIndex = index;
+            const modal = document.getElementById('fullscreenModal');
+            const image = document.getElementById('fullscreenImage');
+            const counter = document.getElementById('fullscreenCounter');
+            
+            if (propertyImages.length > 0) {
+                image.src = propertyImages[index].url;
+                image.alt = propertyImages[index].alt;
+                counter.textContent = `${index + 1} / ${propertyImages.length}`;
+                
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                
+                // Also update the main viewer to sync
+                showSlide(index);
+            }
+        }
+
+        function closeFullscreen() {
+            const modal = document.getElementById('fullscreenModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        function fullscreenChangeSlide(direction) {
+            const newIndex = fullscreenCurrentIndex + direction;
+            
+            if (newIndex >= 0 && newIndex < propertyImages.length) {
+                openFullscreen(newIndex);
+            } else if (newIndex < 0) {
+                openFullscreen(propertyImages.length - 1); // Go to last image
+            } else {
+                openFullscreen(0); // Go to first image
+            }
+        }
+
+        // Keyboard navigation for fullscreen
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('fullscreenModal');
+            if (modal.classList.contains('active')) {
+                switch(e.key) {
+                    case 'Escape':
+                        closeFullscreen();
+                        break;
+                    case 'ArrowLeft':
+                        fullscreenChangeSlide(-1);
+                        break;
+                    case 'ArrowRight':
+                        fullscreenChangeSlide(1);
+                        break;
+                }
+            }
+        });
+
+        // Close fullscreen when clicking outside the image
+        document.getElementById('fullscreenModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFullscreen();
+            }
+        });
+
+        // Double-click main viewer image to open fullscreen
+        document.addEventListener('DOMContentLoaded', function() {
+            const viewerSlides = document.querySelectorAll('.viewer-slide img');
+            viewerSlides.forEach((img, index) => {
+                img.addEventListener('dblclick', function() {
+                    openFullscreen(currentSlideIndex);
+                });
+            });
         });
     </script>
 </body>

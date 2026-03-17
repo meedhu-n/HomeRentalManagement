@@ -16,6 +16,7 @@ urlpatterns = [
     # Property Management
     path('add-property/', views.add_property_view, name='add_property'),
     path('edit-property/<int:id>/', views.edit_property_view, name='edit_property'),
+    path('edit-rejected-property/<int:id>/', views.edit_rejected_property_view, name='edit_rejected_property'),
     path('add-photos/<int:id>/', views.add_photos_view, name='add_photos'),
     path('set-location/<int:id>/', views.set_location_view, name='set_location'),
     path('select-plan/<int:id>/', views.select_plan_view, name='select_plan'),

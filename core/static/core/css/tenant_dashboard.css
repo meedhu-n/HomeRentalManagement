@@ -777,8 +777,8 @@ h1, h2, h3, h4 {
 .listings-grid {
     padding: 0 2rem 2rem 2rem;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
 }
 
 .listing-card {
@@ -839,9 +839,12 @@ h1, h2, h3, h4 {
 .listing-image-wrapper {
     position: relative;
     width: 100%;
-    height: 180px;
+    height: 220px; /* Increased height for better image visibility */
     overflow: hidden;
-    background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(245, 240, 225, 0.8) 100%);
+    background: 
+        linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%),
+        radial-gradient(circle at 25% 25%, rgba(0, 0, 0, 0.02) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(0, 0, 0, 0.02) 0%, transparent 50%);
 }
 
 .listing-image-wrapper::after {
@@ -871,7 +874,8 @@ h1, h2, h3, h4 {
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover; /* Fill container, crop if necessary for consistent size */
+    object-position: center;
     opacity: 0;
     transition: all 0.5s ease-in-out;
 }
