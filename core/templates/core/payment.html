@@ -67,6 +67,12 @@
             <i class="fas fa-lock"></i> PAY ₹{{ amount }} WITH RAZORPAY
         </button>
         
+        {% if debug %}
+        <button id="testPaymentButton" class="btn btn-warning mt-2 w-100">
+            <i class="fas fa-flask"></i> 🧪 TEST MODE: Simulate Successful Payment
+        </button>
+        {% endif %}
+        
         <div class="payment-info mt-3">
             <i class="fas fa-info-circle"></i> Secured payment powered by Razorpay. Your property will be sent for admin approval after successful payment.
         </div>
@@ -87,22 +93,24 @@
         </div>
     </div>
 
-    <!-- Razorpay Script -->
+    <!-- Razorpay Standard Web Checkout Script -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
         document.getElementById('paymentButton').addEventListener('click', function(e) {
             e.preventDefault();
             
+            // Razorpay Standard Web Checkout Options
             const options = {
-                key: '{{ razorpay_key_id }}',
-                amount: {{ amount }} * 100, // Amount in paise
+                key: '{{ razorpay_key_id }}', // Key ID from backend
+                amount: {{ amount }} * 100, // Amount in paise (minimum 100)
                 currency: 'INR',
                 name: 'Home Rental Management',
                 description: 'Property Registration Fee - {{ property.title }}',
                 image: 'https://cdn.razorpay.com/logos/7K3b6d18wHwKzL_medium.png',
-                order_id: '{{ razorpay_order_id }}',
+                order_id: '{{ razorpay_order_id }}', // Order ID from create-order API
                 handler: function(response) {
-                    // Payment successful, verify signature on backend
+                    // Success callback - receives payment_id, order_id, signature
+                    console.log('Payment Success:', response);
                     verifyPayment(response);
                 },
                 prefill: {
@@ -117,20 +125,21 @@
                 theme: {
                     color: '#667eea'
                 },
+                method: {
+                    upi: {
+                        flow: 'collect'  // Enables UPI ID input
+                    }
+                },
                 retry: {
                     enabled: true,
                     max_count: 3
                 },
-                timeout: 300,
+                timeout: 300, // 5 minutes
                 remember_customer: false,
                 readonly: {
                     contact: false,
                     email: false,
                     name: false
-                },
-                hidden: {
-                    contact: false,
-                    email: false
                 },
                 modal: {
                     backdropclose: false,
@@ -138,71 +147,108 @@
                     handleback: true,
                     confirm_close: true,
                     ondismiss: function() {
-                        console.log('Payment modal closed by user');
+                        console.log('Payment modal dismissed by user');
+                        // Handle user cancellation
+                        document.getElementById('paymentButton').disabled = false;
                     },
                     animation: true
+                },
+                // Checkout configuration for domain-specific settings
+                "_": {
+                    "checkout_config": {
+                        "domain": "{{ request.get_host }}"
+                    }
                 }
             };
 
+            // Create Razorpay instance
             const rzp = new Razorpay(options);
             
             // Handle payment failure
             rzp.on('payment.failed', function(response) {
-                console.error('Full Payment error:', response);
-                console.error('Error code:', response.error.code);
-                console.error('Error description:', response.error.description);
-                console.error('Error source:', response.error.source);
-                console.error('Error step:', response.error.step);
-                console.error('Error reason:', response.error.reason);
+                console.error('Payment Failed:', response.error);
                 
-                let errorMsg = 'Payment failed: ' + response.error.description;
+                // Standard error handling
+                let errorMsg = 'Payment failed';
+                if (response.error.description) {
+                    errorMsg += ': ' + response.error.description;
+                }
                 if (response.error.reason) {
                     errorMsg += '\nReason: ' + response.error.reason;
                 }
+                
                 alert(errorMsg);
+                document.getElementById('paymentButton').disabled = false;
             });
             
+            // Open Razorpay checkout modal
             rzp.open();
         });
 
+        // Test payment button (only in debug mode)
+        {% if debug %}
+        document.getElementById('testPaymentButton').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (confirm('🧪 This will simulate a successful payment for testing. Continue?')) {
+                // Simulate successful payment data
+                const testPaymentData = {
+                    razorpay_payment_id: 'pay_test_' + Date.now(),
+                    razorpay_signature: 'test_signature_' + Date.now()
+                };
+                
+                verifyPayment(testPaymentData);
+            }
+        });
+        {% endif %}
+
+        // Standard signature verification function
         function verifyPayment(paymentData) {
             document.getElementById('loading').style.display = 'block';
             document.getElementById('paymentButton').disabled = true;
 
-            const data = {
+            // Prepare data for verification endpoint
+            const verificationData = {
                 razorpay_order_id: '{{ razorpay_order_id }}',
                 razorpay_payment_id: paymentData.razorpay_payment_id,
                 razorpay_signature: paymentData.razorpay_signature
             };
 
+            // Call verify-payment endpoint
             fetch('{% url "verify_payment" %}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCSRFToken()
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(verificationData)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(result => {
                 document.getElementById('loading').style.display = 'none';
                 
                 if (result.success) {
-                    alert('Payment successful! Your property has been registered for approval.');
+                    alert('✅ Payment successful! Your property has been registered for approval.');
                     window.location.href = result.redirect;
                 } else {
-                    alert('Payment verification failed: ' + result.message);
+                    alert('❌ Payment verification failed: ' + result.message);
                     document.getElementById('paymentButton').disabled = false;
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while verifying payment.');
+                console.error('Verification Error:', error);
+                alert('❌ An error occurred while verifying payment. Please try again.');
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('paymentButton').disabled = false;
             });
         }
 
+        // CSRF token helper
         function getCSRFToken() {
             const name = 'csrftoken';
             let cookieValue = null;

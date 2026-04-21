@@ -131,8 +131,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Razorpay Payment Configuration
-RAZORPAY_KEY_ID = 'rzp_test_S9fLenZdpjfCe5'  # Your Razorpay test key
-RAZORPAY_KEY_SECRET = 'zgZONsgaIua7F8zQLKImYs3i'  # Your Razorpay test secret
+RAZORPAY_KEY_ID = 'rzp_test_SgEu94h8dbDaav'  # Your Razorpay test key
+RAZORPAY_KEY_SECRET = 'keecJz4GkIFsN5ONPYWfRfDd'  # Your Razorpay test secret
 RAZORPAY_WEBHOOK_SECRET = ''  # Optional: Add webhook secret from Razorpay dashboard
 PROPERTY_REGISTRATION_FEE = 100  # Amount in INR (e.g., 100 INR)
 

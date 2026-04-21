@@ -1519,10 +1519,27 @@
                 <h1 class="user-name">{{ user.username }}</h1>
             </div>
             <div>
-                <a href="{% url 'add_property' %}" class="btn-primary">
-                    <i class="fas fa-plus"></i>
-                    List New Property
-                </a>
+                {% if can_add_property %}
+                    <a href="{% url 'add_property' %}" class="btn-primary">
+                        <i class="fas fa-plus"></i>
+                        List New Property
+                        {% if remaining_slots > 0 and plan_limit > 0 %}
+                            <span style="font-size: 12px; opacity: 0.8;">({{ remaining_slots }} left)</span>
+                        {% endif %}
+                    </a>
+                {% else %}
+                    <div style="position: relative;">
+                        <button class="btn-primary" style="opacity: 0.6; cursor: not-allowed;" disabled>
+                            <i class="fas fa-lock"></i>
+                            Limit Reached
+                        </button>
+                        <div style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 8px; padding: 12px; background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px; font-size: 12px; color: #dc3545; text-align: center;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Your listing limit is reached ({{ active_listings_count }}/{{ plan_limit }}). 
+                            <a href="{% url 'upgrade_plan' %}" style="color: #dc3545; text-decoration: underline;">Subscribe to a new plan</a>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </section>
